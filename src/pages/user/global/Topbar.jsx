@@ -256,7 +256,7 @@ export default function Topbar({ toggleSidebar }) {
                       <Stack direction="row" spacing={2}>
                         <Avatar
                           onClick={handleClick}
-                          style={{ width: "30px", height: "30px" }}
+                          style={{ width: "30px", height: "30px", color: "white", fontSize: "15px" }}
                           {...stringAvatar(firstName, lastName)}
                         />
                       </Stack>

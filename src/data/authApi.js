@@ -39,7 +39,7 @@ const resetPassword = (id, currentPassword, newPassword, confirmPassword, access
     })
 }
 
-const refeshToken = (refreshToken,accessToken) => {
+const refreshToken = (refreshToken,accessToken) => {
     return axios.get(`http://localhost:5031/api/authenticate/refresh-token?refreshToken=${refreshToken}`, {
          headers: {
             Authorization: `Bearer ${accessToken}`
@@ -63,6 +63,14 @@ const updateUser = (id, firstName, lastName,  code,  phone, location, school,  a
     })
 }
 
+const dashBoard = (year, accessToken) => {
+    return axios.post(`http://localhost:5031/api/admin/user/dashboard?year=${year}`, null, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    })
+}
+
 export {
     getUserByAdmin,
     updateUserByAdmin,
@@ -70,7 +78,8 @@ export {
     checkEmail,
     forgotPassword,
     resetPassword,
-    refeshToken, 
+    refreshToken, 
     getUser,
-    updateUser
+    updateUser,
+    dashBoard
 }

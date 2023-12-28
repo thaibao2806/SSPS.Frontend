@@ -65,7 +65,7 @@ const Login = () => {
     }
 
     if(!email || !password) {
-      setValidated("Cần điền đầy đủ thông tin !")
+      setValidated("Need to fill in all information !");
       return
     } else {
       setValidated("")
@@ -76,7 +76,7 @@ const Login = () => {
 
     if (!passwordPattern.test(password)) {
       setValidatedPassword(
-        "Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, chữ số và ký tự đặc biệt."
+        "Password must contain at least 8 characters, including uppercase letters, lowercase letters, numbers and special characters."
       );
       return;
     } else {
@@ -85,7 +85,7 @@ const Login = () => {
 
     const isEmailValid = email.includes("@");
     if(!isEmailValid) {
-      setValidatedEmail("Email không đúng định dạng!")
+      setValidatedEmail("Email invalidate!");
       return
     } else {
       setValidatedEmail("")
@@ -189,7 +189,7 @@ const Login = () => {
                 />
                 <span
                   className="position-absolute end-0 top-50 translate-middle-y pe-1"
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer", fontSize: "20px" }}
                   // onClick={handleTogglePassword}
                   onClick={() => setIsShowPassword(!isShowPassword)}
                 >

@@ -333,7 +333,7 @@ const Register = () => {
                     />
                     <span
                       className="position-absolute end-0 top-50 translate-middle-y pe-1"
-                      style={{ cursor: "pointer" }}
+                      style={{ cursor: "pointer", fontSize: "20px" }}
                       // onClick={handleTogglePassword}
                       onClick={() => setIsShowPassword(!isShowPassword)}
                     >

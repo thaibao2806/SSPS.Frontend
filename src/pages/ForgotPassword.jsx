@@ -30,8 +30,8 @@ const ForgotPassword = () => {
     displayThemeButtons()
   }, []); 
 
-  const handleSubmit = async () => {
-
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     if (!confirmPassword || !password) {
       setValidated("Need to fill in all information !");
       return;
@@ -44,7 +44,7 @@ const ForgotPassword = () => {
 
     if (!passwordPattern.test(password)) {
       setValidatedPassword(
-        "Password must contain at least 8 characters, including uppercase letters, lowercase letters, numbers and special characters."
+        "Password must contain at least 8 characters, including [A-Z], [a-z], [0-9], [@, #,..]"
       );
       return;
     } else {
@@ -58,7 +58,7 @@ const ForgotPassword = () => {
     }
 
     let res = await forgotPassword(token, password, confirmPassword)
-    if(res && res.status === 200) {
+    if(res && res.data.msgCode === "SUCCESS") {
       navigate("/login")
     } 
 
@@ -134,18 +134,33 @@ const ForgotPassword = () => {
               alt="illustration"
               className="illustration"
             />
-            <h1 className="opacity">Reset Password</h1>
-            <span className="text-danger">{validated}</span>
+            <h1 className="opacity">FORGOT PASSWORD</h1>
+            <span className="text-danger">
+              {validated || validatedPassword || validatedConfirmPassword}
+            </span>
             <form>
-              <input
-                type="password"
-                value={password}
-                placeholder="Password"
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={handlePressEnter}
-              />
-              {/* <span className="text-danger">{validatedEmail}</span> */}
-
+              <div className="position-relative w-100">
+                <input
+                  type={isShowPassword ? "text" : "password"}
+                  value={password}
+                  placeholder="Password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={handlePressEnter}
+                />
+                <span
+                  className="position-absolute end-0 top-50 translate-middle-y pe-1"
+                  style={{ cursor: "pointer", fontSize: "20px" }}
+                  // onClick={handleTogglePassword}
+                  onClick={() => setIsShowPassword(!isShowPassword)}
+                >
+                  {isShowPassword === true ? (
+                    <AiFillEye className="icon-eye" />
+                  ) : (
+                    <AiFillEyeInvisible className="icon-eye" />
+                  )}
+                </span>
+                {/* <span className="text-danger">{validatedPassword}</span> */}
+              </div>
               <input
                 type="password"
                 value={confirmPassword}

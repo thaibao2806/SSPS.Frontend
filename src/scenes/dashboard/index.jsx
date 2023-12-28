@@ -3,19 +3,114 @@ import { tokens } from "../../theme";
 import { mockTransactions } from "../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
+import PersonIcon from "@mui/icons-material/Person";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
+import FormatListNumberedRtlIcon from "@mui/icons-material/FormatListNumberedRtl";
 import Header from "../../components/admin/Header";
-import LineChart from "../../components/admin/LineChart";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import GeographyChart from "../../components/admin/GeographyChart";
 import BarChart from "../../components/admin/BarChart";
 import StatBox from "../../components/admin/StatBox";
 import ProgressCircle from "../../components/admin/ProgressCircle";
+import { useEffect, useState } from "react";
+import { dashBoard, getUserByAdmin } from "../../data/authApi";
+import jwt_decode from "jwt-decode"; 
+import { useSelector } from "react-redux";
+import { mockBarData as data } from "../../data/mockData";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import { format } from "date-fns";
+
 
 const Dashboard = () => {
   const theme = useTheme();
+  const user = useSelector((state) => state.auth.login?.currentUser);
+  const [userData, setUserData] = useState(null)
+  const [totalUser, setTotalUser] = useState(0)
+  const [totalNewUsers, setTotalNewUsers] = useState([])
+  const [totalNotes, setTotalNotes] = useState([])
+  const [totalMoneyPlans, setTotalMoneyPlans] = useState([])
+  const [resultArray, setResultArray] = useState([]);
+  const [year, setYear] = useState(new Date())
   const colors = tokens(theme.palette.mode);
+  useEffect(() => {
+    getUser()
+    dataDashBoard()
+  }, [year])
+  useEffect(() => {
+    barData();
+  }, [totalMoneyPlans, totalNewUsers, totalNotes])
+
+  const getUser = async() => {
+    let res = await getUserByAdmin(1, 20, user.data?.accessToken);
+    if (res && res.data.msgCode === "SUCCESS") {
+      setUserData(res.data.data);
+    }
+  }
+
+  const dataDashBoard = async() => {
+    console.log("year", year)
+    const yearFilter = format(year, "yyyy");
+    let res = await dashBoard(yearFilter, user.data?.accessToken);
+    if(res && res.data.msgCode === "SUCCESS") {
+      setTotalUser(res.data.data?.amountOfUser);
+      setTotalNewUsers(res.data.data?.amountOfNewUser);
+      setTotalNotes(res.data.data?.amountOfNote);
+      setTotalMoneyPlans(res.data.data?.amountOfMoneyPlan);
+    }
+  }
+
+  const totalNewUser = () => {
+    let sum = 0
+    for (let i = 0; i < totalNewUsers?.length; i++) {
+      sum += totalNewUsers[i];
+    }
+    return sum
+  }
+
+  const totalNote = () => {
+    let sum = 0;
+    for (let i = 0; i < totalNotes?.length; i++) {
+      sum += totalNotes[i];
+    }
+    return sum;
+  };
+
+  const totalMoneyPlan = () => {
+    let sum = 0;
+    for (let i = 0; i < totalMoneyPlans?.length; i++) {
+      sum += totalMoneyPlans[i];
+    }
+    return sum;
+  };
+
+  const barData = () => {
+     const months = [
+       "Jan",
+       "Feb",
+       "Mar",
+       "Apr",
+       "May",
+       "Jun",
+       "Jul",
+       "Aug",
+       "Sep",
+       "Oct",
+       "Nov",
+       "Dec",
+     ];
+     const newArray = months.map((month, index) => ({
+       country: month,
+       "New users": totalNewUsers[index],
+       "New usersColor": `hsl(${index * 30 + 229}, 70%, 50%)`,
+       "New notes": totalNotes[index],
+       "New notesColor": `hsl(${index * 30 + 296}, 70%, 50%)`,
+       "New moneyPlans": totalMoneyPlans[index],
+       "New moneyPlansColor": `hsl(${index * 30 + 97}, 70%, 50%)`,
+     }));
+     setResultArray(newArray)
+  }
 
   return (
     <Box m="20px">
@@ -24,18 +119,14 @@ const Dashboard = () => {
         <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
 
         <Box>
-          <Button
-            sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-          >
-            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-            Download Reports
-          </Button>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              views={["year"]}
+              label="Year"
+              value={dayjs(year)}
+              onChange={(newValue) => setYear(new Date(newValue))}
+            />
+          </LocalizationProvider>
         </Box>
       </Box>
 
@@ -55,12 +146,12 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="12,361"
-            subtitle="Emails Sent"
-            progress="0.75"
-            increase="+14%"
+            title={totalUser}
+            subtitle="Total users"
+            progress="1"
+            increase="+100%"
             icon={
-              <EmailIcon
+              <PersonIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
@@ -74,29 +165,10 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="431,225"
-            subtitle="Sales Obtained"
-            progress="0.50"
-            increase="+21%"
-            icon={
-              <PointOfSaleIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="32,441"
-            subtitle="New Clients"
-            progress="0.30"
-            increase="+5%"
+            title={totalNewUser()}
+            subtitle="New users"
+            progress="1"
+            increase="+100%"
             icon={
               <PersonAddIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -112,12 +184,31 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
-            progress="0.80"
-            increase="+43%"
+            title={totalNote()}
+            subtitle="Total notes"
+            progress="1"
+            increase="+100%"
             icon={
-              <TrafficIcon
+              <FormatListNumberedRtlIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+              />
+            }
+          />
+        </Box>
+        <Box
+          gridColumn="span 3"
+          backgroundColor={colors.primary[400]}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <StatBox
+            title={totalMoneyPlan()}
+            subtitle="Total moneyplans"
+            progress="1"
+            increase="+100%"
+            icon={
+              <CalendarMonthIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
@@ -128,6 +219,7 @@ const Dashboard = () => {
         <Box
           gridColumn="span 8"
           gridRow="span 2"
+          height="370px"
           backgroundColor={colors.primary[400]}
         >
           <Box
@@ -143,26 +235,26 @@ const Dashboard = () => {
                 fontWeight="600"
                 color={colors.grey[100]}
               >
-                Revenue Generated
+                Total number of users
               </Typography>
               <Typography
                 variant="h3"
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                $59,342.32
+                {totalUser} user
               </Typography>
             </Box>
             <Box>
               <IconButton>
-                <DownloadOutlinedIcon
+                {/* <DownloadOutlinedIcon
                   sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-                />
+                /> */}
               </IconButton>
             </Box>
           </Box>
-          <Box height="250px" m="-20px 0 0 0">
-            <LineChart isDashboard={true} />
+          <Box height="320px" m="-20px 0 0 0">
+            <BarChart isDashboard={true} data={resultArray} />
           </Box>
         </Box>
         <Box
@@ -170,6 +262,7 @@ const Dashboard = () => {
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           overflow="auto"
+          height="370px"
         >
           <Box
             display="flex"
@@ -180,12 +273,12 @@ const Dashboard = () => {
             p="15px"
           >
             <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
-              Recent Transactions
+              Recent users
             </Typography>
           </Box>
-          {mockTransactions.map((transaction, i) => (
+          {userData?.map((item, index) => (
             <Box
-              key={`${transaction.txId}-${i}`}
+              key={`${index}-${item.id}`}
               display="flex"
               justifyContent="space-between"
               alignItems="center"
@@ -198,19 +291,17 @@ const Dashboard = () => {
                   variant="h5"
                   fontWeight="600"
                 >
-                  {transaction.txId}
+                  {item.firstName} {item.lastName}
                 </Typography>
-                <Typography color={colors.grey[100]}>
-                  {transaction.user}
-                </Typography>
+                <Typography color={colors.grey[100]}>{item.code}</Typography>
               </Box>
-              <Box color={colors.grey[100]}>{transaction.date}</Box>
+              <Box color={colors.grey[100]}>{item.phone}</Box>
               <Box
                 backgroundColor={colors.greenAccent[500]}
                 p="5px 10px"
                 borderRadius="4px"
               >
-                ${transaction.cost}
+                {item.status}
               </Box>
             </Box>
           ))}

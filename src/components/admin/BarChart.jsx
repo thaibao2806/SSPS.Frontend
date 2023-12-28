@@ -1,9 +1,8 @@
 import { useTheme } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import { tokens } from "../../theme";
-import { mockBarData as data } from "../../data/mockData";
 
-const BarChart = ({ isDashboard = false }) => {
+const BarChart = ({ isDashboard = false, data }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -39,9 +38,9 @@ const BarChart = ({ isDashboard = false }) => {
           },
         },
       }}
-      keys={["hot dog", "burger", "sandwich", "kebab", "fries", "donut"]}
+      keys={["New users", "New notes", "New moneyPlans"]}
       indexBy="country"
-      margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+      margin={{ top: 50, right: 140, bottom: 50, left: 60 }}
       padding={0.3}
       valueScale={{ type: "linear" }}
       indexScale={{ type: "band", round: true }}
@@ -95,6 +94,24 @@ const BarChart = ({ isDashboard = false }) => {
         from: "color",
         modifiers: [["darker", 1.6]],
       }}
+      tooltip={({ id, value, color }) => (
+        <strong
+          style={{
+            background: "#ffff",
+            borderRadius: "5px",
+            padding: "5px 5px",
+            display:"flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ marginRight: "5px", width:"10px", height: "10px", background: color }}></div>
+          <div style={{color: "black"}}>
+            {" "}
+            {id}: {value}{" "}
+          </div>
+        </strong>
+      )}
       legends={[
         {
           dataFrom: "keys",

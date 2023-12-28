@@ -79,6 +79,27 @@ export const registerUser  = async(user, dispatch, navigate) => {
 }
 }
 
+export const createUser  = async(user, dispatch) => {
+    dispatch(registerStart())
+    try {
+    let res = await axios.post("http://localhost:5031/api/authenticate/register", user);
+    if(res && res.status === 200) {
+        if(res.data.msgCode === "REGISTER_FAILED" && res.data.msgDesc === "Email was exist") {
+            dispatch(registerFailed("Email already exists"))
+            return "Email already exists"
+        } else {
+            dispatch(registerSuccess());
+            toast.success("Create success")
+            return null;
+        }
+    }
+    return null // Trả về null khi không có lỗi
+} catch (error) {
+    dispatch(registerFailed(error.response.data.message));
+    return error.response.data.message; // Trả về thông báo lỗi khi có lỗi
+}
+}
+
 export const logOutAdmin = (dispatch, navigate) => {
     dispatch(logOut(null))
     toast.success("Logout success")

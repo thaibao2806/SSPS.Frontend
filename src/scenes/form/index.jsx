@@ -5,7 +5,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/admin/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "../../redux/apiRequest";
+import { createUser, registerUser } from "../../redux/apiRequest";
 import { useState } from "react";
 
 const Form = () => {
@@ -29,7 +29,48 @@ const Form = () => {
   const [school, setSchool] = useState("");
 
   const handleFormSubmit = async(values) => {
-    console.log(values);
+    values.preventDefault()
+    if(!code || !fistName || !email || !password || !phone || !location || !school) {
+      setValidated("Need to fill in all information!");
+      return
+    } else {
+      setValidated("")
+    }
+
+    const phonePattern = /^0\d{9}$/;
+    if (!phonePattern.test(phone)) {
+      setValidatedPhone("The phone number is not in the correct format");
+      return;
+    } else {
+      setValidatedPhone("");
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\..+$/;
+    if (!emailRegex.test(email)) {
+      setValidatedEmail("Email invalidate!");
+      return;
+    } else {
+      setValidatedEmail("");
+    }
+
+    const passwordPattern =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/;
+
+    if (!passwordPattern.test(password)) {
+      setValidatedPassword(
+        "Password must contain at least 8 characters, including uppercase letters, lowercase letters, numbers and special characters."
+      );
+      return;
+    } else {
+      setValidatedPassword("");
+    }
+
+    if (confirmPassword !== password) {
+      setValidatedConPass("Re-entered password is incorrect");
+      return;
+    } else {
+      setValidatedConPass("");
+    }
     const user = {
       code: code,
       firstName: fistName,
@@ -42,18 +83,18 @@ const Form = () => {
       location: location,
     };
 
-    const res = await registerUser(user, dispatch, navigate);
+    const res = await createUser(user, dispatch);
     setValidated(res || error);
   };
 
   return (
     <Box m="20px">
       <Header title="CREATE USER" subtitle="Create a New User Profile" />
-
+      <p className="text-danger">{validated || validatedConPass || validatedEmail || validatedPassword || validatedPhone}</p>
       <Formik
         onSubmit={handleFormSubmit}
-        initialValues={initialValues}
-        validationSchema={checkoutSchema}
+        // initialValues={initialValues}
+        // validationSchema={checkoutSchema}
       >
         {({
           // errors,
@@ -177,7 +218,7 @@ const Form = () => {
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button onClick={handleFormSubmit} color="secondary" variant="contained">
-                Create New User
+                Add
               </Button>
             </Box>
           </form>

@@ -342,6 +342,7 @@ const BoardPage = () => {
 
           const handleUpdateColumn = async(id,title, fromDate, toDate, color,cards) => {
             try {
+              
               let res = await updateTodoNote(
                 id,
                 title,

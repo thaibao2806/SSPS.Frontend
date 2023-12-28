@@ -140,9 +140,11 @@ const Calendar = () => {
   const [validateCategory, setValidateCategory] = useState("");
   const [validateNote, setValidateNote] = useState("")
   const [isPopoverNote, setIsPopoverNote] = useState(false);
+  const [login, setLogin] = useState(false)
   const calendarRef = useRef(null);
   const mock = mockEventData
   const [isDelete, setIsDelete] = useState(false)
+  const [showConfirmation, setShowConfirmation] = useState(true);
 
   // const hd = new holidays('VN')
   // const holiday = hd.getHolidays()
@@ -403,6 +405,10 @@ const Calendar = () => {
   }
 
   const handleCreatePlan = () => {
+    if (!user?.data) {
+      setLogin(true)
+      return;
+    }
     openCreateDialog()
   }
 
@@ -491,6 +497,9 @@ const Calendar = () => {
       );
       setActualAmount(totalActual);
     }
+    if(totalAmountInBoxes > totalAmount) {
+      setShowConfirmation(true)
+    }
     setTotalAmountInBoxes(total);
   };
 
@@ -498,8 +507,10 @@ const Calendar = () => {
     totalAmountText();
   }, [selectedStartDay, selectedEndDay, selectedYear, selectedMonth]);
 
-  const errorText =
-    totalAmountInBoxes > totalAmount ? "Total amount exceeded" : "";
+  // const errorText =
+  //   totalAmountInBoxes > totalAmount
+  //     ? setTotalSuggest(true)
+  //     : setTotalSuggest(false);
 
   const totalAmountText = () => {
     if (timeFrame === "YEAR") {
@@ -819,13 +830,13 @@ const Calendar = () => {
     } catch (error) {
       if (error.response.status === 401) {
         console.log(401);
-        const timeoutDelay = 5000; 
+        // const timeoutDelay = 5000; 
 
-        toast.warning("Session expired. Logging out in 5 seconds.");
+        // toast.warning("Session expired. Logging out in 5 seconds.");
 
-        setTimeout(() => {
-          logOutUser(dispatch, navigate);
-        }, timeoutDelay);
+        // setTimeout(() => {
+        //   logOutUser(dispatch, navigate);
+        // }, timeoutDelay);
       }
     }
   };
@@ -1061,6 +1072,10 @@ const Calendar = () => {
 
   const handleAddNote = async() => {
     try {
+    if (!user?.data) {
+      setLogin(true)
+      return;
+    }
       let title = eventTitle;
       let color = selectedColor?.hex;
       let fromDate = format(dayStart, "yyyy-MM-dd");
@@ -1347,8 +1362,12 @@ const Calendar = () => {
 
   const handleDeleteNoteCancel = () => {
     setIsPopoverNote(false)
+    setLogin(false)
   }
 
+  const handleLogin = () => {
+   navigate("/login");
+  }
 
   return (
     <Box m="10px 35px 0 35px">
@@ -1460,7 +1479,7 @@ const Calendar = () => {
 
           <List
             sx={{
-              height: "340px",
+              height: "335px",
               overflow: "auto",
             }}
           >
@@ -1485,7 +1504,7 @@ const Calendar = () => {
         <Box flex="1 1 100%" ml="20px">
           <FullCalendar
             ref={calendarRef}
-            height="85vh"
+            height="87vh"
             plugins={[
               dayGridPlugin,
               timeGridPlugin,
@@ -1757,7 +1776,34 @@ const Calendar = () => {
             </Button>
           </Box>
 
-          {errorText && <p style={{ color: "red" }}>{errorText}</p>}
+          {/* {errorText && totalSuggest ? <p style={{ color: "red" }}>{errorText} aaaa</p> : ""} */}
+          {showConfirmation && totalAmountInBoxes > totalAmount && (
+            <div style={{ display: "flex" }}>
+              <p style={{ color: "red", marginRight: "10px" }}>
+                The total amount has exceeded the limit, do you want to update
+                the total amount?
+              </p>
+              <div>
+                <Button
+                  variant="outlined"
+                  color="success"
+                  size="small"
+                  style={{ marginRight: "10px" }}
+                  onClick={() => setTotalAmount(totalAmountInBoxes)}
+                >
+                  Yes
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  onClick={() => setShowConfirmation(false)}
+                >
+                  No
+                </Button>
+              </div>
+            </div>
+          )}
 
           {Array.from({ length: boxCount }).map((_, index) => (
             <Box
@@ -1881,7 +1927,7 @@ const Calendar = () => {
           <DialogActions>
             <Button
               onClick={handleDeleteCancel}
-              style={{ backgroundColor: "red", color: "white" }}
+              style={{ backgroundColor: "#0487D9", color: "white" }}
               color="primary"
             >
               Cancel
@@ -1889,10 +1935,10 @@ const Calendar = () => {
             <Button
               onClick={handleDeleteConfirm}
               color="primary"
-              style={{ backgroundColor: "#0487D9", color: "white" }}
+              style={{ backgroundColor: "red", color: "white" }}
               autoFocus
             >
-              OK
+              Delete
             </Button>
           </DialogActions>
         </Box>
@@ -1924,7 +1970,7 @@ const Calendar = () => {
           <Box display="flex" pt={1.5}>
             <div style={{ marginRight: "10px", marginTop: "8px" }}>
               {allDay ? (
-                <div style={{display: "flex"}}>
+                <div style={{ display: "flex" }}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
@@ -1932,7 +1978,7 @@ const Calendar = () => {
                       onChange={(newValue) => setDayStart(new Date(newValue))}
                     />
                   </LocalizationProvider>
-                  <div style={{ marginLeft: "10px"}}>
+                  <div style={{ marginLeft: "10px" }}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
                         label="End Date"
@@ -2079,7 +2125,7 @@ const Calendar = () => {
           <DialogActions>
             <Button
               onClick={handleDeleteNoteCancel}
-              style={{ backgroundColor: "red", color: "white" }}
+              style={{ backgroundColor: "#0487D9", color: "white" }}
               color="primary"
             >
               Cancel
@@ -2087,10 +2133,42 @@ const Calendar = () => {
             <Button
               onClick={handleDeleteNote}
               color="primary"
+              style={{ backgroundColor: "red", color: "white" }}
+              autoFocus
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
+      <Dialog maxWidth="sm" open={login} onClose={handleDeleteCancel}>
+        <Box p={2}>
+          <Typography
+            variant="h3"
+            style={{ marginBottom: "10px", fontWeight: "500" }}
+          >
+            SSPS
+          </Typography>
+          <DialogContent>
+            <DialogContentText>
+              You need to log in to perform the operation!!
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleDeleteNoteCancel}
+              style={{ backgroundColor: "red", color: "white" }}
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleLogin}
+              color="primary"
               style={{ backgroundColor: "#0487D9", color: "white" }}
               autoFocus
             >
-              OK
+              Login
             </Button>
           </DialogActions>
         </Box>

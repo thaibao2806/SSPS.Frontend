@@ -5,20 +5,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/apiRequest";
 import { resetPassword } from "../data/authApi";
+import { AiFillEyeInvisible } from "react-icons/ai";
+import { AiFillEye } from "react-icons/ai";
 import jwt_decode from "jwt-decode"; 
 import "./login.css";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [validatedEmail, setValidatedEmail] = useState("");
-  const [validatedPassword, setValidatedPassword] = useState("");
   const [validatedConfirmPassword, setValidatedConfirmPassword] = useState("");
   const [validated, setValidated] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [id, setId] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isShowNewPassword, setIsShowNewPassword] = useState(false);
   const user = useSelector((state) => state.auth.login?.currentUser);
 
   useEffect(() => {
@@ -32,7 +33,8 @@ const ResetPassword = () => {
   }, []);
 
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     if (!currentPassword || !password || !confirmPassword) {
       setValidated("Need to fill in all information !");
       return;
@@ -43,9 +45,9 @@ const ResetPassword = () => {
     const passwordPattern =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/;
 
-    if (!passwordPattern.test(password) && !passwordPattern.test(currentPassword) && !passwordPattern.test(confirmPassword)) {
+    if (!passwordPattern.test(password) || !passwordPattern.test(currentPassword) || !passwordPattern.test(confirmPassword)) {
       setValidated(
-        "Password must contain at least 8 characters, including uppercase letters, lowercase letters, numbers and special characters."
+        "Password must contain at least 8 characters, including including [A-Z], [a-z], [0-9], [@, #,..]"
       );
       return;
     } else {
@@ -74,8 +76,6 @@ const ResetPassword = () => {
     else {
       setValidated(res.data.msgDesc);
     }
-
-    console.log(res);
   };
 
   const handlePressEnter = (e) => {
@@ -151,23 +151,50 @@ const ResetPassword = () => {
             <h1 className="opacity">RESET PASSWORD</h1>
             <span className="text-danger">{validated}</span>
             <form>
-              <input
-                type="password"
-                placeholder="Enter current password"
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                onKeyDown={handlePressEnter}
-              />
+              <div className="position-relative w-100">
+                <input
+                  type={isShowPassword ? "text" : "password"}
+                  placeholder="Enter current password"
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  onKeyDown={handlePressEnter}
+                />
+                <span
+                  className="position-absolute end-0 top-50 translate-middle-y pe-1"
+                  style={{ cursor: "pointer", fontSize: "20px" }}
+                  // onClick={handleTogglePassword}
+                  onClick={() => setIsShowPassword(!isShowPassword)}
+                >
+                  {isShowPassword === true ? (
+                    <AiFillEye className="icon-eye" />
+                  ) : (
+                    <AiFillEyeInvisible className="icon-eye" />
+                  )}
+                </span>
+              </div>
+              <div className="position-relative w-100">
+                <input
+                  type={isShowNewPassword ? "text" : "password"}
+                  placeholder="Enter your new password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={handlePressEnter}
+                />
+                <span
+                  className="position-absolute end-0 top-50 translate-middle-y pe-1"
+                  style={{ cursor: "pointer", fontSize: "20px" }}
+                  // onClick={handleTogglePassword}
+                  onClick={() => setIsShowNewPassword(!isShowNewPassword)}
+                >
+                  {isShowNewPassword === true ? (
+                    <AiFillEye className="icon-eye" />
+                  ) : (
+                    <AiFillEyeInvisible className="icon-eye" />
+                  )}
+                </span>
+              </div>
 
               <input
                 type="password"
-                placeholder="Enter your new password"
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={handlePressEnter}
-              />
-
-              <input
-                type="password"
-                placeholder="Enter the password"
+                placeholder="Confirm password"
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onKeyDown={handlePressEnter}
               />

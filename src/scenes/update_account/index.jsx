@@ -55,8 +55,36 @@ const Form = () => {
     }
   }
 
-  const handleFormSubmit = async() => {
+  const handleFormSubmit = async(e) => {
+    e.preventDefault()
+    if (
+      !code ||
+      !fistName ||
+      !email ||
+      !phone ||
+      !location ||
+      !school
+    ) {
+      setValidated("Need to fill in all information!");
+      return;
+    } else {
+      setValidated("");
+    }
+    const phonePattern = /^0\d{9}$/;
+    if (!phonePattern.test(phone)) {
+      setValidatedPhone("The phone number is not in the correct format");
+      return;
+    } else {
+      setValidatedPhone("");
+    }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\..+$/;
+    if (!emailRegex.test(email)) {
+      setValidatedEmail("Email invalidate!");
+      return;
+    } else {
+      setValidatedEmail("");
+    }
     const res = await updateUserByAdmin(
       id,
       fistName,
@@ -77,11 +105,11 @@ const Form = () => {
   return (
     <Box m="20px">
       <Header title="UPDATE ACCOUNT" subtitle="Update User Profile" />
-
+      <p className="text-danger">{validated || validatedConPass || validatedEmail || validatedPhone}</p>
       <Formik
         onSubmit={handleFormSubmit}
-        initialValues={initialValues}
-        validationSchema={checkoutSchema}
+        // initialValues={initialValues}
+        // validationSchema={checkoutSchema}
       >
         {({
           // errors,
