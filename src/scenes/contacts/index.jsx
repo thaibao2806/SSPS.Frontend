@@ -110,7 +110,7 @@ const Contacts = () => {
 
   const getUser = async() => {
     try {
-      let res = await getUserByAdmin(1, 10, user.data.accessToken);
+      let res = await getUserByAdmin(1, 20, user.data.accessToken);
       if (res && res.status === 200) {
         setRows(res.data?.data);
         console.log(res.data.data);

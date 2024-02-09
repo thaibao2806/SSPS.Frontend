@@ -1,0 +1,130 @@
+.fc-daygrid-day-number {
+    text-align: center;
+  }
+
+.fc .fc-daygrid-day-top {
+    display: flex;
+    align-items: center;
+    flex-direction: column-reverse;
+}
+
+.fc .fc-timegrid-slot {
+    border-bottom: 0px;
+    height: 2.5em;
+}
+
+.fc .fc-daygrid-body-unbalanced .fc-daygrid-day-events {
+    min-height: 4em;
+    position: relative;
+}
+
+.fc-direction-ltr .fc-timegrid-slot-label-frame {
+    text-align: center;
+    font-size: 14px;
+}
+
+  /* Tùy chỉnh kích thước chữ trong các sự kiện */
+  .fc-event-title {
+    font-size: 13px; /* Điều chỉnh kích thước chữ theo ý muốn */
+    font-weight: 500;
+  }
+  
+  /* Tùy chỉnh khoảng cách giữa các thời gian */
+  .fc-time-grid-container {
+    padding-top: 20px; /* Điều chỉnh khoảng cách theo ý muốn */
+  }
+
+  .fc .fc-col-header-cell-cushion {
+    display: inline-block;
+    padding: 2px 4px;
+    text-decoration: none;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 0.5em;
+}
+
+.fc .fc-button-primary {
+    background-color: #ffff;
+    border-color: #000000;
+    color: #000000;
+}
+
+.fc .fc-button-primary:disabled {
+    background-color: var(--fc-button-bg-color);
+    border-color: var(--fc-button-border-color);
+    color: var(--fc-button-text-color);
+}
+
+/* .fc .fc-button-primary:hover {
+    background-color: #cccc;
+    border-color: #000000;
+    color: #000000;
+} */
+
+button-primary:not(:disabled):active {
+    background-color: #cccc;
+    border-color: #000000;
+    color: #000000;
+}
+
+.fc .fc-button-primary:focus {
+    /* box-shadow: rgba(76, 91, 106, 0.5) 0px 0px 0px 0.2rem; */
+    box-shadow: none;
+}
+
+.fc-multimonth-month {
+    width: 100% ;
+}
+
+.fc .fc-daygrid-more-link {
+    border-radius: 3px;
+    cursor: pointer;
+    line-height: 1;
+    margin-top: 1px;
+    max-width: 100%;
+    overflow: hidden;
+    padding: 2px;
+    position: relative;
+    white-space: nowrap;
+    z-index: 4;
+    text-decoration: none;
+    font-weight: 600;
+    width: 100%;
+}
+
+.fc-theme-standard .fc-popover-header {
+    background: var(--fc-neutral-bg-color);
+    color: black;
+}
+
+.fc-timegrid-event .fc-event-main {
+    padding: 0px 0px 0px;
+}
+
+.fc-timegrid-event .fc-event-time {
+    font-size: 8px;
+    margin-bottom: 1px;
+    white-space: nowrap;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+    background-color: rgba(255, 219, 40, 0.149);
+}
+
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-top {
+    border-radius: 50%;
+    width: 30px;
+    margin: 3px auto;
+    background-color: rgba(255, 219, 40, 0.701);
+
+}
+
+.fc .fc-daygrid-day-top {
+    display: flex;
+    align-items: center;
+    flex-direction: column-reverse;
+    margin: 3px auto;
+}
+
+

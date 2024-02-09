@@ -65,12 +65,6 @@ const Form = () => {
       setValidatedPassword("");
     }
 
-    if (confirmPassword !== password) {
-      setValidatedConPass("Re-entered password is incorrect");
-      return;
-    } else {
-      setValidatedConPass("");
-    }
     const user = {
       code: code,
       firstName: fistName,

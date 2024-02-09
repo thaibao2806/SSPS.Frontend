@@ -31,7 +31,6 @@ const Form = () => {
   useEffect(() => {
     if (user) {
       const decode = jwt_decode(user?.data.accessToken);
-      console.log(decode?.firstName);
       setId(decode?.id);
       // setLastName(decode?.lastName);
     }
@@ -93,7 +92,7 @@ const Form = () => {
       phone,
       location,
       school,
-      user.data.accessToken
+      user.data?.accessToken
     );
     if(res && res.status === 200) {
       toast.success("Update sucess!!")

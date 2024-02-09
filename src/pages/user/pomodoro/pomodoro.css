@@ -1,0 +1,93 @@
+.title {
+    text-align: center;
+    font-weight: 600;
+}
+
+.tag-container {
+    background: #ccc;
+    height: 3rem;
+    width: 20rem;
+    margin: 0 auto;
+    border-radius: 5rem;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.btn-tags {
+    all:unset;
+    flex: 1;
+    text-align: center;
+    border-radius: 2rem;
+    height: 2.5rem;
+    font-size: 1rem;
+
+}
+
+.btn-tags.selected {
+    background: #b85600;
+    /* Màu sáng khi được chọn */
+    color: #ffffff; /* Màu chữ khi được chọn */
+  }
+
+.timer-container {
+    width: 25rem;
+    height: 25rem;
+    margin: 1rem auto;
+    border-radius: 50%;
+    background: #ccc;
+    display: grid;
+    place-items: center;
+}
+
+.outer-circle {
+    width: 23rem;
+    height: 23rem;
+    margin: 1rem auto;
+    border-radius: 50%;
+    background: #ec8d27;
+    display: grid;
+    place-items: center;
+    background: conic-gradient(red 100%, transparent 100% );
+}
+
+.inner-circle {
+    width: 21rem;
+    height: 21rem;
+    margin: 1rem auto;
+    border-radius: 50%;
+    background: #ccc;
+}
+
+.timer-text {
+    text-align: center;
+    font-size: 6rem;
+    margin-top: 70px;
+}
+
+.timer-text-btn {
+    text-align: center;
+    font-size: 4rem;
+    margin-top: 10px;
+}
+
+.clock-container {
+}
+
+.clock-container:hover{
+    cursor: pointer;
+}
+
+.icons {
+    text-align: center;
+
+}
+
+.icons:hover {
+    cursor: pointer;
+
+}
+
+.icon-btn {
+    font-size: xxx-large;
+}

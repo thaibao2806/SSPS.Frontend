@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
@@ -34,7 +34,19 @@ import { Button, MenuItem, Popover } from "@mui/material";
 import jwt_decode from "jwt-decode";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
-
+import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
+import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import InsertChartOutlinedIcon from '@mui/icons-material/InsertChartOutlined';
+import Logo from "../../../assets/logo.png"
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import DrawerComp from "./Drawer";
+import AppBar from '@mui/material/AppBar';
+import {
+  useMediaQuery,
+} from "@mui/material";
+import Tooltip from "@mui/material/Tooltip";
 
 const drawerWidth = 240;
 
@@ -76,22 +88,22 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
   );
 };
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  transition: theme.transitions.create(["margin", "width"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
+// const AppBar = styled(MuiAppBar, {
+//   shouldForwardProp: (prop) => prop !== "open",
+// })(({ theme, open }) => ({
+//   transition: theme.transitions.create(["margin", "width"], {
+//     easing: theme.transitions.easing.sharp,
+//     duration: theme.transitions.duration.leavingScreen,
+//   }),
+//   ...(open && {
+//     width: `calc(100% - ${drawerWidth}px)`,
+//     marginLeft: `${drawerWidth}px`,
+//     transition: theme.transitions.create(["margin", "width"], {
+//       easing: theme.transitions.easing.easeOut,
+//       duration: theme.transitions.duration.enteringScreen,
+//     }),
+//   }),
+// }));
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -104,6 +116,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 export default function Topbar({ toggleSidebar }) {
   const theme = useTheme();
+  const [value, setValue] = useState(0);
   const [open, setOpen] = React.useState(false);
   const colors = tokens(theme.palette.mode);
   const colorMode = React.useContext(ColorModeContext);
@@ -111,6 +124,7 @@ export default function Topbar({ toggleSidebar }) {
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
   const [selected, setSelected] = React.useState("Dashboard");
+  const isMatch = useMediaQuery(theme.breakpoints.down("md"));
   const user = useSelector((state) => state.auth.login?.currentUser);
   React.useEffect(() => {
     if (user) {
@@ -183,10 +197,11 @@ export default function Topbar({ toggleSidebar }) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+  
 
   return (
     <Box sx={{ display: "flex" }}>
-      <CssBaseline />
+      {/* <CssBaseline />
       <AppBar
         position="fixed"
         open={open}
@@ -200,44 +215,71 @@ export default function Topbar({ toggleSidebar }) {
             justifyContent: "space-between ",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent:"center" }}>
+            <img src={Logo} alt="SSPS" width="50px" height="50px" />
+            <h4 style={{color: colors.grey[100], marginTop:"10px", borderRadius:"10px"}}>SSPS</h4>
+          </Box>
+          <Box>
+          <IconButton
               color="inherit"
               aria-label="open drawer"
-              // onClick={toggleSidebar}
               edge="start"
-              sx={{ mr: 1, ...(open && { display: "none" }) }}
+              sx={{ mr: 8, ...(open && { display: "none" }) }}
             >
-              <MenuIcon
+              <HomeOutlinedIcon
                 style={{
+                  fontSize: "30px",
                   color: colors.grey[100],
                 }}
               />
             </IconButton>
-            <Typography
-              variant="h3"
-              style={{ fontWeight: "500" }}
-              noWrap
-              component="div"
-              color={colors.grey[100]}
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              sx={{ mr: 8, ...(open && { display: "none" }) }}
             >
-              SSPS
-            </Typography>
+              <InsertChartOutlinedIcon
+                style={{
+                  fontSize: "30px",
+                  color: colors.grey[100],
+                }}
+              />
+            </IconButton>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              sx={{ mr: 8, ...(open && { display: "none" }) }}
+            >
+              <FormatListBulletedIcon
+                style={{
+                  fontSize: "30px",
+                  color: colors.grey[100],
+                }}
+              />
+            </IconButton>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              sx={{ mr: 8, ...(open && { display: "none" }) }}
+            >
+              <HelpOutlineOutlinedIcon
+                style={{
+                  fontSize: "30px",
+                  color: colors.grey[100],
+                }}
+              />
+            </IconButton>
           </Box>
           <Box display="flex" justifyContent="space-between" p={0}>
-            {/* SEARCH BAR */}
             <Box
               display="flex"
               backgroundColor={colors.primary[400]}
               borderRadius="3px"
             >
-              {/* <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
-        <IconButton type="button" sx={{ p: 1 }}>
-          <SearchIcon />
-        </IconButton> */}
             </Box>
-
-            {/* ICONS */}
             <Box display="flex">
               <IconButton onClick={colorMode.toggleColorMode}>
                 {theme.palette.mode === "dark" ? (
@@ -248,9 +290,6 @@ export default function Topbar({ toggleSidebar }) {
               </IconButton>
               {user ? (
                 <>
-                  {/* <IconButton>
-                    <NotificationsOutlinedIcon />
-                  </IconButton> */}
                   <>
                     <IconButton aria-describedby={id} variant="contained">
                       <Stack direction="row" spacing={2}>
@@ -378,7 +417,6 @@ export default function Topbar({ toggleSidebar }) {
             background: `${colors.primary[400]} !important`,
           },
         }}
-        // variant="persistent"
         anchor="left"
         open={open}
       >
@@ -472,7 +510,178 @@ export default function Topbar({ toggleSidebar }) {
           </ListItem>
         </List>
       </Drawer>
-      <Box sx={{ marginTop: "80px" }}></Box>
+      <Box sx={{ marginTop: "80px" }}></Box> */}
+      <AppBar sx={{ background:"#29303b" }}>
+        <Toolbar>
+          <img src={Logo} alt="" srcset="" width="45px" height="45px" style={{transform: "scale(1)"}}/>
+          {/* <AddBusinessRoundedIcon sx={{ transform: "scale(2)" }} /> */}
+          {isMatch ? (
+            <>
+              <Typography sx={{ fontSize: "2rem", paddingLeft: "2%" }}>
+                SSPS
+              </Typography>
+              <DrawerComp />
+            </>
+          ) : (
+            <>
+              <Tabs
+                sx={{ marginLeft: "auto" }}
+                indicatorColor="secondary"
+                textColor="inherit"
+                value={value}
+                onChange={(e, value) => setValue(value)}
+              >
+                <Tab
+                  component={Link}
+                  to="/"
+                  label={
+                  <Tooltip title="Home" placement="bottom">
+                    <HomeOutlinedIcon sx={{ transform: "scale(1.5)" }} />
+                  </Tooltip>
+                }
+                />
+                <Tab
+                  component={Link}
+                  to="/pomodoro"
+                  label={
+                  <Tooltip title="Report" placement="bottom">
+                    <InsertChartOutlinedIcon sx={{ transform: "scale(1.5)" }} />
+                  </Tooltip>
+                  }
+                />
+                <Tab
+                  component={Link}
+                  to="/todo"
+                  label={
+                  <Tooltip title="Todolist" placement="bottom" sx={{
+                    "& .MuiTooltip-tooltip": {
+                      fontSize: "1.5rem",
+                    },
+                  }}>
+                    <FormatListBulletedIcon sx={{ transform: "scale(1.5)" }} />
+                  </Tooltip>
+                  }
+                />
+                <Tab
+                  component={Link}
+                  to="/faq"
+                  label={
+                  <Tooltip title="FAQ " placement="bottom">
+                    <HelpOutlineOutlinedIcon sx={{ transform: "scale(1.5)" }} />
+                  </Tooltip>
+                  }
+                />
+              </Tabs>
+              <Button sx={{ marginLeft: "auto" }} onClick={colorMode.toggleColorMode}>
+                {theme.palette.mode === "dark" ? (
+                  <DarkModeOutlinedIcon  style={{ color: "white" }}/>
+                ) : (
+                  <LightModeOutlinedIcon style={{ color: "white" }}/>
+                )}
+              </Button>
+              {user ? (
+                <>
+                  <>
+                    <IconButton aria-describedby={id} variant="contained">
+                      <Stack direction="row" spacing={2}>
+                        <Avatar
+                          onClick={handleClick}
+                          style={{ width: "30px", height: "30px", color: "white", fontSize: "15px" }}
+                          {...stringAvatar(firstName, lastName)}
+                        />
+                      </Stack>
+                    </IconButton>
+
+                    <Popover
+                      id={id}
+                      open={opens}
+                      anchorEl={anchorEl}
+                      onClose={handleClose}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "right",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "right",
+                      }}
+                    >
+                      <List component="nav" aria-label="mailbox folders">
+                        <ListItem button>
+                          <Typography
+                            variant="h5"
+                            color={colors.grey[100]}
+                            fontWeight="bold"
+                            sx={{ m: "10px 0 0 0" }}
+                          >
+                            {firstName} {lastName}
+                          </Typography>
+                        </ListItem>
+                        <Divider />
+                        <ListItem button>
+                          <PersonOutlinedIcon
+                            style={{
+                              marginRight: "5px",
+                            }}
+                          />
+                          <ListItemText
+                            onClick={updateAccount}
+                            primary="Account"
+                          />
+                        </ListItem>
+                        <Divider />
+                        <ListItem button>
+                          <PasswordIcon
+                            style={{
+                              marginRight: "5px",
+                            }}
+                          />
+                          <ListItemText
+                            onClick={resetPassword}
+                            primary="Reset password"
+                          />
+                        </ListItem>
+                        <Divider />
+                        <ListItem button>
+                          <LogoutIcon
+                            style={{
+                              marginRight: "5px",
+                            }}
+                          />
+                          <ListItemText
+                            onClick={handleLogOut}
+                            primary="Log out"
+                          />
+                        </ListItem>
+                      </List>
+                    </Popover>
+                  </>
+                </>
+              ) : (
+                <>
+                  <Button sx={{ marginLeft: "10px" }} variant="text">
+                <Link
+                  to={"login"}
+                  style={{textDecoration:"none", color: "white"}}
+                >
+                  Log in
+                </Link>
+              </Button>
+              <Button  sx={{ marginLeft: "10px" }} variant="contained" color="info">
+                <Link
+                  to={"register"}
+                  style={{textDecoration:"none", color: "white"}}
+                >
+                  Register
+                </Link>
+              </Button>
+                </>
+              )}
+              
+            </>
+          )}
+        </Toolbar>
+      </AppBar>
     </Box>
   );
 }

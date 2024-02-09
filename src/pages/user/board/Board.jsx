@@ -466,7 +466,6 @@ const BoardPage = () => {
       >
         {board}
       </Board>
-      <ToastContainer />
     </div>
   );
 };

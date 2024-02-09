@@ -47,6 +47,9 @@ import { ColorPicker } from "material-ui-color";
 import { createNote, deleteNote, getNote, updateNote } from "../../../data/noteApi";
 import holidays from "date-holidays"
 import { logOutUser } from "../../../redux/apiRequest";
+import "./calendar.css"
+import Select from 'react-select';
+
 
 const Calendar = () => {
   const theme = useTheme();
@@ -145,6 +148,8 @@ const Calendar = () => {
   const mock = mockEventData
   const [isDelete, setIsDelete] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(true);
+  const [isDetailCalendar, setIsDetailCalendar] = useState(false)
+  const [isDetailNote, setIsDetailNote] = useState(false)
 
   // const hd = new holidays('VN')
   // const holiday = hd.getHolidays()
@@ -220,7 +225,6 @@ const Calendar = () => {
     setIsDialogOpen(true);
   };
 
-
   const closeDialog = () => {
     setIsDialogOpen(false);
     setIsUpdateCate(false)
@@ -248,6 +252,7 @@ const Calendar = () => {
     setErrorUsage("")
     setValidateCategory("")
     setValidateNote("")
+    setIsDetailNote(false)
   };
 
   const handleAddEvent = () => {
@@ -616,35 +621,47 @@ const Calendar = () => {
       let convertedData = [];
       setExpectAmount("")
       if (item === "timeGridDay") {
+        setType("DAY");
+
         calendarRef.current.getApi().changeView(item);
         setExpectAmount(0);
         setActualAmount(0);
         setUnit("");
         setIdUpdate(false)
-        setType("DAY");
       }
      
       if (item === "timeGridWeek") {
+        setType("DAY");
+
         calendarRef.current.getApi().changeView(item);
         setIdUpdate(false);
         setType("DAY");
       }
       if (item === "dayGridMonth") {
+        setType("MONTH");
+        
+
         calendarRef.current.getApi().changeView(item);
         setExpectAmount(0)
         setActualAmount(0);
         setUnit("")
         setIdUpdate(false);
-        setType("MONTH");
+        if (calendarRef.current) {
+          const calendarApi = calendarRef.current.getApi();
+          calendarApi.removeAllEvents();
+          convertedData = []
+          convertedData.map((item) => calendarApi.addEvent(item));
+        }
       }
 
       if (item === "multiMonthYear") {
+        setType("YEAR");
+
         calendarRef.current.getApi().changeView(item);
         setIdUpdate(false);
         setExpectAmount(0);
         setActualAmount(0);
         setUnit("");
-        setType("YEAR");
       }
       
       
@@ -670,53 +687,59 @@ const Calendar = () => {
         setDataUpdate(res.data.data);
         let end = new Date(endDate);
         const year = end.getFullYear();
-        const month = String(end.getMonth() + 1).padStart(2, "0"); // Lưu ý: tháng bắt đầu từ 0
+        const month = String(end.getMonth() + 1).padStart(2, "0");
         const day = String(end.getDate() + 1).padStart(2, "0");
-        let data;
-        // Tạo chuỗi theo định dạng "yyyy-mm-dd"
+        let data = [];
         const nextDayString = `${year}-${month}-${day}`;
         let ctg, categoryId;
-        console.log("ssss", res.data?.data)
-        setExpectAmount("")
-        setActualAmount(0)
-        setUnit("")
-
-          res.data?.data.map(
-            (item) => (
-              console.log("aaaa", item),
-              (data = item?.usageMoneys.map(
-                (i, index) => (
-                  (ctg = categoriesList?.filter(
-                    (j) => j.name === i.categoryName
-                  )),
-                  ctg?.map((item) => (categoryId = item.id)),
-                  {
-                    id: `box-${index}-${i.name}`,
-                    title: i.name,
-                    start: startDate,
-                    end: nextDayString,
-                    color:
-                      i.expectAmount < i.actualAmount
-                        ? "red"
-                        : i.priority === 1
-                        ? "blue"
-                        : i.priority === 2
-                        ? "#d966ff"
-                        : "gray",
-                    actualAmount: i.actualAmount,
-                    expectAmount: i.expectAmount,
-                    categoryId: categoryId,
-                    priority: i.priority === 1 ? 1 : i.priority === 2 ? 2 : 3,
-                  }
-                ),
-                setExpectAmount(item?.expectAmount),
-                setUnit(item.currencyUnit),
-                console.log("ssss", item?.expectAmount),
-                // setActualAmount(item.actualAmount),
-                setIdUpdate(item.id)
-              ))
-            )
-          );
+        setExpectAmount("");
+        setActualAmount(0);
+        setUnit("");
+        const eventStartDate = new Date(startDate);
+        const eventEndDate = new Date(endDate);
+        const numberOfDays = (eventEndDate - eventStartDate) / (1000 * 3600 * 24);
+        res.data?.data.forEach((item) => {
+          item?.usageMoneys.forEach((i, index) => {
+            ctg = categoriesList?.filter((j) => j.name === i.categoryName);
+            ctg.forEach((item) => {
+              categoryId = item.id;
+            });
+      
+            for (
+              let date = new Date(eventStartDate);
+              date <= eventEndDate;
+              date.setDate(date.getDate() + 1)
+            ) {
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, "0");
+              const day = String(date.getDate()).padStart(2, "0");
+              const dateString = `${year}-${month}-${day}`;
+      
+              data.push({
+                id: `box-${index}-${i.name}-${dateString}`,
+                title: i.name,
+                start: dateString,
+                end: dateString,
+                color:
+                  i.expectAmount < i.actualAmount
+                    ? "red"
+                    : i.priority === 1
+                    ? "blue"
+                    : i.priority === 2
+                    ? "#d966ff"
+                    : "gray",
+                actualAmount: i.actualAmount,
+                expectAmount: i.expectAmount,
+                categoryId: categoryId,
+                priority: i.priority === 1 ? 1 : i.priority === 2 ? 2 : 3,
+              });
+            }
+          });
+          setExpectAmount(item?.expectAmount);
+          setUnit(item.currencyUnit);
+          console.log("ssss", item?.expectAmount);
+          setIdUpdate(item.id);
+        });
         let totalActual = 0;
         data?.forEach((item) => {
           convertedData.push(item);
@@ -725,100 +748,53 @@ const Calendar = () => {
         setActualAmount(totalActual);
         setDataPlan(data);
 
-         if (type === "DAY" || type === "MONTH") {
-           let start = new Date(startDate);
-           let day = start.getDate() - 1;
-           let month = (start.getMonth() + 1).toString().padStart(2, "0");
-           let year = start.getFullYear();
-           if (day === 0) {
-             const lastDayOfPreviousMonth = new Date(year, month - 1, 0);
-             day = lastDayOfPreviousMonth.getDate();
-             month = lastDayOfPreviousMonth.getMonth() + 1;
-           }
-           let dateStart = `${year}-${month}-${day
-             .toString()
-             .padStart(2, "0")}`;
-           const inputDate = parseISO(dateStart);
-           let end = new Date(endDate);
-           let enddDay = end.getDate();
-           let endmMonth = (end.getMonth() + 1).toString().padStart(2, "0");
-           let endYear = end.getFullYear();
-           let dateEnd = `${endYear}-${endmMonth}-${enddDay
-             .toString()
-             .padStart(2, "0")}`;
-           const inputDateEnd = parseISO(dateEnd);
-           let FromDate = encodeURIComponent(
-             format(inputDate, "yyyy-MM-dd'T'23:59:00.000XXX", {
-               timeZone: "+00:00",
-             })
-           );
-           let ToDate = encodeURIComponent(
-             format(inputDateEnd, "yyyy-MM-dd'T'23:59:00.000XXX", {
-               timeZone: "+00:00",
-             })
-           );
-           console.log(FromDate, ToDate);
-           let res = await getNote(FromDate, ToDate, user.data?.accessToken);
-           if (res && res.data.msgCode === "SUCCESS") {
-             res.data?.data.forEach((item) =>
-               convertedData.push({
-                 id: item.id,
-                 title: item.title,
-                 start: item.fromDate,
-                 end: item.toDate,
-                 description: item.description,
-                 color: `#${item.color}`,
-               })
-             );
-           }
-         }
-
-         if (type === "YEAR") {
-           let start = new Date(startDate);
-           let day = start.getDate();
-           let month = (start.getMonth() + 1).toString().padStart(2, "0");
-           let year = start.getFullYear();
-           if (day === 0) {
-             const lastDayOfPreviousMonth = new Date(year, month - 1, 0);
-             day = lastDayOfPreviousMonth.getDate();
-             month = lastDayOfPreviousMonth.getMonth() + 1;
-           }
-           let dateStart = `${year}-${month}-${day
-             .toString()
-             .padStart(2, "0")}`;
-           const inputDate = parseISO(dateStart);
-           let end = new Date(endDate);
-           let enddDay = end.getDate();
-           let endmMonth = (end.getMonth() + 1).toString().padStart(2, "0");
-           let endYear = end.getFullYear();
-           let dateEnd = `${endYear}-${endmMonth}-${enddDay
-             .toString()
-             .padStart(2, "0")}`;
-           const inputDateEnd = parseISO(dateEnd);
-           let FromDate = encodeURIComponent(
-             format(inputDate, "yyyy-MM-dd'T'23:59:00.000XXX", {
-               timeZone: "+00:00",
-             })
-           );
-           let ToDate = encodeURIComponent(
-             format(inputDateEnd, "yyyy-MM-dd'T'23:59:00.000XXX", {
-               timeZone: "+00:00",
-             })
-           );
-           let res = await getNote(FromDate, ToDate, user.data?.accessToken);
-           if (res && res.data.msgCode === "SUCCESS") {
-             res.data?.data.forEach((item) =>
-               convertedData.push({
-                 id: item.id,
-                 title: item.title,
-                 start: item.fromDate,
-                 end: item.toDate,
-                 description: item.description,
-                 color: `#${item.color}`,
-               })
-             );
-           }
-         }  
+        //  if (type === "DAY" || type === "MONTH") {
+        //    let start = new Date(startDate);
+        //    let day = start.getDate() - 1;
+        //    let month = (start.getMonth() + 1).toString().padStart(2, "0");
+        //    let year = start.getFullYear();
+        //    if (day === 0) {
+        //      const lastDayOfPreviousMonth = new Date(year, month - 1, 0);
+        //      day = lastDayOfPreviousMonth.getDate();
+        //      month = lastDayOfPreviousMonth.getMonth() + 1;
+        //    }
+        //    let dateStart = `${year}-${month}-${day
+        //      .toString()
+        //      .padStart(2, "0")}`;
+        //    const inputDate = parseISO(dateStart);
+        //    let end = new Date(endDate);
+        //    let enddDay = end.getDate();
+        //    let endmMonth = (end.getMonth() + 1).toString().padStart(2, "0");
+        //    let endYear = end.getFullYear();
+        //    let dateEnd = `${endYear}-${endmMonth}-${enddDay
+        //      .toString()
+        //      .padStart(2, "0")}`;
+        //    const inputDateEnd = parseISO(dateEnd);
+        //    let FromDate = encodeURIComponent(
+        //      format(inputDate, "yyyy-MM-dd'T'23:59:00.000XXX", {
+        //        timeZone: "+00:00",
+        //      })
+        //    );
+        //    let ToDate = encodeURIComponent(
+        //      format(inputDateEnd, "yyyy-MM-dd'T'23:59:00.000XXX", {
+        //        timeZone: "+00:00",
+        //      })
+        //    );
+        //    console.log(FromDate, ToDate);
+        //    let res = await getNote(FromDate, ToDate, user.data?.accessToken);
+        //    if (res && res.data.msgCode === "SUCCESS") {
+        //      res.data?.data.forEach((item) =>
+        //        convertedData.push({
+        //          id: item.id,
+        //          title: item.title,
+        //          start: item.fromDate,
+        //          end: item.toDate,
+        //          description: item.description,
+        //          color: `#${item.color}`,
+        //        })
+        //      );
+        //    }
+        //  }
 
         if (calendarRef.current) {
           const calendarApi = calendarRef.current.getApi();
@@ -828,7 +804,7 @@ const Calendar = () => {
         setCurrentEvents(convertedData);
       }
     } catch (error) {
-      if (error.response.status === 401) {
+      if (error.response?.status === 401) {
         console.log(401);
         // const timeoutDelay = 5000; 
 
@@ -841,6 +817,7 @@ const Calendar = () => {
     }
   };
 
+
   useEffect(()=> {
      const calendarApi = calendarRef.current.getApi();
 
@@ -849,6 +826,7 @@ const Calendar = () => {
        const startDate = info.start;
        const endDate = info.end;
        if (view.type === "dayGridMonth" ) {
+        setType("MONTH")
          if (startDate.getDate() !== 1) {
            // Đặt startDate thành ngày đầu tiên của tháng tiếp theo
            let end = new Date(endDate)
@@ -870,6 +848,8 @@ const Calendar = () => {
            setEndDate(formattedEndDate);
          }
        } else if (view.type === "timeGridDay") {
+        setType("DAY")
+
         const formattedStartDate = format(startDate, "yyyy-MM-dd");
         const formattedEndDate = format(startDate, "yyyy-MM-dd");
         setStartDate(formattedStartDate);
@@ -881,6 +861,7 @@ const Calendar = () => {
         setStartDate(formattedStartDate);
         setEndDate(formattedEndDate);
        } else {
+
          const formattedStartDate = format(startDate, "yyyy-MM-dd");
          const formattedEndDate = format(endDate, "yyyy-MM-dd");
          setStartDate(formattedStartDate);
@@ -891,15 +872,13 @@ const Calendar = () => {
      };
 
      if (type === "DAY") {
-      setExpectAmount("")
        handleDayButtonClick("timeGridDAY");
-     }
+     } else
      if(type === "MONTH") {
-      setExpectAmount("");
       handleDayButtonClick("dayGridMonth");
-     }
+      handleDayButtonClick("dayGridMonth");
+     } else
       if(type === "YEAR") {
-      setExpectAmount("");
       handleDayButtonClick("multiMonthYear");
      }
 
@@ -1375,18 +1354,20 @@ const Calendar = () => {
         {/* CALENDAR SIDEBAR */}
         <Box
           flex="1 1 22%"
-          backgroundColor={colors.primary[400]}
-          p="15px"
+          // backgroundColor={colors.primary[400]}
+          p="10px"
           borderRadius="4px"
         >
           <Button
-            variant="outlined"
+            variant="contained"
             color="success"
             onClick={handleCreatePlan}
             style={{
               marginBottom: "20px",
-              fontSize: "16px",
-              fontWeight: "600",
+              fontSize: "14px",
+              fontWeight: "500",  
+              borderRadius: "10px",
+              boxShadow: "2px 2px 1px soild #ccc",
             }}
           >
             <AddIcon />
@@ -1394,22 +1375,24 @@ const Calendar = () => {
           </Button>
           {expectAmount > 0 && (
             <Button
-              variant="outlined"
+              variant="contained"
               color="warning"
               onClick={handleUpdatePlan}
               style={{
                 marginBottom: "20px",
-                fontSize: "16px",
-                fontWeight: "600",
+                fontSize: "14px",
+                fontWeight: "500",
                 marginLeft: "10px",
+                borderRadius: "10px",
+                boxShadow: "2px 2px 1px soild #ccc",
+
               }}
             >
               Update
             </Button>
           )}
-          {/* <SmallCalendar/> */}
-          <Typography variant="h5" sx={{ fontWeight: "500" }}>
-            Expect amount:{" "}
+          <Typography variant="h5" sx={{ fontWeight: "550"}}>
+            <span>Expect amount:</span>{" "}
           </Typography>
           <List
             sx={{
@@ -1432,7 +1415,7 @@ const Calendar = () => {
               />
             </ListItem>
           </List>
-          <Typography variant="h5" sx={{ fontWeight: "500" }}>
+          <Typography variant="h5" sx={{ fontWeight: "550" }}>
             Actual amount:{" "}
           </Typography>
           <List
@@ -1464,7 +1447,7 @@ const Calendar = () => {
               alignItems: "center",
             }}
           >
-            <Typography variant="h5" sx={{ fontWeight: "500" }}>
+            <Typography variant="h5" sx={{ fontWeight: "550" }}>
               Categories:
             </Typography>
             <Tooltip title="Add Category" placement="top-end">
@@ -1479,7 +1462,7 @@ const Calendar = () => {
 
           <List
             sx={{
-              height: "335px",
+              height: "365px",
               overflow: "auto",
             }}
           >
@@ -1501,10 +1484,10 @@ const Calendar = () => {
         </Box>
 
         {/* CALENDAR */}
-        <Box flex="1 1 100%" ml="20px">
+        <Box flex="1 1 100%" ml="0px">
           <FullCalendar
             ref={calendarRef}
-            height="87vh"
+            height="89vh"
             plugins={[
               dayGridPlugin,
               timeGridPlugin,
@@ -1515,7 +1498,7 @@ const Calendar = () => {
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "YearButton,MonthButton,dayButton",
+              right: "MonthButton,WeekButton,dayButton",
             }}
             initialView="timeGridDay"
             editable={true}
@@ -1545,6 +1528,10 @@ const Calendar = () => {
                 text: "List",
                 click: () => handleDayButtonClick("listYear"), // Liên kết sự kiện click của nút "Day" với hàm xử lý
               },
+              WeekButton: {
+                text: "Week",
+                click: () => handleDayButtonClick("timeGridWeek"),
+              }
             }}
             views={{
               listMonth: {
@@ -1563,11 +1550,13 @@ const Calendar = () => {
               multiMonthYear: {
                 buttonText: "Year",
                 dayMaxEventRows: 6,
+                multiMonthMaxColumns: 1
               },
             }}
           />
         </Box>
       </Box>
+      
       <Dialog maxWidth="lg" open={isDialogOpen} onClose={closeDialog}>
         <Box p={2}>
           <Typography
@@ -1957,7 +1946,8 @@ const Calendar = () => {
             {selectedEvent ? "Edit Note" : "Add Note"}
           </Typography>
           <span className="text-danger">{validateNote}</span>
-          <TextField
+          
+            <TextField
             label="Title"
             autoFocus
             value={eventTitle}
@@ -2070,7 +2060,8 @@ const Calendar = () => {
               <></>
             )}
           </DialogActions>
-        </Box>
+          
+          </Box>  
       </Dialog>
 
       <Dialog maxWidth="lg" open={isOpenCreateCategory} onClose={closeDialog}>
@@ -2141,6 +2132,7 @@ const Calendar = () => {
           </DialogActions>
         </Box>
       </Dialog>
+
       <Dialog maxWidth="sm" open={login} onClose={handleDeleteCancel}>
         <Box p={2}>
           <Typography
