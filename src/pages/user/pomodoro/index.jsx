@@ -7,6 +7,7 @@ import { tokens } from "../../../theme";
 import { useTheme, } from "@mui/material";
 import moment from 'moment';
 import TimerSetting from '../../../components/TimerSettingModal/TimerSetting';
+import styled from "styled-components"
 
 const Pomodoro = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -41,7 +42,7 @@ const Pomodoro = () => {
 
   return (
     <div>
-      <h1 className='title'>Pomodoro</h1>
+      <Title>Pomodoro</Title>
       <Tags setCurrentTask={setCurrentTask} setTimeLeft={setTimeLeft} setCountdownActive={setCountdownActive} />
       <Timer currentTask={currentTask} timeLeft={timeLeft} startCountdown={startCountdown} stopCountdown={stopCountdown} />
       <div onClick={() => setOpenModal(true)} className='icons'>
@@ -53,3 +54,10 @@ const Pomodoro = () => {
 };
 
 export default Pomodoro;
+
+const Title = styled.h1`
+  font-size: 3rem;
+  font-weight: 600;
+  padding: 0rem 0;
+  text-align: center;
+`

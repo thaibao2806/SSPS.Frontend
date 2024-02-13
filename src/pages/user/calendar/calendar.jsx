@@ -128,7 +128,7 @@ const Calendar = () => {
   const [idNote, setIdNote] = useState("")
   const [colorUpdate, setColorUpdate] = useState("");
   const [priority, setPriority] = useState("");
-  const [categoriesList, setCategoriesList] = useState(null)
+  const [categoriesList, setCategoriesList] = useState([])
   const [categoryName, setCategoryName] = useState("")
   const [isOpenCreateNote, setIsOpenCreateNote] = useState(false)
   const [selectedColor, setSelectedColor] = useState(null);
@@ -616,13 +616,72 @@ const Calendar = () => {
     setAllDay(e.target.checked);
   };
 
+  // const test = async() => {
+  //   let convertedData = [];
+  //      let start = new Date(startDate);
+  //          let day = start.getDate() - 1;
+  //          let month = (start.getMonth() + 1).toString().padStart(2, "0");
+  //          let year = start.getFullYear();
+  //          if (day === 0) {
+  //            const lastDayOfPreviousMonth = new Date(year, month - 1, 0);
+  //            day = lastDayOfPreviousMonth.getDate();
+  //            month = lastDayOfPreviousMonth.getMonth() + 1;
+  //          }
+  //          let dateStart = `${year}-${month}-${day
+  //            .toString()
+  //            .padStart(2, "0")}`;
+  //         //  const inputDate = parseISO(dateStart);
+  //         const inputDate = new Date(dateStart);
+  //          let ends = new Date(endDate);
+  //          let enddDay = ends.getDate();
+  //          let endmMonth = (ends.getMonth() + 1).toString().padStart(2, "0");
+  //          let endYear = ends.getFullYear();
+  //          let dateEnd = `${endYear}-${endmMonth}-${enddDay
+  //            .toString()
+  //            .padStart(2, "0")}`;
+  //          const inputDateEnd = new Date(dateEnd);
+  //          let FromDate = encodeURIComponent(
+  //            format(inputDate, "yyyy-MM-dd'T'23:59:00.000XXX", {
+  //              timeZone: "+00:00",
+  //            })
+  //          );
+  //          let ToDate = encodeURIComponent(
+  //            format(inputDateEnd, "yyyy-MM-dd'T'23:59:00.000XXX", {
+  //              timeZone: "+00:00",
+  //            })
+  //          );
+  //          console.log(FromDate)
+  //          let res = await getNote(FromDate, ToDate, user.data?.accessToken);
+  //          if (res && res.data.msgCode === "SUCCESS") {
+  //            res.data?.data.forEach((item) =>
+  //              convertedData.push({
+  //                id: item.id,
+  //                title: item.title,
+  //                start: item.fromDate,
+  //                end: item.toDate,
+  //                description: item.description,
+  //                color: `#${item.color}`,
+  //              })
+  //            );
+  //          }
+  //          console.log(res)
+  //          if (calendarRef.current) {
+  //           const calendarApi = calendarRef.current.getApi();
+  //           calendarApi.removeAllEvents();
+  //           convertedData.map((item) => calendarApi.addEvent(item));
+  //         }
+  //         setCurrentEvents(convertedData);
+  //        }
+
+        
+
   const handleDayButtonClick = async(item) => {
     try {
       let convertedData = [];
+
       setExpectAmount("")
       if (item === "timeGridDay") {
         setType("DAY");
-
         calendarRef.current.getApi().changeView(item);
         setExpectAmount(0);
         setActualAmount(0);
@@ -635,12 +694,9 @@ const Calendar = () => {
 
         calendarRef.current.getApi().changeView(item);
         setIdUpdate(false);
-        setType("DAY");
       }
       if (item === "dayGridMonth") {
         setType("MONTH");
-        
-
         calendarRef.current.getApi().changeView(item);
         setExpectAmount(0)
         setActualAmount(0);
@@ -656,7 +712,6 @@ const Calendar = () => {
 
       if (item === "multiMonthYear") {
         setType("YEAR");
-
         calendarRef.current.getApi().changeView(item);
         setIdUpdate(false);
         setExpectAmount(0);
@@ -677,14 +732,63 @@ const Calendar = () => {
         setActualAmount(0);
         setUnit("");
       }
+
+      if (type === "DAY" || type === "MONTH") {
+
+        let start = new Date(startDate);
+        let days = start.getDate() - 1;
+        let months = (start.getMonth() + 1).toString().padStart(2, "0");
+        let years = start.getFullYear();
+        if (days === 0) {
+          const lastDayOfPreviousMonth = new Date(years, months - 1, 0);
+          days = lastDayOfPreviousMonth.getDate();
+          months = lastDayOfPreviousMonth.getMonth() + 1;
+        }
+        let dateStart = `${years}-${months}-${days
+          .toString()
+          .padStart(2, "0")}`;
+        const inputDate = new Date(dateStart);;
+        let ends = new Date(endDate);
+        let enddDay = ends.getDate();
+        let endmMonth = (ends.getMonth() + 1).toString().padStart(2, "0");
+        let endYear = ends.getFullYear();
+        let dateEnd = `${endYear}-${endmMonth}-${enddDay
+          .toString()
+          .padStart(2, "0")}`;
+        const inputDateEnd = new Date(dateEnd);
+        let FromDate = encodeURIComponent(
+          format(inputDate, "yyyy-MM-dd'T'23:59:00.000XXX", {
+            timeZone: "+00:00",
+          })
+        );
+        let ToDate = encodeURIComponent(
+          format(inputDateEnd, "yyyy-MM-dd'T'23:59:00.000XXX", {
+            timeZone: "+00:00",
+          })
+        );
+        let res = await getNote(FromDate, ToDate, user.data?.accessToken);
+        if (res && res.data.msgCode === "SUCCESS") {
+          res.data?.data.forEach((item) =>
+            convertedData.push({
+              id: item.id,
+              title: item.title,
+              start: item.fromDate,
+              end: item.toDate,
+              description: item.description,
+              color: `#${item.color}`,
+            })
+          );
+        }
+      }
+
       let res = await getMoneyPlanRangeType(
         type,
         startDate,
         endDate,
         user.data?.accessToken
       );
-      if (res && res.data.msgCode === "SUCCESS") {
-        setDataUpdate(res.data.data);
+      if (res && res.data?.msgCode === "SUCCESS") {
+        setDataUpdate(res.data?.data);
         let end = new Date(endDate);
         const year = end.getFullYear();
         const month = String(end.getMonth() + 1).padStart(2, "0");
@@ -700,11 +804,13 @@ const Calendar = () => {
         const numberOfDays = (eventEndDate - eventStartDate) / (1000 * 3600 * 24);
         res.data?.data.forEach((item) => {
           item?.usageMoneys.forEach((i, index) => {
-            ctg = categoriesList?.filter((j) => j.name === i.categoryName);
-            ctg.forEach((item) => {
+
+            ctg = categoriesList?.filter((j) => j?.name === i?.categoryName);
+            
+            ctg.forEach((item) => { 
               categoryId = item.id;
             });
-      
+
             for (
               let date = new Date(eventStartDate);
               date <= eventEndDate;
@@ -714,7 +820,11 @@ const Calendar = () => {
               const month = String(date.getMonth() + 1).padStart(2, "0");
               const day = String(date.getDate()).padStart(2, "0");
               const dateString = `${year}-${month}-${day}`;
-      
+              const numberOfDays = (eventEndDate - eventStartDate) / (1000 * 3600 * 24) + 1;
+
+              // Tính toán actualAmount và expectAmount cho mỗi ngày
+              const dailyActualAmount = i.actualAmount / numberOfDays;
+              const dailyExpectAmount = i.expectAmount / numberOfDays;
               data.push({
                 id: `box-${index}-${i.name}-${dateString}`,
                 title: i.name,
@@ -728,8 +838,8 @@ const Calendar = () => {
                     : i.priority === 2
                     ? "#d966ff"
                     : "gray",
-                actualAmount: i.actualAmount,
-                expectAmount: i.expectAmount,
+                actualAmount: dailyActualAmount,
+                expectAmount: dailyExpectAmount,
                 categoryId: categoryId,
                 priority: i.priority === 1 ? 1 : i.priority === 2 ? 2 : 3,
               });
@@ -737,65 +847,17 @@ const Calendar = () => {
           });
           setExpectAmount(item?.expectAmount);
           setUnit(item.currencyUnit);
-          console.log("ssss", item?.expectAmount);
           setIdUpdate(item.id);
         });
         let totalActual = 0;
         data?.forEach((item) => {
           convertedData.push(item);
           totalActual = totalActual + item.actualAmount;
+          console.log("check",totalActual)
         });
-        setActualAmount(totalActual);
+        setActualAmount(parseFloat(totalActual.toFixed(2)));
         setDataPlan(data);
-
-        //  if (type === "DAY" || type === "MONTH") {
-        //    let start = new Date(startDate);
-        //    let day = start.getDate() - 1;
-        //    let month = (start.getMonth() + 1).toString().padStart(2, "0");
-        //    let year = start.getFullYear();
-        //    if (day === 0) {
-        //      const lastDayOfPreviousMonth = new Date(year, month - 1, 0);
-        //      day = lastDayOfPreviousMonth.getDate();
-        //      month = lastDayOfPreviousMonth.getMonth() + 1;
-        //    }
-        //    let dateStart = `${year}-${month}-${day
-        //      .toString()
-        //      .padStart(2, "0")}`;
-        //    const inputDate = parseISO(dateStart);
-        //    let end = new Date(endDate);
-        //    let enddDay = end.getDate();
-        //    let endmMonth = (end.getMonth() + 1).toString().padStart(2, "0");
-        //    let endYear = end.getFullYear();
-        //    let dateEnd = `${endYear}-${endmMonth}-${enddDay
-        //      .toString()
-        //      .padStart(2, "0")}`;
-        //    const inputDateEnd = parseISO(dateEnd);
-        //    let FromDate = encodeURIComponent(
-        //      format(inputDate, "yyyy-MM-dd'T'23:59:00.000XXX", {
-        //        timeZone: "+00:00",
-        //      })
-        //    );
-        //    let ToDate = encodeURIComponent(
-        //      format(inputDateEnd, "yyyy-MM-dd'T'23:59:00.000XXX", {
-        //        timeZone: "+00:00",
-        //      })
-        //    );
-        //    console.log(FromDate, ToDate);
-        //    let res = await getNote(FromDate, ToDate, user.data?.accessToken);
-        //    if (res && res.data.msgCode === "SUCCESS") {
-        //      res.data?.data.forEach((item) =>
-        //        convertedData.push({
-        //          id: item.id,
-        //          title: item.title,
-        //          start: item.fromDate,
-        //          end: item.toDate,
-        //          description: item.description,
-        //          color: `#${item.color}`,
-        //        })
-        //      );
-        //    }
-        //  }
-
+        
         if (calendarRef.current) {
           const calendarApi = calendarRef.current.getApi();
           calendarApi.removeAllEvents();
@@ -820,7 +882,6 @@ const Calendar = () => {
 
   useEffect(()=> {
      const calendarApi = calendarRef.current.getApi();
-
      const handleDateSet = (info) => {
        const view = info.view;
        const startDate = info.start;
@@ -848,8 +909,6 @@ const Calendar = () => {
            setEndDate(formattedEndDate);
          }
        } else if (view.type === "timeGridDay") {
-        setType("DAY")
-
         const formattedStartDate = format(startDate, "yyyy-MM-dd");
         const formattedEndDate = format(startDate, "yyyy-MM-dd");
         setStartDate(formattedStartDate);
@@ -861,7 +920,6 @@ const Calendar = () => {
         setStartDate(formattedStartDate);
         setEndDate(formattedEndDate);
        } else {
-
          const formattedStartDate = format(startDate, "yyyy-MM-dd");
          const formattedEndDate = format(endDate, "yyyy-MM-dd");
          setStartDate(formattedStartDate);
@@ -872,11 +930,12 @@ const Calendar = () => {
      };
 
      if (type === "DAY") {
-       handleDayButtonClick("timeGridDAY");
+       handleDayButtonClick("timeGridDay");
+        console.log("aaaa111")
      } else
      if(type === "MONTH") {
       handleDayButtonClick("dayGridMonth");
-      handleDayButtonClick("dayGridMonth");
+      // test()
      } else
       if(type === "YEAR") {
       handleDayButtonClick("multiMonthYear");
@@ -1348,7 +1407,7 @@ const Calendar = () => {
    navigate("/login");
   }
 
-  return (
+     return (
     <Box m="10px 35px 0 35px">
       <Box display="flex" justifyContent="space-between">
         {/* CALENDAR SIDEBAR */}

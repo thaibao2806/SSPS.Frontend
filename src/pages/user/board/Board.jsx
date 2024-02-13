@@ -259,7 +259,7 @@ const BoardPage = () => {
                     paddingBottom: "5px",
                   }}
                 >
-                  <span>{props.title} </span>
+                  <span className="title-card">{props.title} </span>
                   <div>
                     <button
                       className="remove-button"
@@ -420,7 +420,7 @@ const BoardPage = () => {
           return (
             <>
               <div className="column-header">
-                <span style={{ fontWeight: 600 }}>{props.title}</span>
+                <span style={{ fontWeight: 600, fontSize:"16px" }}>{props.title}</span>
                 <div>
                   <IoMdAdd
                     color="white"

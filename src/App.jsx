@@ -20,7 +20,13 @@ import { ColorModeContext, useMode } from "./theme";
 import Calendar from "./pages/user/calendar/calendar";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import Pomodoro from "./pages/user/pomodoro";
+import Pomodoros from "./pages/user/pomodoro";
+import {createGlobalStyle} from "styled-components"
+import StateProvider from "./components/StateProvider";
+
+const GlobalStyle = createGlobalStyle`
+
+`
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -55,7 +61,11 @@ function App() {
                 {/* <Route path="/bar" element={<Bar />} />
                 <Route path="/pie" element={<Pie />} />
                 <Route path="/line" element={<Line />} /> */}
-                <Route path="/pomodoro" element={<Pomodoro />} />
+                <Route path="/pomodoro" element={
+                  <StateProvider>
+                    <Pomodoros />
+                  </StateProvider>
+                }/>
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/todo" element={<Board />} />
                 <Route path="/" element={<Calendar />} />

@@ -1,19 +1,65 @@
-import React from 'react'
-import "../pages/user/pomodoro/pomodoro.css"
-import moment from 'moment';
+import React,{useContext, useEffect, useState}  from 'react'
+import styled from "styled-components"
+import { StateContext } from './StateProvider';
+import Bring from "../assets/audio.mp3"
 
-const Clock = ({ timeLeft, startCountdown, stopCountdown, countdownActive }) => {
+const Clock = () => {
+  const {time, setTime, isActive, setIsActive, initTime} = useContext(StateContext)
+  useEffect(()=> {
+    if(isActive && time > 0) {
+      const interval = setInterval(()=> {
+        setTime((time) => time -1)
+      }, 1000)
+  
+      return () => clearInterval(interval)
+    } else if( time === 0) {
+      new Audio(Bring).play()
+    }
+  }, [time, isActive])
+
+  const toggleClock = () => {
+    setIsActive(!isActive)
+  }
+
+  const resetTime =() => {
+    setTime(initTime)
+    setIsActive(false)
+  }
+
+  const getTime = (time) => {
+    const min = Math.floor(time / 60);
+    const sec = time % 60;
+    return `${min < 10 ? "0" + min : min}:${sec < 10 ?"0"+ sec:sec}`
+  }
   return (
-    <div>
-      <div className='clock-container'onClick={countdownActive ? stopCountdown : startCountdown}>
-        <h1 className='timer-text'>
-          {moment.utc(timeLeft * 1000).format("mm:ss")}
-        </h1>
-        <h3 className='timer-text-btn' >
-          {countdownActive ? "Stop" : "Start"}
-        </h3>
-      </div>
-    </div>
+    <ClockContainer>
+      <TimerText>
+        {getTime(time)}
+      </TimerText>
+      <StartPauseButton onClick={toggleClock}>{isActive ? "Pause" : "Start"}</StartPauseButton>
+      {time === 0 && <ResetButton onClick={resetTime}>RESET</ResetButton>}
+    </ClockContainer>
   );
 };
 export default Clock
+
+const ClockContainer = styled.div`
+  display: grid;
+  place-items: center;
+`
+
+const TimerText = styled.h3`
+  font-size: 5rem;
+`
+
+const StartPauseButton = styled.button`
+  all:unset;
+  text-align: center;
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 1rem;
+`
+
+const ResetButton = styled(StartPauseButton)`
+  color: red;
+`

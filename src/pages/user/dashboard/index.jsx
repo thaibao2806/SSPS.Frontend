@@ -40,12 +40,12 @@ const Dashboard = () => {
       </Box>
 
       {/* GRID & CHARTS */}
-      <Box
+      {/* <Box
         display="grid"
         gridTemplateColumns="repeat(12, 1fr)"
         gridAutoRows="140px"
         gap="20px"
-      >
+      > */}
         {/* ROW 1 */}
         {/* <Box
           gridColumn="span 3"
@@ -125,7 +125,7 @@ const Dashboard = () => {
         </Box> */}
 
         {/* ROW 2 */}
-        <Box
+        {/* <Box
           gridColumn="span 8"
           gridRow="span 2"
           height=" 70vh"
@@ -185,7 +185,7 @@ const Dashboard = () => {
               Recent Transactions
             </Typography>
           </Box>
-          {mockTransactions.map((transaction, i) => (
+          {mockTransactions?.map((transaction, i) => (
             <Box
               key={`${transaction.txId}-${i}`}
               display="flex"
@@ -216,7 +216,7 @@ const Dashboard = () => {
               </Box>
             </Box>
           ))}
-        </Box>
+        </Box> */}
 
         {/* ROW 3 */}
         {/* <Box
@@ -278,7 +278,7 @@ const Dashboard = () => {
             <GeographyChart isDashboard={true} />
           </Box>
         </Box> */}
-      </Box>
+      {/* </Box> */}
     </Box>
   );
 };

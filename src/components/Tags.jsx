@@ -1,42 +1,46 @@
-import React, { useState } from 'react'
-import "../pages/user/pomodoro/pomodoro.css"
+import React, { useContext } from 'react'
+import styled, {css} from "styled-components"
+import { StateContext } from './StateProvider';
 
+const Tags = () => {
+  const {activeTag, setActiveTag} = useContext(StateContext)
 
-const Tags = ({ setCurrentTask, setTimeLeft, setCountdownActive }) => {
-  const handleTagClick = (tag, duration) => {
-    setCurrentTask(tag);
-    setTimeLeft(duration);
-    setCountdownActive(false);
-  };
+  const handleTagClick = (index) => {
+    setActiveTag(index)
+  }
 
   return (
-    <div>
-      <div className='tag-container'>
+      <TagsContainer >
         {["Work", "Short Break", "Long Break"].map((tag, i) => (
-          <button
-            className={`btn-tags`}
-            key={i}
-            onClick={() => handleTagClick(tag, getDuration(tag))}
-          >
-            {tag}
-          </button>
+          <Tag onClick={() =>handleTagClick(i)} activeTag={activeTag === i} key={i}> {tag}</Tag>
         ))}
-      </div>
-    </div>
+      </TagsContainer>
   );
 };
 
-const getDuration = (task) => {
-  switch (task) {
-    case "Work":
-      return 25 * 60;
-    case "Short Break":
-      return 5 * 60;
-    case "Long Break":
-      return 15 * 60;
-    default:
-      return 0;
-  }
-};
-
 export default Tags;
+
+const TagsContainer = styled.div`
+  background: #ccc;
+  height: 3.5rem;
+  width: 25rem;
+  margin: 0 auto;
+  border-radius: 5rem;
+  display: flex;
+  gap: 1;
+  align-items: center;
+`
+
+const Tag = styled.button`
+  all:unset;
+  height: 3rem;
+  text-align: center;
+  border-radius: 5rem;
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 550;
+
+  ${({activeTag}) => activeTag && css`
+    background: #b85600;
+  `}
+`

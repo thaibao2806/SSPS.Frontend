@@ -70,3 +70,8 @@
 .column-header>svg {
     cursor: pointer
 }
+
+.title-card {
+    font-size: 14px;
+    font-weight: 500;
+}

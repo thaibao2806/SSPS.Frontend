@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
@@ -43,6 +43,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import DrawerComp from "./Drawer";
 import AppBar from '@mui/material/AppBar';
+import AccessAlarmsIcon from '@mui/icons-material/AccessAlarms';
 import {
   useMediaQuery,
 } from "@mui/material";
@@ -135,6 +136,26 @@ export default function Topbar({ toggleSidebar }) {
     }
   }, []);
 
+  useEffect(() => {
+    const pathname = location.pathname;
+    let tabIndex = 0;
+
+    // Logic to map pathnames to tab indices
+    if (pathname === "/") {
+      tabIndex = 0;
+    } else if (pathname === "/dashboard") {
+      tabIndex = 1;
+    } else if (pathname === "/todo") {
+      tabIndex = 2;
+    } else if (pathname === "/pomodoro") {
+      tabIndex = 3;
+    } else if (pathname === "/faq") {
+      tabIndex = 4;
+    }
+
+    setValue(tabIndex);
+  }, [location.pathname]);
+
   function stringToColor(string) {
     let hash = 0;
     let i;
@@ -201,316 +222,6 @@ export default function Topbar({ toggleSidebar }) {
 
   return (
     <Box sx={{ display: "flex" }}>
-      {/* <CssBaseline />
-      <AppBar
-        position="fixed"
-        open={open}
-        sx={{ background: `${colors.primary[400]} !important` }}
-      >
-        <Toolbar
-          sx={{
-            margin: "0 10px 0 10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between ",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent:"center" }}>
-            <img src={Logo} alt="SSPS" width="50px" height="50px" />
-            <h4 style={{color: colors.grey[100], marginTop:"10px", borderRadius:"10px"}}>SSPS</h4>
-          </Box>
-          <Box>
-          <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              sx={{ mr: 8, ...(open && { display: "none" }) }}
-            >
-              <HomeOutlinedIcon
-                style={{
-                  fontSize: "30px",
-                  color: colors.grey[100],
-                }}
-              />
-            </IconButton>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              sx={{ mr: 8, ...(open && { display: "none" }) }}
-            >
-              <InsertChartOutlinedIcon
-                style={{
-                  fontSize: "30px",
-                  color: colors.grey[100],
-                }}
-              />
-            </IconButton>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              sx={{ mr: 8, ...(open && { display: "none" }) }}
-            >
-              <FormatListBulletedIcon
-                style={{
-                  fontSize: "30px",
-                  color: colors.grey[100],
-                }}
-              />
-            </IconButton>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              sx={{ mr: 8, ...(open && { display: "none" }) }}
-            >
-              <HelpOutlineOutlinedIcon
-                style={{
-                  fontSize: "30px",
-                  color: colors.grey[100],
-                }}
-              />
-            </IconButton>
-          </Box>
-          <Box display="flex" justifyContent="space-between" p={0}>
-            <Box
-              display="flex"
-              backgroundColor={colors.primary[400]}
-              borderRadius="3px"
-            >
-            </Box>
-            <Box display="flex">
-              <IconButton onClick={colorMode.toggleColorMode}>
-                {theme.palette.mode === "dark" ? (
-                  <DarkModeOutlinedIcon />
-                ) : (
-                  <LightModeOutlinedIcon />
-                )}
-              </IconButton>
-              {user ? (
-                <>
-                  <>
-                    <IconButton aria-describedby={id} variant="contained">
-                      <Stack direction="row" spacing={2}>
-                        <Avatar
-                          onClick={handleClick}
-                          style={{ width: "30px", height: "30px", color: "white", fontSize: "15px" }}
-                          {...stringAvatar(firstName, lastName)}
-                        />
-                      </Stack>
-                    </IconButton>
-
-                    <Popover
-                      id={id}
-                      open={opens}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "right",
-                      }}
-                      transformOrigin={{
-                        vertical: "top",
-                        horizontal: "right",
-                      }}
-                    >
-                      <List component="nav" aria-label="mailbox folders">
-                        <ListItem button>
-                          <Typography
-                            variant="h5"
-                            color={colors.grey[100]}
-                            fontWeight="bold"
-                            sx={{ m: "10px 0 0 0" }}
-                          >
-                            {firstName} {lastName}
-                          </Typography>
-                        </ListItem>
-                        <Divider />
-                        <ListItem button>
-                          <PersonOutlinedIcon
-                            style={{
-                              marginRight: "5px",
-                            }}
-                          />
-                          <ListItemText
-                            onClick={updateAccount}
-                            primary="Account"
-                          />
-                        </ListItem>
-                        <Divider />
-                        <ListItem button>
-                          <PasswordIcon
-                            style={{
-                              marginRight: "5px",
-                            }}
-                          />
-                          <ListItemText
-                            onClick={resetPassword}
-                            primary="Reset password"
-                          />
-                        </ListItem>
-                        <Divider />
-                        <ListItem button>
-                          <LogoutIcon
-                            style={{
-                              marginRight: "5px",
-                            }}
-                          />
-                          <ListItemText
-                            onClick={handleLogOut}
-                            primary="Log out"
-                          />
-                        </ListItem>
-                      </List>
-                    </Popover>
-                  </>
-                </>
-              ) : (
-                <></>
-              )}
-
-              {user ? (
-                <></>
-              ) : (
-                <>
-                  <Button>
-                    <Link
-                      color={colors.grey[500]}
-                      className={`${
-                        theme.palette.mode === "dark"
-                          ? "text-light btn btn-sm"
-                          : "btn-sm btn"
-                      }`}
-                      to={"login"}
-                    >
-                      Log in
-                    </Link>
-                  </Button>
-                  <Button>
-                    <Link
-                      color={colors.grey[100]}
-                      className={`${
-                        theme.palette.mode === "dark"
-                          ? "text-light btn btn-sm"
-                          : "btn-sm btn"
-                      }`}
-                      to={"register"}
-                    >
-                      Register
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </Box>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-
-            background: `${colors.primary[400]} !important`,
-          },
-        }}
-        anchor="left"
-        open={open}
-      >
-        <DrawerHeader sx={{ background: `${colors.primary[400]} !important` }}>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "ltr" ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List
-          sx={{
-            background: `${colors.primary[400]} !important`,
-            fontSize: "15px",
-          }}
-        >
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <HomeOutlinedIcon />
-              </ListItemIcon>
-              <Link
-                style={{
-                  textDecoration: "none",
-                  color: `${colors.primary[600]}`,
-                }}
-                to="/dashboard"
-              >
-                Dashboard
-              </Link>
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <CalendarTodayOutlinedIcon />
-              </ListItemIcon>
-              <Link
-                style={{
-                  textDecoration: "none",
-                  color: `${colors.primary[600]}`,
-                }}
-                to="/"
-              >
-                Calendar
-              </Link>
-            </ListItemButton>
-          </ListItem>
-        </List>
-        <Divider />
-        <List
-          sx={{
-            background: `${colors.primary[400]} !important`,
-            fontSize: "15px",
-          }}
-        >
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <HomeOutlinedIcon />
-              </ListItemIcon>
-              <Link
-                style={{
-                  textDecoration: "none",
-                  color: `${colors.primary[600]}`,
-                }}
-                to="/bar"
-              >
-                Bar Chart
-              </Link>
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <CalendarTodayOutlinedIcon />
-              </ListItemIcon>
-              <Link
-                style={{
-                  textDecoration: "none",
-                  color: `${colors.primary[600]}`,
-                }}
-                to="/pie"
-              >
-                Pie Chart
-              </Link>
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Drawer>
-      <Box sx={{ marginTop: "80px" }}></Box> */}
       <AppBar sx={{ background:"#29303b" }}>
         <Toolbar>
           <img src={Logo} alt="" srcset="" width="45px" height="45px" style={{transform: "scale(1)"}}/>
@@ -542,7 +253,7 @@ export default function Topbar({ toggleSidebar }) {
                 />
                 <Tab
                   component={Link}
-                  to="/pomodoro"
+                  to="/dashboard"
                   label={
                   <Tooltip title="Report" placement="bottom">
                     <InsertChartOutlinedIcon sx={{ transform: "scale(1.5)" }} />
@@ -559,6 +270,15 @@ export default function Topbar({ toggleSidebar }) {
                     },
                   }}>
                     <FormatListBulletedIcon sx={{ transform: "scale(1.5)" }} />
+                  </Tooltip>
+                  }
+                />
+                <Tab
+                  component={Link}
+                  to="/pomodoro"
+                  label={
+                  <Tooltip title="Pomodoro " placement="bottom">
+                    <AccessAlarmsIcon sx={{ transform: "scale(1.5)" }} />
                   </Tooltip>
                   }
                 />
