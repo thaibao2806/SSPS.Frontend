@@ -1,5 +1,6 @@
 .fc-daygrid-day-number {
     text-align: center;
+    text-decoration: none;
   }
 
 .fc .fc-daygrid-day-top {
@@ -10,7 +11,7 @@
 
 .fc .fc-timegrid-slot {
     border-bottom: 0px;
-    height: 2.5em;
+    height: 3.5em;
 }
 
 .fc .fc-daygrid-body-unbalanced .fc-daygrid-day-events {
@@ -127,4 +128,63 @@ button-primary:not(:disabled):active {
     margin: 3px auto;
 }
 
+.fc-theme-standard td, .fc-theme-standard th {
+    border-bottom: 1px solid #DADCE0;
+}
 
+.fc-col-header-cell .fc-day .fc-day-mon {
+    border-bottom: none !important;
+}
+
+.fc-col-header-cell .fc-day .fc-day-tue {
+    border-bottom: none !important;
+}
+
+.fc-col-header-cell .fc-day .fc-day-wed {
+    border-bottom: none !important;
+}
+
+.fc-col-header-cell .fc-day .fc-day-thu {
+    border-bottom: none !important;
+}
+
+.fc-col-header-cell .fc-day .fc-day-fri {
+    border-bottom: none !important;
+}
+
+.fc-col-header-cell .fc-day .fc-day-sat {
+    border-bottom: none !important;
+}
+
+.fc-col-header-cell .fc-day .fc-day-sun {
+    border-bottom: none !important;
+}
+
+
+.fc-theme-standard th {
+    border-bottom: 0px solid #DADCE0;
+}
+
+.fc-theme-standard td {
+    border-bottom: 1px solid #DADCE0 !important;
+}
+
+.fc th {
+    text-align: center;
+}
+
+/* .fc td {
+    text-align: start;
+} */
+
+.fc .fc-daygrid-event-harness {
+    position: relative;
+    /* margin-right: 5px !important;
+    margin-bottom: 2px; */
+    margin: 0 5px 3px 5px;
+    /* border-radius: -17px !important; */
+}
+
+.fc-daygrid-block-event .fc-event-time, .fc-daygrid-block-event .fc-event-title {
+    padding: 1px 0px 1px 5px;
+}

@@ -48,7 +48,7 @@ import { createNote, deleteNote, getNote, updateNote } from "../../../data/noteA
 import holidays from "date-holidays"
 import { logOutUser } from "../../../redux/apiRequest";
 import "./calendar.css"
-import Select from 'react-select';
+import EditIcon from '@mui/icons-material/Edit';
 
 
 const Calendar = () => {
@@ -68,18 +68,18 @@ const Calendar = () => {
   const availableColors = [
     {
       title: "Highly",
-      priority: "blue",
+      priority: "#039BE5",
       color: "1",
     },
     {
       title: "Medium",
-      priority: "#d966ff",
+      priority: "#33B679",
       color: "2",
     },
 
     {
       title: "Normal",
-      priority: "gray",
+      priority: "#919191b2",
       color: "3",
     },
   ];
@@ -319,7 +319,7 @@ const Calendar = () => {
           allDay: selectedEvent.event.allDay,
           color: eventColor,
           priority:
-            eventColor === "blue" ? 1 : eventColor === "#d966ff" ? 2 : 3,
+            eventColor === "#039BE5" ? 1 : eventColor === "#33B679" ? 2 : 3,
           categoryId: category,
           expectAmount: moneyExpect,
           actualAmount: moneyActual,
@@ -690,7 +690,7 @@ const Calendar = () => {
       }
      
       if (item === "timeGridWeek") {
-        setType("DAY");
+        setType("WEEK");
 
         calendarRef.current.getApi().changeView(item);
         setIdUpdate(false);
@@ -834,10 +834,10 @@ const Calendar = () => {
                   i.expectAmount < i.actualAmount
                     ? "red"
                     : i.priority === 1
-                    ? "blue"
+                    ? "#039BE5"
                     : i.priority === 2
-                    ? "#d966ff"
-                    : "gray",
+                    ? "#33B679"
+                    : "#919191b2",
                 actualAmount: dailyActualAmount,
                 expectAmount: dailyExpectAmount,
                 categoryId: categoryId,
@@ -939,7 +939,10 @@ const Calendar = () => {
      } else
       if(type === "YEAR") {
       handleDayButtonClick("multiMonthYear");
-     }
+     }else
+     if(type === "WEEK") {
+     handleDayButtonClick("timeGridWeek");
+    }
 
      calendarApi.on("datesSet", handleDateSet);
 
@@ -1408,7 +1411,7 @@ const Calendar = () => {
   }
 
      return (
-    <Box m="10px 35px 0 35px">
+    <Box m="10px 20px 0 20px">
       <Box display="flex" justifyContent="space-between">
         {/* CALENDAR SIDEBAR */}
         <Box
@@ -1419,7 +1422,7 @@ const Calendar = () => {
         >
           <Button
             variant="contained"
-            color="success"
+            // color="success"
             onClick={handleCreatePlan}
             style={{
               marginBottom: "20px",
@@ -1427,15 +1430,16 @@ const Calendar = () => {
               fontWeight: "500",  
               borderRadius: "10px",
               boxShadow: "2px 2px 1px soild #ccc",
+              backgroundColor: colors.greenAccent[500],
             }}
           >
-            <AddIcon />
+            <EditIcon />
             Create
           </Button>
           {expectAmount > 0 && (
             <Button
               variant="contained"
-              color="warning"
+              // color="warning"
               onClick={handleUpdatePlan}
               style={{
                 marginBottom: "20px",
@@ -1444,7 +1448,8 @@ const Calendar = () => {
                 marginLeft: "10px",
                 borderRadius: "10px",
                 boxShadow: "2px 2px 1px soild #ccc",
-
+                backgroundColor: "#ff7f50"
+                
               }}
             >
               Update
@@ -1462,7 +1467,7 @@ const Calendar = () => {
               sx={{
                 backgroundColor: colors.greenAccent[700],
                 margin: "1px 0",
-                borderRadius: "2px",
+                borderRadius: "5px",
               }}
             >
               <ListItemText
@@ -1487,7 +1492,7 @@ const Calendar = () => {
                 backgroundColor:
                   expectAmount < actualAmount ? "red" : colors.greenAccent[700],
                 margin: "1px 0",
-                borderRadius: "2px",
+                borderRadius: "5px",
               }}
             >
               <ListItemText
@@ -1521,7 +1526,7 @@ const Calendar = () => {
 
           <List
             sx={{
-              height: "365px",
+              height: "82vh",
               overflow: "auto",
             }}
           >
@@ -1530,9 +1535,9 @@ const Calendar = () => {
                 key={event.id}
                 sx={{
                   backgroundColor: colors.greenAccent[700],
-                  margin: "10px 0",
-                  color: "black",
-                  borderRadius: "2px",
+                  margin: "0px 0px 10px 0px",
+                  // color: "black",
+                  borderRadius: "5px",
                 }}
                 onClick={() => updateCategory(event)}
               >
@@ -1546,7 +1551,7 @@ const Calendar = () => {
         <Box flex="1 1 100%" ml="0px">
           <FullCalendar
             ref={calendarRef}
-            height="89vh"
+            height="90vh"
             plugins={[
               dayGridPlugin,
               timeGridPlugin,
@@ -1555,7 +1560,7 @@ const Calendar = () => {
               multiMonthPlugin,
             ]}
             headerToolbar={{
-              left: "prev,next today",
+              left: "today prev,next",
               center: "title",
               right: "MonthButton,WeekButton,dayButton",
             }}
@@ -1604,7 +1609,7 @@ const Calendar = () => {
               },
               dayGridMonth: {
                 buttonText: "Month",
-                showNonCurrentDates: false,
+                // showNonCurrentDates: false,
               },
               multiMonthYear: {
                 buttonText: "Year",

@@ -222,7 +222,7 @@ export default function Topbar({ toggleSidebar }) {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AppBar sx={{ background:"#29303b" }}>
+      <AppBar sx={{ background:"#4d5360" }}>
         <Toolbar>
           <img src={Logo} alt="" srcset="" width="45px" height="45px" style={{transform: "scale(1)"}}/>
           {/* <AddBusinessRoundedIcon sx={{ transform: "scale(2)" }} /> */}
