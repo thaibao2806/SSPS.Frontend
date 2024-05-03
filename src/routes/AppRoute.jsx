@@ -23,6 +23,8 @@ import UpdateAccount from "../pages/user/update_account"
 import ForgotPassword from '../pages/ForgotPassword';
 import Board from '../pages/user/board/Board';
 import { ToastContainer } from 'react-toastify';
+import Pomodoro from '../pages/user/pomodoro';
+import SettingsContextProvider from '../context/SettingsContext';
 
 
 const AppRoute = () => {
@@ -30,14 +32,17 @@ const AppRoute = () => {
     <>
       <Routes>
         <Route path="/" element={<App />}>
-          {/* <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/team" element={<Team />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          {/* <Route path="/team" element={<Team />} />
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/invoices" element={<Invoices />} />
           <Route path="/form" element={<Form />} />
           <Route path="/bar" element={<Bar />} />
           <Route path="/pie" element={<Pie />} />
           <Route path="/line" element={<Line />} /> */}
+          <Route path="/pomodoro" element={
+          <Pomodoro />
+          } />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/todo" element={<Board />} />
           <Route path="/calendar" element={<Calendar />} />

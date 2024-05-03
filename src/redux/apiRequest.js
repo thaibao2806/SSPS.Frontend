@@ -52,7 +52,7 @@ export const loginAdmin  = async(user, dispatch, navigate) => {
     }
     return null; // Trả về null khi không có lỗi
 } catch (error) {
-    dispatch(loginFailed(error.response.data.message));
+    dispatch(loginFailed(error.response.data?.message));
     return error.response.data.message; // Trả về thông báo lỗi khi có lỗi
 }
 }

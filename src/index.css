@@ -7,7 +7,7 @@ body,
 .content {
     height: 100%;
     width: 100%;
-    font-family: "Poppins", sans-serif;
+    font-family: 'Poppins', sans-serif;
     /* padding-left: 15px; */
 }
 
@@ -34,3 +34,10 @@ body,
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+.chat-ai-button {
+    position: fixed;
+    bottom: 20px; /* điều chỉnh khoảng cách từ bottom nếu cần */
+    right: 15px; /* điều chỉnh khoảng cách từ right nếu cần */
+    z-index: 9999; /* đảm bảo phần tử này hiển thị trên các phần tử khác */
+  }

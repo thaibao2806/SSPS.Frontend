@@ -30,9 +30,7 @@ const Form = () => {
   useEffect(() => {
     if (user) {
       const decode = jwt_decode(user?.data.accessToken);
-      console.log(decode?.firstName);
       setId(decode?.id);
-      console.log("id", decode?.id);
       // setLastName(decode?.lastName);
     }
 

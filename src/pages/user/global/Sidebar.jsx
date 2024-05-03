@@ -21,7 +21,8 @@ import jwt_decode from "jwt-decode";
 import { useSelector } from "react-redux";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
-import SmallCalendar from "../calendar/smallCalendar"
+import BarChartIcon from '@mui/icons-material/BarChart';
+import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 
 // eslint-disable-next-line react/prop-types
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -192,6 +193,22 @@ const Sidebars = ({ isCollapsed, toggleSidebar }) => {
               </Typography>
             )}
             <Item
+              title="Report"
+              to="/todo"
+              icon={<BarChartIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            {isCollapsed && (
+              <Typography
+                variant="h6"
+                color={colors.grey[300]}
+                sx={{ m: "0px 0 5px 20px" }}
+              >
+                Report
+              </Typography>
+            )}
+            <Item
               title="Todo"
               to="/todo"
               icon={<FormatListBulletedIcon />}
@@ -205,6 +222,22 @@ const Sidebars = ({ isCollapsed, toggleSidebar }) => {
                 sx={{ m: "0px 0 5px 20px" }}
               >
                 Todo
+              </Typography>
+            )}
+            <Item
+              title="Pomodoro"
+              to="/pomodoro"
+              icon={<AccessAlarmIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            {isCollapsed && (
+              <Typography
+                variant="h6"
+                color={colors.grey[300]}
+                sx={{ m: "0px 0 0px 5px" }}
+              >
+                Pomodoro
               </Typography>
             )}
             <Item

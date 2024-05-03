@@ -102,32 +102,55 @@ const Contacts = () => {
   const [rowModesModel, setRowModesModel] = useState({});
   const [editedData, setEditedData] = useState([]);
   const user = useSelector(state => state.auth.login?.currentUser)
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 10,
+    page: 1,
+    total: 0,
+    isLoading: false
+  });
 
 
   useEffect(() => {
-    getUser()
-  }, [])
+    getUser(paginationModel.page, paginationModel.pageSize);
+  }, [paginationModel.page, paginationModel.pageSize]);
 
-  const getUser = async() => {
+  const getUser = async (page, pageSize) => {
     try {
-      let res = await getUserByAdmin(1, 10, user.data.accessToken);
+      setPaginationModel((prev) => ({ ...prev, isLoading: true }));
+      let res = await getUserByAdmin(page, pageSize, user.data.accessToken);
       if (res && res.status === 200) {
         setRows(res.data?.data);
-        console.log(res.data.data);
+        setPaginationModel((prev) => ({
+          ...prev,
+          total: res.data?.paginationResult.totalPage || 0,
+          isLoading: false,
+        }));
+      } else {
+        // Xử lý lỗi API
+        console.error("Lỗi khi lấy dữ liệu:", res.statusText);
+        toast.error("Lấy dữ liệu thất bại. Vui lòng thử lại sau.");
+        setPaginationModel((prev) => ({ ...prev, isLoading: false }));
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        console.log(401);
-        const timeoutDelay = 5000;
-
-        toast.warning("Session expired. Logging out in 5 seconds.");
-
-        setTimeout(() => {
-          logOutUser(dispatch, navigate);
-        }, timeoutDelay);
-      }
+      // Xử lý các lỗi khác
+      console.error("Lỗi khi lấy dữ liệu:", error);
+      toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+      setPaginationModel((prev) => ({ ...prev, isLoading: false }));
     }
-  }
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage !== paginationModel.page) {
+      setPaginationModel((prev) => ({ ...prev, page: newPage }));
+    }
+  };
+
+  const handlePageSizeChange = (newPageSize) => {
+    if (newPageSize !== paginationModel.pageSize) {
+      // Đặt lại trang về 1 khi thay đổi kích thước trang
+      setPaginationModel((prev) => ({ ...prev, page: 1, pageSize: newPageSize }));
+    }
+  };
 
   const handleRowEditStop = (params, event) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -328,6 +351,14 @@ const Contacts = () => {
           slotProps={{
             toolbar: { setRows, setRowModesModel },
           }}
+          serverMode
+          totalRows={paginationModel.total}
+          pageSize={paginationModel.pageSize}
+          pageSizeOptions={[5, 10, 25]}
+          currentPage={paginationModel.page - 1}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          loading={paginationModel.isLoading}
         />
       </Box>
       <ToastContainer />
