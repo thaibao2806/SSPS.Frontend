@@ -37,7 +37,7 @@ function App() {
 
   return (
     <>
-      {role === "admin" ? (
+      {role === "ADMIN" || role === "admin" ? (
         <ColorModeContext.Provider value={colorMode}>
           <ThemeProvider theme={theme}>
             <CssBaseline />

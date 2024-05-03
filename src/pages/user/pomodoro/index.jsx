@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import Tags from '../../../components/Tags'
-import "./pomodoro.css"
-import Timer from '../../../components/Timer'
-import SettingsIcon from '@mui/icons-material/Settings';
-import { tokens } from "../../../theme";
-import { useTheme, } from "@mui/material";
-import moment from 'moment';
-import TimerSetting from '../../../components/TimerSettingModal/TimerSetting';
-import styled from "styled-components"
+import React, { useEffect, useState } from "react";
+import Tags from "../../../components/Tags";
+import "./pomodoro.css";
+import Timer from "../../../components/Timer";
+import SettingsIcon from "@mui/icons-material/Settings";
+import TimerSetting from "../../../components/TimerSettingModal/TimerSetting";
+import styled from "styled-components";
+import TodoList from "./todolist";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 
 const Pomodoro = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -15,11 +14,12 @@ const Pomodoro = () => {
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [countdownActive, setCountdownActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isTodo, setIsTodo] = useState(false);
 
   useEffect(() => {
     if (countdownActive && timeLeft > 0) {
       const timerId = setInterval(() => {
-        setTimeLeft(prevTime => prevTime - 1);
+        setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
 
       return () => {
@@ -42,13 +42,43 @@ const Pomodoro = () => {
 
   return (
     <div>
-      <Title>Pomodoro</Title>
-      <Tags setCurrentTask={setCurrentTask} setTimeLeft={setTimeLeft} setCountdownActive={setCountdownActive} />
-      <Timer currentTask={currentTask} timeLeft={timeLeft} startCountdown={startCountdown} stopCountdown={stopCountdown} />
-      <div onClick={() => setOpenModal(true)} className='icons'>
-        <SettingsIcon className='icon-btn' style={{ fontSize: "xxx-large" }} />
-      </div>
-      <TimerSetting visible={openModal} onClose={() => setOpenModal(false)} />
+      <BoxPomodoro className="pomodoro">
+        <div>
+          <Title>Pomodoro</Title>
+
+          <Tags
+            setCurrentTask={setCurrentTask}
+            setTimeLeft={setTimeLeft}
+            setCountdownActive={setCountdownActive}
+          />
+          <Timer
+            currentTask={currentTask}
+            timeLeft={timeLeft}
+            startCountdown={startCountdown}
+            stopCountdown={stopCountdown}
+          />
+          <BoxButton>
+            <div onClick={() => setOpenModal(true)} className="icons">
+              <SettingsIcon
+                className="icon-btn"
+                style={{ fontSize: "xxx-large" }}
+              />
+            </div>
+            <TimerSetting
+              visible={openModal}
+              onClose={() => setOpenModal(false)}
+            />
+            <div onClick={() => setIsTodo(!isTodo)} className="icons">
+              <PlaylistAddIcon
+                className="icon-btn"
+                style={{ fontSize: "xxx-large", marginLeft: "20px" }}
+              />
+            </div>
+          </BoxButton>
+        </div>
+        {isTodo && <TodoList />}
+        {/* <TodoList /> */}
+      </BoxPomodoro>
     </div>
   );
 };
@@ -60,4 +90,16 @@ const Title = styled.h1`
   font-weight: 600;
   padding: 0rem 0;
   text-align: center;
-`
+`;
+
+const BoxPomodoro = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 10px;
+`;
+
+const BoxButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;

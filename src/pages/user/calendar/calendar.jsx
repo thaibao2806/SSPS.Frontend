@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import ReactDOM from "react-dom";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -21,16 +22,29 @@ import {
   DialogContent,
   DialogContentText,
   Popover,
+  Menu,
+  useMediaQuery,
 } from "@mui/material";
 import { tokens } from "../../../theme";
-import { LocalizationProvider } from "@mui/x-date-pickers";
+import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
 import { mockEventData } from "../../../data/mockData";
 import { useDispatch, useSelector } from "react-redux";
-import { createMoneyPlan, deletePlan, getCategories, getMoneyPlanRangeType, updateCategories, updateMoneyPlan, updateUsage } from "../../../data/calendarApi";
+import {
+  createListMoneyPlan,
+  createMoneyPlan,
+  deleteCategories,
+  deletePlan,
+  getCategories,
+  getMoneyPlanById,
+  getMoneyPlanRangeType,
+  updateCategories,
+  updateMoneyPlan,
+  updateUsage,
+} from "../../../data/calendarApi";
 import SmallCalendar from "./smallCalendar";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Tooltip from "@mui/material/Tooltip";
@@ -38,42 +52,77 @@ import IconButton from "@mui/material/IconButton";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import Checkbox from "@mui/material/Checkbox";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { addMonths, endOfDay, format, isSameDay, isValid, parseISO, setMonth, startOfMonth, sub } from "date-fns";
- import { ToastContainer, toast } from "react-toastify";
+import {
+  addMonths,
+  endOfDay,
+  format,
+  isSameDay,
+  isValid,
+  parseISO,
+  setMonth,
+  startOfMonth,
+  sub,
+  toDate,
+} from "date-fns";
+import { Icons, ToastContainer, toast } from "react-toastify";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import { ColorPicker } from "material-ui-color";
-import { createNote, deleteNote, getNote, updateNote } from "../../../data/noteApi";
-import holidays from "date-holidays"
+import {
+  createNote,
+  deleteNote,
+  getNote,
+  updateNote,
+} from "../../../data/noteApi";
+import holidays from "date-holidays";
 import { logOutUser } from "../../../redux/apiRequest";
-import "./calendar.css"
-import EditIcon from '@mui/icons-material/Edit';
-
+import "./calendar.css";
+import EditIcon from "@mui/icons-material/Edit";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import Collapse from "@mui/material/Collapse";
+import {
+  ArrowBackIos,
+  ArrowForwardIos,
+  ChevronLeft,
+  ChevronRight,
+} from "@mui/icons-material";
+import CloseIcon from "@mui/icons-material/Close";
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+import Divider from "@mui/material/Divider";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import MenuList from "@mui/material/MenuList";
+// import MenuItem from '@mui/material/MenuItem';
+// import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon from "@mui/material/ListItemIcon";
 
 const Calendar = () => {
   const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.login?.currentUser);
   const [currentEvents, setCurrentEvents] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDialogOpenCreate, setIsDialogOpenCreate] = useState(false);
   const [eventTitle, setEventTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
-  const [select, setSelect] = useState("")
+  const [select, setSelect] = useState("");
   const [eventColor, setEventColor] = useState("3");
   const [category, setCategory] = useState("");
   const availableColors = [
     {
       title: "Highly",
-      priority: "#039BE5",
+      priority: "#5cc9ff",
       color: "1",
     },
     {
       title: "Medium",
-      priority: "#33B679",
+      priority: "#41df95",
       color: "2",
     },
 
@@ -92,20 +141,20 @@ const Calendar = () => {
       eventColor: null,
     },
   ]);
-  const [timeText, setTimeText] = useState("")
-  const [totalAmount, setTotalAmount] = useState("")
-  const [expectAmount, setExpectAmount] = useState("")
+  const [timeText, setTimeText] = useState("");
+  const [totalAmount, setTotalAmount] = useState("");
+  const [expectAmount, setExpectAmount] = useState("");
   const [selectedYear, setSelectedYear] = useState(new Date());
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedStartDay, setSelectedStartDay] = useState(new Date());
-  const [selectedEndDay, setSelectedEndDay] = useState(null);
+  const [selectedEndDay, setSelectedEndDay] = useState(new Date());
   const [totalAmountInBoxes, setTotalAmountInBoxes] = useState(0);
-  const [currencyUnit, setCurrencyUnit] = useState("")
-  const [actualAmount, setActualAmount] = useState("")
-  const [moneyExpect, setMoneyExpect] = useState("")
-  const [moneyActual, setMoneyActual] = useState("")
-  const [unit, setUnit] = useState("")
-  
+  const [currencyUnit, setCurrencyUnit] = useState("");
+  const [actualAmount, setActualAmount] = useState("");
+  const [moneyExpect, setMoneyExpect] = useState("");
+  const [moneyActual, setMoneyActual] = useState("");
+  const [unit, setUnit] = useState("");
+
   const currentDate = new Date();
   let month = currentDate.getMonth() + 1;
   const [startDate, setStartDate] = useState(
@@ -119,45 +168,69 @@ const Calendar = () => {
   const [dayEnd, setDayEnd] = useState(dayjs(currentDate));
   const [timeStart, setTimeStart] = useState(dayjs(currentDate));
   const [timeEnd, setTimeEnd] = useState(dayjs(currentDate));
-  const [type, setType] = useState("DAY")
-  const [errorCreate, setErrorCreate] = useState("")
-  const [dataUpdate, setDataUpdate] = useState("")
-  const [checkUpdate, setCheckUpdate] = useState(false)
-  const [idUpdate, setIdUpdate] = useState("")
+  const [type, setType] = useState("DAY");
+  const [errorCreate, setErrorCreate] = useState("");
+  const [dataUpdate, setDataUpdate] = useState("");
+  const [checkUpdate, setCheckUpdate] = useState(false);
+  const [idUpdate, setIdUpdate] = useState("");
   const [isPopupOpen, setPopupOpen] = useState(false);
-  const [idNote, setIdNote] = useState("")
+  const [idNote, setIdNote] = useState("");
   const [colorUpdate, setColorUpdate] = useState("");
   const [priority, setPriority] = useState("");
-  const [categoriesList, setCategoriesList] = useState([])
-  const [categoryName, setCategoryName] = useState("")
-  const [isOpenCreateNote, setIsOpenCreateNote] = useState(false)
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [categoryName, setCategoryName] = useState("");
+  const [isOpenCreateNote, setIsOpenCreateNote] = useState(false);
   const [selectedColor, setSelectedColor] = useState(null);
-  const [description, setDescription] = useState("")
-  const [dataPlan, setDataPlan] = useState(null)
-  const [errorUsage, setErrorUsage] = useState("")
-  const [createCategory, setCreateCategory] = useState("")
-  const [isOpenCreateCategory, setIsOpenCreateCategory] = useState(false)
-  const [isUpdateCate, setIsUpdateCate] = useState(false)
+  const [description, setDescription] = useState("");
+  const [dataPlan, setDataPlan] = useState(null);
+  const [errorUsage, setErrorUsage] = useState("");
+  const [createCategory, setCreateCategory] = useState("");
+  const [isOpenCreateCategory, setIsOpenCreateCategory] = useState(false);
+  const [isUpdateCate, setIsUpdateCate] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [validateMoneyPlan, setValidateMoneyPlan] = useState("")
+  const [validateMoneyPlan, setValidateMoneyPlan] = useState("");
   const [validateCategory, setValidateCategory] = useState("");
-  const [validateNote, setValidateNote] = useState("")
+  const [validateNote, setValidateNote] = useState("");
   const [isPopoverNote, setIsPopoverNote] = useState(false);
-  const [login, setLogin] = useState(false)
+  const [login, setLogin] = useState(false);
   const calendarRef = useRef(null);
-  const mock = mockEventData
-  const [isDelete, setIsDelete] = useState(false)
+  const mock = mockEventData;
+  const [isDelete, setIsDelete] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(true);
-  const [isDetailCalendar, setIsDetailCalendar] = useState(false)
-  const [isDetailNote, setIsDetailNote] = useState(false)
+  const [isDetailCalendar, setIsDetailCalendar] = useState(false);
+  const [isDetailNote, setIsDetailNote] = useState(false);
+  const [isListOpen, setIsListOpen] = useState(true);
+  const [isBoxOpen, setIsBoxOpen] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isDeleteCategory, setIsDeleteCategory] = useState(false);
+  const [totalActucalAmount, setTotalActualAmount] = useState("");
+
+  const [anchorEl1, setAnchorEl1] = useState(null);
+
+  const handleClickCategory = (event) => {
+    setAnchorEl1(event.currentTarget);
+  };
+
+  const handleCloseCategory = () => {
+    setAnchorEl1(null);
+  };
+
+  const open = Boolean(anchorEl1);
+  const id = open ? "simple-popover" : undefined;
+
+  const toggleBox = () => {
+    setIsBoxOpen((prevState) => !prevState);
+  };
+
+  const toggleList = () => {
+    setIsListOpen((prevState) => !prevState); // Đảo ngược trạng thái danh sách
+  };
 
   // const hd = new holidays('VN')
   // const holiday = hd.getHolidays()
-  
+
   useEffect(() => {
-    
-    getCategory()
-    
+    getCategory();
   }, []);
 
   const getCategory = async () => {
@@ -192,7 +265,7 @@ const Calendar = () => {
   };
 
   const handleDeleteBox = (index) => {
-    console.log(index)
+    console.log(index);
     setBoxCount(boxCount - 1);
     const updatedBoxData = [...boxData];
     updatedBoxData.splice(index, 1);
@@ -206,15 +279,15 @@ const Calendar = () => {
     setDayStart(selected.start);
     setDayEnd(selected.end);
     setTimeStart(selected.start);
-    const date1 = selected.start
-    const date2 = selected.end
-    const result = isSameDay(date1, date2)
+    const date1 = selected.start;
+    const date2 = selected.end;
+    const result = isSameDay(date1, date2);
     if (result) {
       setTimeEnd(selected.end);
     } else {
       setTimeEnd(dayjs(selected.start).endOf("day").toDate());
     }
-    setSelect(selected)
+    setSelect(selected);
     setSelectedEvent(null);
     const calendarApi = selected.view.calendar;
     setEventDate(calendarApi);
@@ -227,77 +300,84 @@ const Calendar = () => {
 
   const closeDialog = () => {
     setIsDialogOpen(false);
-    setIsUpdateCate(false)
-    setCreateCategory("")
-    setIsOpenCreateCategory(false)
-    setIsOpenCreateNote(false)
-    setEventDate("")
-    setEventTitle("")
-    setSelect("")
-    setTimeEnd(dayjs(currentDate))
+    setIsUpdateCate(false);
+    setCreateCategory("");
+    setIsOpenCreateCategory(false);
+    setIsOpenCreateNote(false);
+    setEventDate("");
+    setEventTitle("");
+    setSelect("");
+    setTimeEnd(dayjs(currentDate));
     setTimeStart(dayjs(currentDate));
     setDayEnd(dayjs(currentDate));
     setDayStart(dayjs(currentDate));
-    setSelectedEvent(null)
+    setSelectedEvent(null);
     setEventColor("indigo");
-    setMoneyActual("")
-    setMoneyExpect("")
-    setCategory("")
-    setSelectedColor(null)
-    setTimeEnd("")
-    setTimeStart("")
-    setDayStart("")
-    setDescription("")
-    setDayEnd("")
-    setErrorUsage("")
-    setValidateCategory("")
-    setValidateNote("")
-    setIsDetailNote(false)
+    setMoneyActual("");
+    setMoneyExpect("");
+    setCategory("");
+    setSelectedColor(null);
+    setTimeEnd("");
+    setTimeStart("");
+    setDayStart("");
+    setDescription("");
+    setDayEnd("");
+    setErrorUsage("");
+    setValidateCategory("");
+    setValidateNote("");
+    setIsDetailNote(false);
   };
 
   const handleAddEvent = () => {
-
     if (eventTitle && eventDate) {
-        eventDate.addEvent({
-          id: `${eventDate}-${eventTitle}`,
-          title: eventTitle,
-          start: select.startStr,
-          end: select.endStr,
-          allDay: select.allDay,
-          color: eventColor,
-        });
+      eventDate.addEvent({
+        id: `${eventDate}-${eventTitle}`,
+        title: eventTitle,
+        start: select.startStr,
+        end: select.endStr,
+        allDay: select.allDay,
+        color: eventColor,
+      });
       closeDialog();
     }
   };
 
   const handleEventClick = (selected) => {
     let checkId = currentEvents.filter((item) => item.id === selected.event.id);
-    let ctg
+    let ctg;
     checkId.map((item) => {
       if (item.expectAmount < item.actualAmount) {
         setErrorUsage("Warning: Actual money is higher than expected money");
       }
-        setMoneyExpect(item.expectAmount);
+      setMoneyExpect(item.expectAmount);
       setMoneyActual(item.actualAmount);
       setCategoryName(item.priority);
       setDescription(item?.description);
       setSelectedColor(item?.color);
-      setTimeEnd(dayjs(item?.end));
+      setTimeEnd(item?.end);
       setTimeStart(item?.start);
       setColorUpdate(item?.color);
       ctg = categoriesList.filter((i) => i.id === item.categoryId);
-      if(item.expectAmount && item.actualAmount) {
-        openDialog()
+      if (item.expectAmount || item.actualAmount) {
+        // openDialog()()
+        handleUpdatePlan(item.idMoney);
+        // setStartDate(item.start);
+        // setEndDate(item.end)
+        console.log("aaa", item.idMoney);
+        // setIsVisible(false);
+        // handleEventMouseEnter(selected);
       } else {
-        setIdNote(item.id)
-        setIsOpenCreateNote(true)
+        // setIsVisible(true);
+        // handleEventMouseEnter(selected);
+        setIdNote(item.id);
+        setIsOpenCreateNote(true);
       }
     });
     ctg.map((item) => setCategory(item.id));
     const calendarApi = selected.view.calendar;
     setDayStart(selected.event.start);
     setDayEnd(selected.event.end || selected.event.start);
-    setEventDate(calendarApi)
+    setEventDate(calendarApi);
     setSelectedEvent(selected);
     setEventTitle(selected.event.title);
     setEventColor(selected.event.backgroundColor);
@@ -305,7 +385,7 @@ const Calendar = () => {
     // setIsOpenCreateNote(true)
   };
 
-  const handleUpdateEvent = async() => {
+  const handleUpdateEvent = async () => {
     try {
       if (eventTitle && eventDate) {
         if (moneyActual > moneyExpect) {
@@ -319,7 +399,7 @@ const Calendar = () => {
           allDay: selectedEvent.event.allDay,
           color: eventColor,
           priority:
-            eventColor === "#039BE5" ? 1 : eventColor === "#33B679" ? 2 : 3,
+            eventColor === "#94d4f490" ? 1 : eventColor === "#79ffc0" ? 2 : 3,
           categoryId: category,
           expectAmount: moneyExpect,
           actualAmount: moneyActual,
@@ -340,6 +420,7 @@ const Calendar = () => {
           priority: item.priority,
           categoryId: item.categoryId,
         }));
+        console.log(data);
 
         let res = await updateUsage(moneyPlanId, data, user.data?.accessToken);
         if (res && res.data.msgCode === "SUCCESS") {
@@ -374,7 +455,7 @@ const Calendar = () => {
         closeDialog();
       }
     } catch (error) {
-      if (error.response.status === 401) {
+      if (error.response?.status === 401) {
         console.log(401);
         const timeoutDelay = 5000;
 
@@ -388,12 +469,12 @@ const Calendar = () => {
   };
 
   const openCreateDialog = () => {
-    setIsDialogOpenCreate(true)
-  }
+    setIsDialogOpenCreate(true);
+  };
 
   const closeCreateDialog = () => {
     setIsDialogOpenCreate(false);
-    setCurrencyUnit("")
+    setCurrencyUnit("");
     setTimeFrame("Chose");
     setBoxData([
       {
@@ -402,27 +483,30 @@ const Calendar = () => {
         actualAmount: actualAmount,
       },
     ]);
-    setErrorCreate("")
-    setTotalAmount("")
-    setBoxCount(1)
-    setValidateMoneyPlan("")
-    setCheckUpdate(false)
-  }
+    setErrorCreate("");
+    setTotalAmount("");
+    setBoxCount(1);
+    setValidateMoneyPlan("");
+    setCheckUpdate(false);
+    // setSelectedStartDay(new Date(startDate));
+    // setSelectedMonth(new Date(startDate));
+    // setSelectedYear(new Date(startDate));
+  };
 
   const handleCreatePlan = () => {
     if (!user?.data) {
-      setLogin(true)
+      setLogin(true);
       return;
     }
-    openCreateDialog()
-  }
+    openCreateDialog();
+  };
 
   const handleBoxTitleChange = (e, index) => {
     const updatedBoxData = [...boxData];
     updatedBoxData[index].eventTitle = e.target.value;
     setBoxData(updatedBoxData);
   };
-  
+
   const handleBoxAmountChange = (e, index) => {
     const updatedBoxData = [...boxData];
     updatedBoxData[index].amount = e.target.value;
@@ -446,47 +530,70 @@ const Calendar = () => {
     setBoxData(updatedBoxData);
   };
 
-  const handleSuggestion =() => {
-    const amounts = totalAmount / 5
+  const handleSuggestion = () => {
+    const amounts = totalAmount / 5;
     setBoxData([
       {
-        eventTitle: "Tiền nhà",
-        eventColor: "2",
-        amount: amounts,
+        eventTitle: "Home bill",
+        eventColor: "1",
+        amount: 1000000,
         category: categoriesList[9].id,
       },
       {
-        eventTitle: "Tiền điện",
-        eventColor: "2",
-        amount: amounts,
+        eventTitle: "Electricity",
+        eventColor: "1",
+        amount: 70000,
         category: categoriesList[4].id,
       },
       {
-        eventTitle: "Tiền nước",
-        eventColor: "2",
-        amount: amounts,
+        eventTitle: "Water bill",
+        eventColor: "1",
+        amount: 70000,
         category: categoriesList[8].id,
       },
       {
-        eventTitle: "Tiền mạng",
+        eventTitle: "Internet bill",
         eventColor: "2",
-        amount: amounts,
+        amount: 250000,
         category: categoriesList[6].id,
       },
       {
-        eventTitle: "Tiền sinh hoạt",
+        eventTitle: "Food & Beverage",
+        eventColor: "1",
+        amount: 2500000,
+        category: categoriesList[9].id,
+      },
+      {
+        eventTitle: "Health & Fitness",
+        eventColor: "1",
+        amount: 250000,
+        category: categoriesList[9].id,
+      },
+      {
+        eventTitle: "Gasoline",
         eventColor: "2",
-        amount: amounts,
+        amount: 500000,
+        category: categoriesList[9].id,
+      },
+      {
+        eventTitle: "Entertainment",
+        eventColor: "2",
+        amount: 500000,
+        category: categoriesList[9].id,
+      },
+      {
+        eventTitle: "Incurred",
+        eventColor: "2",
+        amount: 500000,
         category: categoriesList[9].id,
       },
     ]);
+  };
 
-  }
-  
-    useEffect(() => {
-      setBoxCount(boxData.length);
-      updateTotalAmountInBoxes();
-    }, [boxData]);
+  useEffect(() => {
+    setBoxCount(boxData.length);
+    updateTotalAmountInBoxes();
+  }, [boxData]);
 
   const updateTotalAmountInBoxes = () => {
     const total = boxData.reduce(
@@ -502,8 +609,8 @@ const Calendar = () => {
       );
       setActualAmount(totalActual);
     }
-    if(totalAmountInBoxes > totalAmount) {
-      setShowConfirmation(true)
+    if (totalAmountInBoxes > totalAmount) {
+      setShowConfirmation(true);
     }
     setTotalAmountInBoxes(total);
   };
@@ -521,35 +628,37 @@ const Calendar = () => {
     if (timeFrame === "YEAR") {
       setTimeText(`Year: ${selectedYear?.$y}`);
     } else if (timeFrame === "MONTH") {
-      setTimeText(`Month: ${selectedMonth?.$M +1}/${selectedMonth?.$y}`);
+      setTimeText(`Month: ${selectedMonth?.$M + 1}/${selectedMonth?.$y}`);
     } else if (timeFrame === "DAY") {
       setTimeText(
-        `Day: ${selectedStartDay?.$D}/${selectedStartDay?.$M + 1} - ${selectedEndDay?.$D}/${selectedEndDay?.$M + 1}/${
-          selectedEndDay?.$y
-        }`
+        `Day: ${selectedStartDay?.$D}/${selectedStartDay?.$M + 1} - ${
+          selectedEndDay?.$D
+        }/${selectedEndDay?.$M + 1}/${selectedEndDay?.$y}`
       );
     }
   };
 
-  const handleCreateMoneyPlan = async() => {
+  const handleCreateMoneyPlan = async () => {
     try {
       if (!user?.data) {
         navigate("/login");
         return;
       }
-      const type = timeFrame;
       const expectAmount = totalAmount;
-      let dateTime;
-      if (timeFrame === "YEAR") {
-        dateTime = selectedYear;
-      } else if (timeFrame === "MONTH") {
-        dateTime = selectedMonth;
-      } else if (timeFrame === "DAY") {
-        const time = new Date(selectedStartDay);
-        time.setDate(time.getDate());
-        // dateTime = time.toISOString();
-        dateTime = selectedStartDay;
-      }
+      let fromDate;
+      let endDate;
+      fromDate = selectedStartDay;
+      endDate = selectedEndDay;
+      // if (timeFrame === "YEAR") {
+      //   dateTime = selectedYear;
+      // } else if (timeFrame === "MONTH") {
+      //   dateTime = selectedMonth;
+      // } else if (timeFrame === "DAY") {
+      //   const time = new Date(selectedStartDay);
+      //   time.setDate(time.getDate());
+      //   // dateTime = time.toISOString();
+      //   dateTime = selectedStartDay;
+      // }
 
       const convertedData = boxData.map((item) => ({
         categoryId: item?.category,
@@ -558,7 +667,7 @@ const Calendar = () => {
         priority: item?.eventColor,
       }));
       const usageMoneys = convertedData;
-      if (!timeFrame || !totalAmount || !currencyUnit || !dateTime) {
+      if (!totalAmount || !currencyUnit) {
         setValidateMoneyPlan("Need to fill in all information!");
         return;
       }
@@ -574,11 +683,11 @@ const Calendar = () => {
         setValidateMoneyPlan("Need to fill in all information!");
         return;
       }
-      const res = await createMoneyPlan(
-        type,
+      const res = await createListMoneyPlan(
         expectAmount,
         currencyUnit,
-        dateTime,
+        fromDate,
+        endDate,
         usageMoneys,
         user.data?.accessToken
       );
@@ -599,7 +708,7 @@ const Calendar = () => {
         setValidateMoneyPlan("");
       }
     } catch (error) {
-      if (error.response.status === 401) {
+      if (error.response?.status === 401) {
         console.log(401);
         const timeoutDelay = 5000;
 
@@ -610,7 +719,7 @@ const Calendar = () => {
         }, timeoutDelay);
       }
     }
-  }
+  };
 
   const handleAllDayChange = (e) => {
     setAllDay(e.target.checked);
@@ -673,39 +782,39 @@ const Calendar = () => {
   //         setCurrentEvents(convertedData);
   //        }
 
-        
-
-  const handleDayButtonClick = async(item) => {
+  const handleDayButtonClick = async (item) => {
     try {
       let convertedData = [];
 
-      setExpectAmount("")
+      setExpectAmount("");
       if (item === "timeGridDay") {
         setType("DAY");
         calendarRef.current.getApi().changeView(item);
         setExpectAmount(0);
         setActualAmount(0);
         setUnit("");
-        setIdUpdate(false)
+        setIdUpdate(false);
       }
-     
+
       if (item === "timeGridWeek") {
         setType("WEEK");
-
+        setExpectAmount("");
+        setTotalAmount("");
         calendarRef.current.getApi().changeView(item);
         setIdUpdate(false);
       }
       if (item === "dayGridMonth") {
         setType("MONTH");
         calendarRef.current.getApi().changeView(item);
-        setExpectAmount(0)
+        setExpectAmount(0);
         setActualAmount(0);
-        setUnit("")
+        setTotalAmount(0);
+        setUnit("");
         setIdUpdate(false);
         if (calendarRef.current) {
           const calendarApi = calendarRef.current.getApi();
           calendarApi.removeAllEvents();
-          convertedData = []
+          convertedData = [];
           convertedData.map((item) => calendarApi.addEvent(item));
         }
       }
@@ -716,10 +825,10 @@ const Calendar = () => {
         setIdUpdate(false);
         setExpectAmount(0);
         setActualAmount(0);
+        setTotalAmount(0);
         setUnit("");
       }
-      
-      
+
       if (item === "listYear") {
         calendarRef.current.getApi().changeView(item);
         setType("List");
@@ -733,8 +842,7 @@ const Calendar = () => {
         setUnit("");
       }
 
-      if (type === "DAY" || type === "MONTH") {
-
+      if (type === "DAY" || type === "MONTH" || type === "WEEK") {
         let start = new Date(startDate);
         let days = start.getDate() - 1;
         let months = (start.getMonth() + 1).toString().padStart(2, "0");
@@ -747,7 +855,7 @@ const Calendar = () => {
         let dateStart = `${years}-${months}-${days
           .toString()
           .padStart(2, "0")}`;
-        const inputDate = new Date(dateStart);;
+        const inputDate = new Date(dateStart);
         let ends = new Date(endDate);
         let enddDay = ends.getDate();
         let endmMonth = (ends.getMonth() + 1).toString().padStart(2, "0");
@@ -801,63 +909,132 @@ const Calendar = () => {
         setUnit("");
         const eventStartDate = new Date(startDate);
         const eventEndDate = new Date(endDate);
-        const numberOfDays = (eventEndDate - eventStartDate) / (1000 * 3600 * 24);
+        const numberOfDays =
+          (eventEndDate - eventStartDate) / (1000 * 3600 * 24);
+        let sum = 0;
+        console.log(res.data?.data);
+        let totalExpectAmount = 0;
+        let totalActualAmount = 0;
+
         res.data?.data.forEach((item) => {
-          item?.usageMoneys.forEach((i, index) => {
-
-            ctg = categoriesList?.filter((j) => j?.name === i?.categoryName);
-            
-            ctg.forEach((item) => { 
-              categoryId = item.id;
-            });
-
-            for (
-              let date = new Date(eventStartDate);
-              date <= eventEndDate;
-              date.setDate(date.getDate() + 1)
-            ) {
-              const year = date.getFullYear();
-              const month = String(date.getMonth() + 1).padStart(2, "0");
-              const day = String(date.getDate()).padStart(2, "0");
-              const dateString = `${year}-${month}-${day}`;
-              const numberOfDays = (eventEndDate - eventStartDate) / (1000 * 3600 * 24) + 1;
-
-              // Tính toán actualAmount và expectAmount cho mỗi ngày
-              const dailyActualAmount = i.actualAmount / numberOfDays;
-              const dailyExpectAmount = i.expectAmount / numberOfDays;
-              data.push({
-                id: `box-${index}-${i.name}-${dateString}`,
-                title: i.name,
-                start: dateString,
-                end: dateString,
-                color:
-                  i.expectAmount < i.actualAmount
-                    ? "red"
-                    : i.priority === 1
-                    ? "#039BE5"
-                    : i.priority === 2
-                    ? "#33B679"
-                    : "#919191b2",
-                actualAmount: dailyActualAmount,
-                expectAmount: dailyExpectAmount,
-                categoryId: categoryId,
-                priority: i.priority === 1 ? 1 : i.priority === 2 ? 2 : 3,
-              });
-            }
-          });
-          setExpectAmount(item?.expectAmount);
           setUnit(item.currencyUnit);
           setIdUpdate(item.id);
+          totalExpectAmount += item.expectAmount;
+          totalActualAmount += item.actualAmount;
+          item?.usageMoneys.forEach((i) => {
+            ctg = categoriesList?.filter((j) => j?.name === i?.categoryName);
+
+            ctg.forEach((item) => {
+              categoryId = item.id;
+            });
+            data.push({
+              id: `box-${i.name}-${item.date}}`,
+              idMoney: item.id,
+              title: i.name,
+              start: item.date.split("T")[0],
+              end: item.date.split("T")[0],
+              color:
+                i.expectAmount < i.actualAmount
+                  ? "red"
+                  : i.priority === 1
+                  ? "#5cc9ff"
+                  : i.priority === 2
+                  ? "#41df95"
+                  : "#919191b2",
+              actualAmount: i.actualAmount,
+              expectAmount: i.expectAmount,
+              categoryId: categoryId,
+              priority: i.priority === 1 ? 1 : i.priority === 2 ? 2 : 3,
+            });
+          });
         });
+
+        setExpectAmount(totalExpectAmount);
+        setTotalActualAmount(totalActualAmount);
+        console.log(data);
+
+        // res.data?.data.forEach((item) => {
+        //   sum += item.expectAmount
+        //   item?.usageMoneys.forEach((i, index) => {
+        //     ctg = categoriesList?.filter((j) => j?.name === i?.categoryName);
+
+        //     ctg.forEach((item) => {
+        //       categoryId = item.id;
+        //     });
+        //     // item.forEach(i => {
+        //     //   console.log(i)
+        //     // })
+        //        data.push({
+        //         id: `box-${index}-${i.name}-${dateString}`,
+        //         title: i.name,
+        //         start: item.date,
+        //         end: item.date,
+        //         color:
+        //           i.expectAmount < i.actualAmount
+        //             ? "red"
+        //             : i.priority === 1
+        //             ? "#039BE5"
+        //             : i.priority === 2
+        //             ? "#33B679"
+        //             : "#919191b2",
+        //         actualAmount: i.actualAmount,
+        //         expectAmount: i.expectAmount,
+        //         categoryId: categoryId,
+        //         priority: i.priority === 1 ? 1 : i.priority === 2 ? 2 : 3,
+        //       });
+
+        // for (
+        //   let date = new Date(eventStartDate);
+        //   date <= eventEndDate;
+        //   date.setDate(date.getDate() + 1)
+        // ) {
+        //   const year = date.getFullYear();
+        //   const month = String(date.getMonth() + 1).padStart(2, "0");
+        //   const day = String(date.getDate()).padStart(2, "0");
+        //   const dateString = `${year}-${month}-${day}`;
+        //   const numberOfDays =
+        //     (eventEndDate - eventStartDate) / (1000 * 3600 * 24) + 1;
+
+        //   // Tính toán actualAmount và expectAmount cho mỗi ngày
+        //   const dailyActualAmount = i.actualAmount / numberOfDays;
+        //   const dailyExpectAmount = i.expectAmount / numberOfDays;
+        //   data.push({
+        //     id: `box-${index}-${i.name}-${dateString}`,
+        //     title: i.name,
+        //     start: item.date,
+        //     end: item.date,
+        //     color:
+        //       i.expectAmount < i.actualAmount
+        //         ? "red"
+        //         : i.priority === 1
+        //         ? "#039BE5"
+        //         : i.priority === 2
+        //         ? "#33B679"
+        //         : "#919191b2",
+        //     actualAmount: dailyActualAmount,
+        //     expectAmount: dailyExpectAmount,
+        //     categoryId: categoryId,
+        //     priority: i.priority === 1 ? 1 : i.priority === 2 ? 2 : 3,
+        //   });
+        // }
+        //   });
+
+        //     totalExpectAmount += item.expectAmount
+        //   console.log(item.expectAmount)
+
+        //   setUnit(item.currencyUnit);
+        //   setIdUpdate(item.id);
+        // });
         let totalActual = 0;
+        console.log(sum);
         data?.forEach((item) => {
           convertedData.push(item);
-          totalActual = totalActual + item.actualAmount;
-          console.log("check",totalActual)
+          // totalActual = totalActual + item.actualAmount;
+          // console.log("check", totalActual);
         });
-        setActualAmount(parseFloat(totalActual.toFixed(2)));
+        // setActualAmount(parseFloat(totalActual.toFixed(2)));
         setDataPlan(data);
-        
+
         if (calendarRef.current) {
           const calendarApi = calendarRef.current.getApi();
           calendarApi.removeAllEvents();
@@ -868,7 +1045,7 @@ const Calendar = () => {
     } catch (error) {
       if (error.response?.status === 401) {
         console.log(401);
-        // const timeoutDelay = 5000; 
+        // const timeoutDelay = 5000;
 
         // toast.warning("Session expired. Logging out in 5 seconds.");
 
@@ -879,119 +1056,128 @@ const Calendar = () => {
     }
   };
 
+  useEffect(() => {
+    const calendarApi = calendarRef.current.getApi();
+    const handleDateSet = (info) => {
+      const view = info.view;
+      const startDate = info.start;
+      const endDate = info.end;
 
-  useEffect(()=> {
-     const calendarApi = calendarRef.current.getApi();
-     const handleDateSet = (info) => {
-       const view = info.view;
-       const startDate = info.start;
-       const endDate = info.end;
-       if (view.type === "dayGridMonth" ) {
-        setType("MONTH")
-         if (startDate.getDate() !== 1) {
-           // Đặt startDate thành ngày đầu tiên của tháng tiếp theo
-           let end = new Date(endDate)
+      if (view.type === "dayGridMonth") {
+        setType("MONTH");
+        if (startDate.getDate() !== 1) {
+          // Đặt startDate thành ngày đầu tiên của tháng tiếp theo
+          let end = new Date(endDate);
           const date = addMonths(startOfMonth(startDate), 1);
-           const formattedStartDate = format(date, "yyyy-MM-dd");
-           const formattedEndDate = format(end.setDate(0), "yyyy-MM-dd");
-           setStartDate(formattedStartDate);
-           setEndDate(formattedEndDate);
-           return
-         } else {
-           let end = new Date(endDate);
-           const formattedStartDate = format(startDate, "yyyy-MM-dd");
-           // const formattedEndDate = format(
-           //   addMonths(startOfMonth(startDate), 1),
-           //   "yyyy-MM-dd"
-           // );
-           const formattedEndDate = format(end.setDate(0), "yyyy-MM-dd");
-           setStartDate(formattedStartDate);
-           setEndDate(formattedEndDate);
-         }
-       } else if (view.type === "timeGridDay") {
+          const formattedStartDate = format(date, "yyyy-MM-dd");
+          const formattedEndDate = format(end.setDate(0), "yyyy-MM-dd");
+          setStartDate(formattedStartDate);
+          setEndDate(formattedEndDate);
+          setSelectedStartDay(formattedStartDate);
+          setSelectedEndDay(formattedEndDate);
+          return;
+        } else {
+          let end = new Date(endDate);
+          const formattedStartDate = format(startDate, "yyyy-MM-dd");
+          const formattedEndDate = format(end.setDate(0), "yyyy-MM-dd");
+          setStartDate(formattedStartDate);
+          setEndDate(formattedEndDate);
+          setSelectedStartDay(formattedStartDate);
+          setSelectedEndDay(formattedEndDate);
+        }
+      } else if (view.type === "timeGridDay") {
         const formattedStartDate = format(startDate, "yyyy-MM-dd");
         const formattedEndDate = format(startDate, "yyyy-MM-dd");
         setStartDate(formattedStartDate);
         setEndDate(formattedEndDate);
-       } else if (view.type === "listYear") {
+        setSelectedStartDay(formattedStartDate);
+        setSelectedEndDay(formattedEndDate);
+      } else if (view.type === "listYear") {
         console.log(startDate, endDate);
         const formattedStartDate = format(startDate, "yyyy-MM-dd");
         const formattedEndDate = format(endDate, "yyyy-MM-dd");
         setStartDate(formattedStartDate);
         setEndDate(formattedEndDate);
-       } else {
-         const formattedStartDate = format(startDate, "yyyy-MM-dd");
-         const formattedEndDate = format(endDate, "yyyy-MM-dd");
-         setStartDate(formattedStartDate);
-         setEndDate(formattedEndDate);
-         
-       }
-        
-     };
+        setSelectedStartDay(formattedStartDate);
+        setSelectedEndDay(formattedEndDate);
+      } else {
+        const formattedStartDate = format(startDate, "yyyy-MM-dd");
+        const formattedEndDate = format(endDate, "yyyy-MM-dd");
+        setStartDate(formattedStartDate);
+        setEndDate(formattedEndDate);
+        setSelectedStartDay(formattedStartDate);
+        setSelectedEndDay(formattedEndDate);
+      }
+    };
 
-     if (type === "DAY") {
-       handleDayButtonClick("timeGridDay");
-        console.log("aaaa111")
-     } else
-     if(type === "MONTH") {
+    console.log(type);
+
+    if (type === "DAY") {
+      handleDayButtonClick("timeGridDay");
+    }
+    if (type === "MONTH") {
       handleDayButtonClick("dayGridMonth");
       // test()
-     } else
-      if(type === "YEAR") {
+    }
+    if (type === "YEAR") {
       handleDayButtonClick("multiMonthYear");
-     }else
-     if(type === "WEEK") {
-     handleDayButtonClick("timeGridWeek");
+    }
+    if (type === "WEEK") {
+      handleDayButtonClick("timeGridWeek");
     }
 
-     calendarApi.on("datesSet", handleDateSet);
+    calendarApi.on("datesSet", handleDateSet);
 
-     return () => {
-       calendarApi.off("datesSet", handleDateSet);
-     };
-  }, [ startDate, endDate, type])
+    return () => {
+      calendarApi.off("datesSet", handleDateSet);
+    };
+  }, [startDate, endDate, type]);
 
-  const handleUpdatePlan = () => {
-    setCheckUpdate(true)
-    openCreateDialog();
+  const handleUpdatePlan = async (id) => {
+    setCheckUpdate(true);
     setSelectedStartDay(new Date(startDate));
     setSelectedMonth(new Date(startDate));
     setSelectedYear(new Date(startDate));
-     let checkctg, ctgId
-    if (dataUpdate && dataUpdate.length > 0) {
-      dataUpdate.forEach((item, index) => {
-        setIdUpdate(item.id)
-        setTimeFrame(item.type);
-        setTotalAmount(item.expectAmount);
-        // setActualAmount(item.actualAmount)
-        setCurrencyUnit(item.currencyUnit);
-        if (item.usageMoneys && item.usageMoneys.length > 0) {
-          const updatedBoxData = item.usageMoneys.map(
-            (usageMoney) => (
-              (checkctg = categoriesList.filter(
-                (item) => item.name === usageMoney.categoryName
-              )),
-              checkctg.map((item) => (ctgId = item.id)),
-              {
-                eventTitle: usageMoney.name,
-                amount: usageMoney.expectAmount,
-                eventColor: usageMoney.priority,
-                category: ctgId,
-                actualAmount: usageMoney.actualAmount
-              }
-            )
-          );
-          setBoxData(updatedBoxData);
-        }
-      });
+    if (!isDialogOpenCreate) {
+      openCreateDialog();
+    }
+    console.log("id", id);
+    let checkctg, ctgId;
+    let res = await getMoneyPlanById(id, user.data?.accessToken);
+
+    if (res && res.data.result) {
+      console.log("test", res.data.data);
+      setIdUpdate(res.data.data.id);
+      setTotalAmount(res.data.data.expectAmount);
+      setCurrencyUnit(res.data.data.currencyUnit);
+      // setSelectedStartDay(new Date());
+      // setSelectedMonth(res.data.data.date);
+      // setSelectedYear(res.data.data.date);
+      // setSelectedEndDay(res.data.data.date)
+      const updatedBoxData = res.data.data.usageMoneys.map(
+        (usageMoney) => (
+          (checkctg = categoriesList.filter(
+            (item) => item.name === usageMoney.categoryName
+          )),
+          checkctg.map((item) => (ctgId = item.id)),
+          {
+            eventTitle: usageMoney.name,
+            amount: usageMoney.expectAmount,
+            eventColor: usageMoney.priority,
+            category: ctgId,
+            actualAmount: usageMoney.actualAmount,
+          }
+        )
+      );
+      setBoxData(updatedBoxData);
     }
   };
 
-  const handleDeletePlan = async() => {
+  const handleDeletePlan = async () => {
     setPopupOpen(true);
-  }
+  };
 
-  const handleDeleteConfirm = async() => {
+  const handleDeleteConfirm = async () => {
     try {
       const moneyPlanId = idUpdate;
       let res = await deletePlan(moneyPlanId, user.data?.accessToken);
@@ -1002,8 +1188,8 @@ const Calendar = () => {
           handleDayButtonClick("timeGridDAY");
         } else if (type === "MONTH") {
           handleDayButtonClick("dayGridMonth");
-        } else if (type === "YEAR") {
-          handleDayButtonClick("multiMonthYear");
+        } else if (type === "WEEK") {
+          handleDayButtonClick("timeGridWeek");
         }
         setIsDelete(true);
         setPopupOpen(false);
@@ -1031,7 +1217,7 @@ const Calendar = () => {
     setPopupOpen(false);
   };
 
-  const handleUpdateMoneyPlan = async() => {
+  const handleUpdateMoneyPlan = async () => {
     try {
       const type = timeFrame;
       const expectAmount = totalAmount;
@@ -1058,7 +1244,7 @@ const Calendar = () => {
       }
       const id = idUpdate;
 
-      const usages = boxData.map((item, index) => ({
+      const usage = boxData.map((item, index) => ({
         categoryId: item.category,
         name: item.eventTitle,
         expectAmount: item.amount,
@@ -1075,19 +1261,27 @@ const Calendar = () => {
         expectAmount,
         actualAmount,
         currencyUnit,
-        usages,
+        usage,
         user.data?.accessToken
       );
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Update success!!");
         setCheckUpdate(false);
-        if (type === "DAY") {
-          handleDayButtonClick("timeGridDAY");
-        } else if (type === "MONTH") {
-          handleDayButtonClick("dayGridMonth");
-        } else if (type === "YEAR") {
-          handleDayButtonClick("multiMonthYear");
-        }
+        handleDayButtonClick();
+        // if (type === "DAY") {
+        //   handleDayButtonClick("timeGridDAY");
+        // } else if (type === "MONTH") {
+        //   handleDayButtonClick("dayGridMonth");
+        // } else if (type === "YEAR") {
+        //   handleDayButtonClick("multiMonthYear");
+        // }
+        // if (type === "DAY") {
+        //   handleDayButtonClick("timeGridDAY");
+        // } else if (type === "MONTH") {
+        //   handleDayButtonClick("dayGridMonth");
+        // } else if (type === "YEAR") {
+        //   handleDayButtonClick("multiMonthYear");
+        // }
         setIsDelete(false);
         closeCreateDialog();
       } else {
@@ -1105,18 +1299,18 @@ const Calendar = () => {
         }, timeoutDelay);
       }
     }
-  }
+  };
 
   const handleColorChange = (color) => {
     setSelectedColor(color);
   };
 
-  const handleAddNote = async() => {
+  const handleAddNote = async () => {
     try {
-    if (!user?.data) {
-      setLogin(true)
-      return;
-    }
+      if (!user?.data) {
+        setLogin(true);
+        return;
+      }
       let title = eventTitle;
       let color = selectedColor?.hex;
       let fromDate = format(dayStart, "yyyy-MM-dd");
@@ -1149,7 +1343,7 @@ const Calendar = () => {
           handleDayButtonClick("timeGridDAY");
         } else if (type === "MONTH") {
           handleDayButtonClick("dayGridMonth");
-        } else if (type === "YEAR") {
+        } else if (type === "WEEK") {
           handleDayButtonClick("multiMonthYear");
         }
         closeDialog();
@@ -1168,9 +1362,9 @@ const Calendar = () => {
         }, timeoutDelay);
       }
     }
-  }
+  };
 
-  const handleUpdateNote = async() => {
+  const handleUpdateNote = async () => {
     try {
       let id = idNote;
       let title = eventTitle;
@@ -1183,11 +1377,12 @@ const Calendar = () => {
 
       let fromDate = dayStart;
       let toDate = dayEnd;
-      if(!allDay) {
-        fromDate = timeStart;
-        toDate = timeEnd;
-      } 
-      console.log(selectedColor);
+      if (!allDay) {
+        fromDate = dayjs(timeStart).format("YYYY-MM-DDTHH:mm:ss");
+
+        toDate = dayjs(timeEnd).format("YYYY-MM-DDTHH:mm:ss");
+      }
+
       let res = await updateNote(
         id,
         title,
@@ -1203,15 +1398,15 @@ const Calendar = () => {
           handleDayButtonClick("timeGridDAY");
         } else if (type === "MONTH") {
           handleDayButtonClick("dayGridMonth");
-        } else if (type === "YEAR") {
-          handleDayButtonClick("multiMonthYear");
+        } else if (type === "WEEK") {
+          handleDayButtonClick("timeGridWeek");
         }
         closeDialog();
       } else {
         toast.error("Update failed!!");
       }
     } catch (error) {
-      if (error.response.status === 401) {
+      if (error.response?.status === 401) {
         console.log(401);
         const timeoutDelay = 5000;
 
@@ -1222,7 +1417,7 @@ const Calendar = () => {
         }, timeoutDelay);
       }
     }
-  }
+  };
 
   const handleUpdateNoteDrop = async (
     id,
@@ -1248,26 +1443,28 @@ const Calendar = () => {
           handleDayButtonClick("timeGridDAY");
         } else if (type === "MONTH") {
           handleDayButtonClick("dayGridMonth");
-        } else if (type === "YEAR") {
-          handleDayButtonClick("multiMonthYear");
+        } else if (type === "WEEK") {
+          handleDayButtonClick("timeGridWeek");
         }
         closeDialog();
       } else {
         toast.error("Update failed!!");
       }
-    } catch (error) {if (error.response.status === 401) {
-      console.log(401);
-      const timeoutDelay = 5000;
+    } catch (error) {
+      if (error.response?.status === 401) {
+        console.log(401);
+        const timeoutDelay = 5000;
 
-      toast.warning("Session expired. Logging out in 5 seconds.");
+        toast.warning("Session expired. Logging out in 5 seconds.");
 
-      setTimeout(() => {
-        logOutUser(dispatch, navigate);
-      }, timeoutDelay);
-    }}
+        setTimeout(() => {
+          logOutUser(dispatch, navigate);
+        }, timeoutDelay);
+      }
+    }
   };
 
-  const handleDeleteNote = async() => {
+  const handleDeleteNote = async () => {
     try {
       let id = idNote;
       let res = await deleteNote(id, user.data?.accessToken);
@@ -1277,34 +1474,37 @@ const Calendar = () => {
           handleDayButtonClick("timeGridDAY");
         } else if (type === "MONTH") {
           handleDayButtonClick("dayGridMonth");
-        } else if (type === "YEAR") {
-          handleDayButtonClick("multiMonthYear");
+        } else if (type === "WEEK") {
+          handleDayButtonClick("timeGridWeek");
         }
         setIsPopoverNote(false);
         closeDialog();
       } else {
         toast.error("Delete Failed!!");
       }
-    } catch (error) {if (error.response.status === 401) {
-      console.log(401);
-      const timeoutDelay = 5000;
+    } catch (error) {
+      if (error.response.status === 401) {
+        console.log(401);
+        const timeoutDelay = 5000;
 
-      toast.warning("Session expired. Logging out in 5 seconds.");
+        toast.warning("Session expired. Logging out in 5 seconds.");
 
-      setTimeout(() => {
-        logOutUser(dispatch, navigate);
-      }, timeoutDelay);
-    }}
-  }
+        setTimeout(() => {
+          logOutUser(dispatch, navigate);
+        }, timeoutDelay);
+      }
+    }
+  };
 
-  const handleEventDrop = async(eventDropInfo) => {
+  const handleEventDrop = async (eventDropInfo) => {
     const { event } = eventDropInfo;
-    let id = event.id
+    let id = event.id;
     let title = event.title;
     let color = event.backgroundColor.slice(1);
     let description = event.extendedProps.description;
     let fromDate = format(event.start, "yyyy-MM-dd'T'HH:mm:ss");
-    let toDate = format(event.end, "yyyy-MM-dd'T'HH:mm:ss");
+    let toDate = format(event?.end, "yyyy-MM-dd'T'HH:mm:ss");
+    console.log("toddate", event);
     handleUpdateNoteDrop(id, title, color, description, fromDate, toDate);
   };
 
@@ -1320,13 +1520,13 @@ const Calendar = () => {
   };
 
   const updateCategory = (e) => {
-    setIsUpdateCate(true)
-    setIsOpenCreateCategory(true)
-    setCreateCategory(e.name)
-    setSelectedCategory(e)
-  }
+    setIsUpdateCate(true);
+    setIsOpenCreateCategory(true);
+    setCreateCategory(e.name);
+    setSelectedCategory(e);
+  };
 
-  const handleUpdateCategory = async() => {
+  const handleUpdateCategory = async () => {
     try {
       if (selectedCategory) {
         let updatedCategoriesList = {
@@ -1361,8 +1561,7 @@ const Calendar = () => {
         }, timeoutDelay);
       }
     }
-    
-  }
+  };
 
   const handleAddCategory = async () => {
     try {
@@ -1399,156 +1598,481 @@ const Calendar = () => {
         }, timeoutDelay);
       }
     }
-  }
+  };
 
   const handleDeleteNoteCancel = () => {
-    setIsPopoverNote(false)
-    setLogin(false)
-  }
+    setIsPopoverNote(false);
+    setLogin(false);
+  };
 
   const handleLogin = () => {
-   navigate("/login");
-  }
+    navigate("/login");
+  };
 
-     return (
+  const [isHovering, setIsHovering] = useState(false);
+  const [hoveredEvent, setHoveredEvent] = useState(null);
+
+  const EventDetail = ({ event }) => {
+    console.log(event.title);
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: event.clientY,
+          left: event.clientX,
+          background: "#cccc",
+          padding: "10px",
+          width: "1000px",
+          height: "1000px",
+        }}
+      >
+        {/* Hiển thị thông tin chi tiết của sự kiện */}
+        {/* Ví dụ: */}
+        <div>{event.title}</div>
+        {/* <div>{event.start}</div>  */}
+      </div>
+    );
+  };
+
+  // const handleEventMouseEnter = (arg) => {
+  //   setIsHovering(true);
+  //   setHoveredEvent(arg.event);
+  // };
+
+  // const handleEventMouseLeave = () => {
+  //   setIsHovering(false);
+  //   setHoveredEvent(null);
+  // };
+
+  let popupTimeout;
+  let currentPopup = null;
+
+  const handleEventMouseEnter = (event) => {
+    // Hiển thị popup khi hover vào sự kiện
+    if (currentPopup) {
+      currentPopup.remove();
+      currentPopup = null;
+    }
+
+    console.log(event.event);
+
+    // Tạo phần tử cho tiêu đề sự kiện
+    const colors = document.createElement("div");
+    colors.classList.add("color-title");
+    colors.style.backgroundColor =
+      event.event?.extendedProps?.priority === 1
+        ? "#94d4f490"
+        : event.event?.extendedProps?.priority === 2
+        ? "#41df95"
+        : "#919191b2";
+
+    const titleText = document.createElement("div");
+    titleText.classList.add("title-text");
+    titleText.innerText = event.event.title;
+
+    const title = document.createElement("div");
+    title.classList.add("popup-title");
+
+    const titleChild = document.createElement("div");
+    titleChild.classList.add("title-child");
+
+    title.appendChild(colors);
+    title.appendChild(titleChild);
+
+    const eventDate = new Date(event.event.start);
+
+    // Định dạng ngày trong tuần
+    const options = { weekday: "long" };
+    const weekday = eventDate.toLocaleDateString("en-US", options);
+
+    // Định dạng tháng
+    const month = eventDate.toLocaleDateString("en-US", { month: "long" });
+
+    // Lấy ngày trong tháng
+    const day = eventDate.getDate();
+
+    // Kết hợp thành chuỗi định dạng mong muốn
+    const formattedDate = `${weekday}, ${month} ${day}`;
+
+    const time = document.createElement("div");
+    time.classList.add("popup-time");
+    time.innerText = formattedDate;
+
+    titleChild.appendChild(titleText);
+    titleChild.appendChild(time);
+
+    const actual = document.createElement("div");
+    actual.classList.add("popup-money");
+    actual.innerText = "Actual: " + event.event?.extendedProps?.actualAmount;
+
+    const expect = document.createElement("div");
+    expect.classList.add("popup-money");
+    expect.innerText = "Expect: " + event.event?.extendedProps?.expectAmount;
+
+    const priority = document.createElement("div");
+    priority.classList.add("popup-priority");
+    priority.innerText =
+      "Priority: " +
+      (event.event?.extendedProps?.priority === 1
+        ? "Highly"
+        : event.event?.extendedProps?.priority === 2
+        ? "Medium"
+        : "Normal");
+
+    const popup = document.createElement("div");
+    popup.classList.add("event-popup");
+
+    const buttonContainer = document.createElement("div");
+    buttonContainer.classList.add("button-container");
+
+    // Tạo phần tử cho nút chỉnh sửa
+    const editButton = document.createElement("div");
+    const editIcon = <EditIcon />;
+    ReactDOM.render(editIcon, editButton);
+    editButton.classList.add("action-button");
+    editButton.addEventListener("click", () => {
+      if (
+        !event.event?.extendedProps?.actualAmount &&
+        !event.event?.extendedProps?.expectAmount
+      ) {
+        setIsOpenCreateNote(true);
+        popup.remove();
+      } else {
+        openDialog();
+        popup.remove();
+      }
+    });
+
+    // Tạo phần tử cho nút đóng popup
+    const closeButton = document.createElement("div");
+    const closeIcon = <CloseIcon />;
+    ReactDOM.render(closeIcon, closeButton);
+    closeButton.classList.add("action-button");
+    closeButton.addEventListener("click", () => {
+      // Đóng popup khi nút được click
+      setIsVisible(false);
+      popup.remove();
+    });
+
+    const notifys = document.createElement("div");
+    notifys.classList.add("notifys-container");
+
+    const notifyIcon = document.createElement("div");
+    notifyIcon.classList.add("notify-icon");
+    const iconNotify = <NotificationsNoneIcon />;
+
+    ReactDOM.render(iconNotify, notifyIcon);
+
+    const notifyText = document.createElement("div");
+    notifyText.classList.add("notify-text");
+    notifyText.innerText = "30 minutes";
+
+    notifys.appendChild(notifyIcon);
+    notifys.appendChild(notifyText);
+
+    // Thêm các phần tử vào popup
+    buttonContainer.appendChild(editButton);
+    if (
+      !event.event?.extendedProps?.actualAmount &&
+      !event.event?.extendedProps?.expectAmount
+    ) {
+      const deleteButton = document.createElement("div");
+      const deleteIcon = <DeleteIcon />;
+      ReactDOM.render(deleteIcon, deleteButton);
+      deleteButton.classList.add("action-button");
+      deleteButton.addEventListener("click", () => {
+        setIsPopoverNote(true);
+      });
+      buttonContainer.appendChild(deleteButton);
+    }
+    buttonContainer.appendChild(closeButton);
+    popup.appendChild(buttonContainer);
+    popup.appendChild(title);
+    // popup.appendChild(time);
+    if (
+      event.event?.extendedProps?.actualAmount &&
+      event.event?.extendedProps?.expectAmount
+    ) {
+      popup.appendChild(actual);
+      popup.appendChild(expect);
+      popup.appendChild(priority);
+    } else {
+      popup.appendChild(notifys);
+    }
+
+    // Đặt vị trí top và left của popup
+    popup.style.top = `${event.el.getBoundingClientRect().top}px`;
+    popup.style.left = `${event.el.getBoundingClientRect().left - 260}px`;
+
+    document.body.appendChild(popup); // Thêm popup vào body để đảm bảo nó hiển thị trên các phần khác
+    currentPopup = popup;
+    document.addEventListener("click", (e) => {
+      if (!popup.contains(e.target) && !event.el.contains(e.target)) {
+        setIsVisible(false);
+        popup.remove();
+      }
+    });
+  };
+
+  const handleEventMouseLeave = (event) => {
+    // Ẩn popup khi rời chuột khỏi sự kiện
+    // const popup = document.querySelector('.event-popup');
+    // if (popup) {
+    //   popup.remove();
+    // }
+    clearTimeout(popupTimeout);
+  };
+
+  const handleDeleteCategory = async () => {
+    if (selectedCategory) {
+      let res = await deleteCategories(
+        selectedCategory.id,
+        user.data?.accessToken
+      );
+      if (res && res.data.result) {
+        getCategory();
+        setIsDeleteCategory(false);
+        setIsOpenCreateCategory(false);
+      }
+    }
+  };
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleChangeView = (view) => {
+    calendarRef.current.getApi().changeView(view);
+    handleDayButtonClick(view);
+    handleClose();
+  };
+
+  return (
     <Box m="10px 20px 0 20px">
-      <Box display="flex" justifyContent="space-between">
+      <Box display={isSmallScreen ? "block" : "flex"} justifyContent="space-between">
         {/* CALENDAR SIDEBAR */}
+
         <Box
-          flex="1 1 22%"
-          // backgroundColor={colors.primary[400]}
-          p="10px"
-          borderRadius="4px"
+          flex="1 1 20%"
+          // backgroundColor={colors.boxList[100]}
+          // p="10px"
+          marginRight={isSmallScreen ? "0px" : "15px"}
+          marginBottom={isSmallScreen ? "10px" : "0px"}
+          borderRadius="10px"
+          width="250px"
+          height="100%"
         >
-          <Button
-            variant="contained"
-            // color="success"
-            onClick={handleCreatePlan}
-            style={{
-              marginBottom: "20px",
-              fontSize: "14px",
-              fontWeight: "500",  
-              borderRadius: "10px",
-              boxShadow: "2px 2px 1px soild #ccc",
-              backgroundColor: colors.greenAccent[500],
-            }}
+          <Box
+            boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
+            // backgroundColor={colors.boxList[100]}
+            backgroundColor={colors.boxDashboard[100]}
+            borderRadius="10px"
+            padding="15px"
           >
-            <EditIcon />
-            Create
-          </Button>
-          {expectAmount > 0 && (
             <Button
               variant="contained"
-              // color="warning"
-              onClick={handleUpdatePlan}
+              // color="success"
+              onClick={handleCreatePlan}
               style={{
                 marginBottom: "20px",
                 fontSize: "14px",
                 fontWeight: "500",
-                marginLeft: "10px",
                 borderRadius: "10px",
                 boxShadow: "2px 2px 1px soild #ccc",
-                backgroundColor: "#ff7f50"
-                
+                backgroundColor: `${colors.greenAccent[500]}`,
               }}
             >
-              Update
+              <AddIcon />
+              Create
             </Button>
-          )}
-          <Typography variant="h5" sx={{ fontWeight: "550"}}>
-            <span>Expect amount:</span>{" "}
-          </Typography>
-          <List
-            sx={{
-              overflow: "auto",
-            }}
-          >
-            <ListItem
-              sx={{
-                backgroundColor: colors.greenAccent[700],
-                margin: "1px 0",
-                borderRadius: "5px",
-              }}
-            >
-              <ListItemText
-                primary={
-                  <Typography>
-                    {expectAmount ? expectAmount : 0} {unit}
-                  </Typography>
-                }
-              />
-            </ListItem>
-          </List>
-          <Typography variant="h5" sx={{ fontWeight: "550" }}>
-            Actual amount:{" "}
-          </Typography>
-          <List
-            sx={{
-              overflow: "auto",
-            }}
-          >
-            <ListItem
-              sx={{
-                backgroundColor:
-                  expectAmount < actualAmount ? "red" : colors.greenAccent[700],
-                margin: "1px 0",
-                borderRadius: "5px",
-              }}
-            >
-              <ListItemText
-                primary={
-                  <Typography>
-                    {actualAmount ? actualAmount : 0} {unit}
-                  </Typography>
-                }
-              />
-            </ListItem>
-          </List>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
             <Typography variant="h5" sx={{ fontWeight: "550" }}>
-              Categories:
+              <span>Expect: </span>{" "}
+              <span style={{ color: "#38c171" }}>
+                {" "}
+                {expectAmount ? parseFloat(expectAmount).toFixed(2) : 0} {unit}
+              </span>
             </Typography>
-            <Tooltip title="Add Category" placement="top-end">
-              <IconButton>
-                <AddIcon
-                  onClick={() => setIsOpenCreateCategory(true)}
-                  sx={{ fontSize: 30 }}
-                />
-              </IconButton>
-            </Tooltip>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: "550", marginTop: "15px" }}
+            >
+              Actual:{" "}
+              <span
+                style={{
+                  color:
+                    parseFloat(parseFloat(expectAmount).toFixed(2)) <
+                    parseFloat(parseFloat(totalActucalAmount).toFixed(2))
+                      ? "red"
+                      : "#38c171",
+                }}
+              >
+                {totalActucalAmount
+                  ? parseFloat(totalActucalAmount).toFixed(2)
+                  : 0}{" "}
+                {unit}{" "}
+              </span>
+            </Typography>
           </Box>
+          <Box
+            boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
+            // backgroundColor={colors.boxList[100]}
+            backgroundColor={colors.boxDashboard[100]}
+            borderRadius="10px"
+            padding="5px 15px 5px 15px"
+            marginTop="10px"
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                // marginTop: "5px",
+              }}
+            >
+              <Typography variant="h5" sx={{ fontWeight: "550" }}>
+                Categories:
+              </Typography>
+              <Box>
+                <Tooltip title="Add Category" placement="top-end">
+                  <IconButton>
+                    <AddIcon
+                      onClick={() => setIsOpenCreateCategory(true)}
+                      sx={{ fontSize: 25 }}
+                    />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Toggle Category" placement="top-end">
+                  <IconButton onClick={toggleList}>
+                    {isListOpen ? (
+                      <KeyboardArrowUpIcon sx={{ fontSize: 25 }} />
+                    ) : (
+                      <KeyboardArrowDownIcon sx={{ fontSize: 25 }} />
+                    )}
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Box>
 
-          <List
-            sx={{
-              height: "82vh",
-              overflow: "auto",
+            <Collapse in={isListOpen} timeout="auto">
+              <List
+                sx={{
+                  height: "63vh",
+                  overflow: "auto",
+                }}
+              >
+                {categoriesList?.map((event) => (
+                  <ListItem
+                    key={event.id}
+                    sx={{
+                      // backgroundColor: `${colors.listCategory[100]}`,
+                      margin: "0px 0px 0px 0px",
+                      borderRadius: "5px",
+                      // color: "#790e61",
+                      color: colors.iconTopbar[100],
+                    }}
+                  >
+                    <FiberManualRecordIcon
+                      fontSize="sm"
+                      sx={{ paddingRight: "5px" }}
+                    />
+                    <ListItemText
+                      primaryTypographyProps={{ variant: "h6" }}
+                      primary={event.name}
+                    />
+                    <IconButton
+                      aria-describedby={id}
+                      onClick={() => updateCategory(event)}
+                      // onClick={handleClickCategory}
+                    >
+                      <MoreVertIcon sx={{ fontSize: 20 }} />
+                    </IconButton>
+                  </ListItem>
+                ))}
+              </List>
+            </Collapse>
+          </Box>
+          <Popover
+            id={id}
+            open={open}
+            anchorEl={anchorEl1}
+            onClose={handleCloseCategory}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "left",
             }}
           >
-            {categoriesList?.map((event) => (
-              <ListItem
-                key={event.id}
-                sx={{
-                  backgroundColor: colors.greenAccent[700],
-                  margin: "0px 0px 10px 0px",
-                  // color: "black",
-                  borderRadius: "5px",
-                }}
-                onClick={() => updateCategory(event)}
-              >
-                <ListItemText primary={event.name} />
-              </ListItem>
-            ))}
-          </List>
+            <MenuList>
+              <MenuItem onClick={() => updateCategory(event)}>
+                <ListItemIcon>
+                  <EditIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Edit category</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={() => setIsDeleteCategory(true)}>
+                <ListItemIcon>
+                  <DeleteIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Delete</ListItemText>
+              </MenuItem>
+            </MenuList>
+          </Popover>
         </Box>
 
         {/* CALENDAR */}
-        <Box flex="1 1 100%" ml="0px">
+        <Box
+          flex={isSmallScreen ? "100%" : "1 1 100%"}
+          ml="0px"
+          boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
+          backgroundColor={colors.boxDashboard[100]}
+          borderRadius="10px"
+          padding="8px 10px 0px 10px"
+          sx={{
+            ".fc .fc-daygrid-day-number": {
+              padding: "1px",
+              color: colors.iconTopbar[100],
+            },
+            ".fc .fc-col-header-cell-cushion": {
+              color: colors.iconTopbar[100],
+            },
+            ".fc-theme-standard .fc-scrollgrid": {
+              border: `1px solid ${colors.tableCalendar[100]}`,
+            },
+            ".fc-theme-standard td, .fc-theme-standard th": {
+              border: `1px solid ${colors.tableCalendar[100]}`,
+            },
+            ".fc .fc-button-primary": {
+              backgroundColor: colors.buttonsCalendar[100],
+              borderColor: colors.borderCalendar[100],
+              borderRadius: " 8px",
+              color: colors.colorButonCalendar[100],
+            },
+            ".fc .fc-daygrid-day-top": {
+              margin: "0 auto"
+            },
+            ".fc-event-title ": {
+              fontSize: "12px"
+            },
+            ".fc .fc-daygrid-day-events": {
+              marginTop: "2px"
+            },
+            ".fc .fc-daygrid-event-harness": {
+              margin: "0 5px 1.7px 5px"
+            },
+            ".fc-v-event .fc-event-main-frame": {
+              padding: "2px 0 0 5px"
+            }
+          }}
+        >
           <FullCalendar
             ref={calendarRef}
             height="90vh"
@@ -1560,7 +2084,7 @@ const Calendar = () => {
               multiMonthPlugin,
             ]}
             headerToolbar={{
-              left: "today prev,next",
+              left: "prev today next",
               center: "title",
               right: "MonthButton,WeekButton,dayButton",
             }}
@@ -1573,6 +2097,12 @@ const Calendar = () => {
             select={handleDateClick}
             eventClick={handleEventClick}
             eventResize={handleEventResize}
+            // eventMouseEnter={handleEventMouseEnter}
+            // eventMouseLeave={handleEventMouseLeave}
+            // eventDidMount={(arg) => {
+            //   arg.el.addEventListener('mouseenter', () => handleEventMouseEnter(arg));
+            //   arg.el.addEventListener('mouseleave', () => handleEventMouseLeave(arg));
+            // }}
             eventsSet={(events) => setCurrentEvents(events)}
             initialEvents={mock}
             customButtons={{
@@ -1595,7 +2125,7 @@ const Calendar = () => {
               WeekButton: {
                 text: "Week",
                 click: () => handleDayButtonClick("timeGridWeek"),
-              }
+              },
             }}
             views={{
               listMonth: {
@@ -1614,102 +2144,14 @@ const Calendar = () => {
               multiMonthYear: {
                 buttonText: "Year",
                 dayMaxEventRows: 6,
-                multiMonthMaxColumns: 1
+                multiMonthMaxColumns: 1,
               },
             }}
           />
+          {isHovering && <EventDetail event={hoveredEvent} />}
         </Box>
       </Box>
-      
       <Dialog maxWidth="lg" open={isDialogOpen} onClose={closeDialog}>
-        <Box p={2}>
-          <Typography
-            variant="h4"
-            style={{
-              marginTop: "10px",
-              marginBottom: "15px",
-              fontWeight: "500",
-            }}
-          >
-            {selectedEvent ? "Edit Plan" : "Add Plan"}
-          </Typography>
-
-          <p style={{ color: "#cccc00" }}>
-            {moneyActual > moneyExpect
-              ? "Warning: Actual money is higher than expected money"
-              : errorUsage}{" "}
-          </p>
-          <TextField
-            label="Title"
-            value={eventTitle}
-            onChange={(e) => setEventTitle(e.target.value)}
-            fullWidth
-          />
-          <Box display="flex" pt={1.5}></Box>
-          <Box display="flex">
-            <TextField
-              select
-              label="Categories"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              style={{ width: "48.75%", margin: "10px 10px 0 0px" }}
-            >
-              {categoriesList?.map((color) => (
-                <MenuItem key={color.id + color.name} value={color.id}>
-                  {color.name}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              select
-              label="Prioritize"
-              value={eventColor}
-              onChange={(e) => setEventColor(e.target.value)}
-              style={{ width: "48%", margin: "10px 10px 0 0px" }}
-            >
-              {availableColors.map((color) => (
-                <MenuItem
-                  key={color.color + color.title}
-                  value={color.priority}
-                >
-                  {color.title}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Box>
-          <Box display="flex">
-            <TextField
-              label="Expect amount"
-              value={moneyExpect}
-              onChange={(e) => setMoneyExpect(e.target.value)}
-              style={{ width: "48.75%", margin: "10px 10px 0 0px" }}
-            />
-            <TextField
-              label="Actual amount"
-              value={moneyActual}
-              onChange={(e) => setMoneyActual(e.target.value)}
-              style={{ width: "48%", margin: "10px 10px 0 0px" }}
-            />
-          </Box>
-          <DialogActions>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={selectedEvent ? handleUpdateEvent : handleAddEvent}
-              style={{ marginTop: "10px", backgroundColor: "#0487D9" }}
-            >
-              {selectedEvent ? "Save" : "Add"}
-            </Button>
-          </DialogActions>
-        </Box>
-      </Dialog>
-
-      {/* create plan dialog */}
-      <Dialog
-        maxWidth="lg"
-        open={isDialogOpenCreate}
-        onClose={closeCreateDialog}
-      >
         <Box p={2}>
           <Typography
             variant="h3"
@@ -1723,8 +2165,8 @@ const Calendar = () => {
             label="Total amount"
             type="number"
             autoFocus
-            value={totalAmount}
-            onChange={(e) => setTotalAmount(e.target.value)}
+            // value={totalAmount}
+            // onChange={(e) => setTotalAmount(e.target.value)}
             style={{
               width: `${checkUpdate ? "45%" : "73%"}`,
               margin: "10px 10px 20px 0",
@@ -1735,8 +2177,8 @@ const Calendar = () => {
               <TextField
                 label="Actual amount"
                 type="number"
-                value={actualAmount}
-                onChange={(e) => setActualAmount(e.target.value)}
+                // value={actualAmount}
+                // onChange={(e) => setActualAmount(e.target.value)}
                 style={{ width: "25%", margin: "10px 10px 20px 0" }}
               />
             </>
@@ -1746,63 +2188,10 @@ const Calendar = () => {
           <TextField
             label="Currency unit"
             type="text"
-            value={currencyUnit}
-            onChange={(e) => setCurrencyUnit(e.target.value)}
+            // value={currencyUnit}
+            // onChange={(e) => setCurrencyUnit(e.target.value)}
             style={{ width: "25%", marginTop: "10px", marginBottom: "20px" }}
           />
-          <Box style={{ display: "flex" }}>
-            <TextField
-              select
-              label="Plan Type"
-              value={timeFrame}
-              onChange={(e) => setTimeFrame(e.target.value)}
-              style={{ marginRight: "15px", marginBottom: "20px" }}
-            >
-              <MenuItem value="Chose">Chose time</MenuItem>
-              <MenuItem value="YEAR">Year</MenuItem>
-              <MenuItem value="MONTH">Month</MenuItem>
-              <MenuItem value="DAY">Day</MenuItem>
-            </TextField>
-            {timeFrame === "YEAR" && (
-              <>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    views={["year"]}
-                    label="Select Year"
-                    value={dayjs(selectedYear)}
-                    onChange={(date) => setSelectedYear(new Date(date))}
-                  />
-                </LocalizationProvider>
-              </>
-            )}
-
-            {timeFrame === "MONTH" && (
-              <>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    views={["year", "month"]}
-                    label="Select Year and Month"
-                    value={dayjs(selectedMonth)}
-                    onChange={(date) => setSelectedMonth(new Date(date))}
-                  />
-                </LocalizationProvider>
-              </>
-            )}
-
-            {timeFrame === "DAY" && (
-              <div style={{ display: "flex" }}>
-                <div style={{ marginRight: "10px" }}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Select Day"
-                      value={dayjs(selectedStartDay)}
-                      onChange={(date) => setSelectedStartDay(new Date(date))}
-                    />
-                  </LocalizationProvider>
-                </div>
-              </div>
-            )}
-          </Box>
           <Box
             style={{
               display: "flex",
@@ -1889,7 +2278,7 @@ const Calendar = () => {
               <TextField
                 select
                 label="Category"
-                value={boxData[index].category}
+                value={boxData[index].category ?? ""}
                 onChange={(e) => handleBoxCategoryChange(e, index)}
                 style={{ marginTop: "10px" }}
                 sx={{ width: 100 }}
@@ -1929,6 +2318,14 @@ const Calendar = () => {
               <>
                 <Button
                   variant="contained"
+                  color="error"
+                  onClick={handleDeletePlan}
+                  style={{ marginTop: "10px", marginLeft: "10px" }}
+                >
+                  Delete
+                </Button>
+                <Button
+                  variant="contained"
                   color="primary"
                   onClick={handleUpdateMoneyPlan}
                   style={{
@@ -1939,6 +2336,272 @@ const Calendar = () => {
                 >
                   Save
                 </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleCreateMoneyPlan}
+                  style={{ marginTop: "10px", backgroundColor: "#0487D9" }}
+                >
+                  {selectedEvent ? "Save" : "Add"}
+                </Button>
+              </>
+            )}
+          </DialogActions>
+        </Box>
+      </Dialog>
+
+      {/* create plan dialog */}
+      <Dialog
+        maxWidth="lg"
+        open={isDialogOpenCreate}
+        onClose={closeCreateDialog}
+      >
+        <Box p={2}>
+          <Typography
+            variant="h3"
+            style={{ marginBottom: "10px", fontWeight: "500" }}
+          >
+            {checkUpdate ? "Update Plans" : "Create Plans"}
+          </Typography>
+          <p style={{ color: "red" }}>{errorCreate}</p>
+          <p style={{ color: "red" }}>{validateMoneyPlan}</p>
+          <TextField
+            label="Total amount"
+            type="number"
+            autoFocus
+            // disabled={checkUpdate}
+            value={totalAmount}
+            onChange={(e) => setTotalAmount(e.target.value)}
+            style={{
+              width: `${checkUpdate ? "45%" : "73%"}`,
+              margin: "10px 10px 20px 0",
+            }}
+          />
+          {checkUpdate ? (
+            <>
+              <TextField
+                label="Actual amount"
+                type="number"
+                // disabled
+                value={actualAmount}
+                onChange={(e) => setActualAmount(e.target.value)}
+                style={{ width: "25%", margin: "10px 10px 20px 0" }}
+              />
+            </>
+          ) : (
+            <></>
+          )}
+          <TextField
+            label="Currency unit"
+            type="text"
+            value={currencyUnit}
+            // disabled={checkUpdate}
+            onChange={(e) => setCurrencyUnit(e.target.value)}
+            style={{ width: "25%", marginTop: "10px", marginBottom: "20px" }}
+          />
+          {!checkUpdate && (
+            <Box style={{ display: "flex", marginBottom: "10px" }}>
+              <div style={{ marginRight: "10px" }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="From"
+                    value={dayjs(selectedStartDay)}
+                    onChange={(date) => setSelectedStartDay(new Date(date))}
+                  />
+                </LocalizationProvider>
+              </div>
+              <div style={{ marginRight: "10px" }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="To"
+                    value={dayjs(selectedEndDay)}
+                    onChange={(date) => setSelectedEndDay(new Date(date))}
+                  />
+                </LocalizationProvider>
+              </div>
+            </Box>
+          )}
+
+          {/* <Box style={{ display: "flex" }}>
+            <TextField
+              select
+              label="Plan Type"
+              value={timeFrame}
+              onChange={(e) => setTimeFrame(e.target.value)}
+              style={{ marginRight: "15px", marginBottom: "20px" }}
+            >
+              <MenuItem value="Chose">Chose time</MenuItem>
+              <MenuItem value="YEAR">Year</MenuItem>
+              <MenuItem value="MONTH">Month</MenuItem>
+              <MenuItem value="DAY">Day</MenuItem>
+            </TextField>
+            {timeFrame === "YEAR" && (
+              <>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    views={["year"]}
+                    label="Select Year"
+                    value={dayjs(selectedYear)}
+                    onChange={(date) => setSelectedYear(new Date(date))}
+                  />
+                </LocalizationProvider>
+              </>
+            )}
+
+            {timeFrame === "MONTH" && (
+              <>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    views={["year", "month"]}
+                    label="Select Year and Month"
+                    value={dayjs(selectedMonth)}
+                    onChange={(date) => setSelectedMonth(new Date(date))}
+                  />
+                </LocalizationProvider>
+              </>
+            )}
+
+            {timeFrame === "DAY" && (
+              <div style={{ display: "flex" }}>
+                <div style={{ marginRight: "10px" }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Select Day"
+                      value={dayjs(selectedStartDay)}
+                      onChange={(date) => setSelectedStartDay(new Date(date))}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+            )}
+          </Box> */}
+          <Box
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+            <Typography variant="h5">Plan Details</Typography>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleSuggestion}
+              style={{ marginLeft: "10px" }}
+            >
+              Suggestion
+            </Button>
+            <Button
+              variant="outlined"
+              color="success"
+              onClick={handleAddBox}
+              style={{ marginLeft: "10px" }}
+            >
+              ADD Plan Detail
+            </Button>
+          </Box>
+
+          {/* {errorText && totalSuggest ? <p style={{ color: "red" }}>{errorText} aaaa</p> : ""} */}
+          {showConfirmation && totalAmountInBoxes > totalAmount && (
+            <div style={{ display: "flex" }}>
+              <p style={{ color: "red", marginRight: "10px" }}>
+                The total amount has exceeded the limit, do you want to update
+                the total amount?
+              </p>
+              <div>
+                <Button
+                  variant="outlined"
+                  color="success"
+                  size="small"
+                  style={{ marginRight: "10px" }}
+                  onClick={() => setTotalAmount(totalAmountInBoxes)}
+                >
+                  Yes
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  onClick={() => setShowConfirmation(false)}
+                >
+                  No
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {Array.from({ length: boxCount }).map((_, index) => (
+            <Box
+              key={index}
+              sx={{ "& > :not(style)": { m: 1 } }}
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <TextField
+                label="Title"
+                value={boxData[index]?.eventTitle}
+                onChange={(e) => handleBoxTitleChange(e, index)}
+                sx={{ width: 200 }}
+              />
+              <TextField
+                label="Expect amount"
+                type="number"
+                value={boxData[index].amount}
+                onChange={(e) => handleBoxAmountChange(e, index)}
+                sx={{ width: 100 }}
+              />
+              {checkUpdate ? (
+                <TextField
+                  label="Actual amount"
+                  type="number"
+                  value={boxData[index].actualAmount}
+                  onChange={(e) => handleBoxActualAmountChange(e, index)}
+                  sx={{ width: 100 }}
+                />
+              ) : null}
+              <TextField
+                select
+                label="Category"
+                value={boxData[index].category ?? ""}
+                onChange={(e) => handleBoxCategoryChange(e, index)}
+                style={{ marginTop: "10px" }}
+                sx={{ width: 100 }}
+              >
+                {categoriesList?.map((color) => (
+                  <MenuItem key={color.id + color.name} value={color.id}>
+                    {color.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                label="Prioritize"
+                value={boxData[index].eventColor}
+                onChange={(e) => handleBoxColorChange(e, index)}
+                style={{ marginTop: "10px" }}
+                sx={{ width: 100 }}
+              >
+                {availableColors.map((color) => (
+                  <MenuItem key={color.color + color.title} value={color.color}>
+                    {color.title}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <Fab
+                size="small"
+                color="error"
+                aria-label="add"
+                onClick={() => handleDeleteBox(index)}
+              >
+                <DeleteIcon />
+              </Fab>
+            </Box>
+          ))}
+          <DialogActions>
+            {checkUpdate ? (
+              <>
                 <Button
                   variant="contained"
                   color="error"
@@ -1946,6 +2609,18 @@ const Calendar = () => {
                   style={{ marginTop: "10px", marginLeft: "10px" }}
                 >
                   Delete
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleUpdateMoneyPlan}
+                  style={{
+                    marginTop: "10px",
+                    marginLeft: "10px",
+                    backgroundColor: "#0487D9",
+                  }}
+                >
+                  Save
                 </Button>
               </>
             ) : (
@@ -2010,8 +2685,8 @@ const Calendar = () => {
             {selectedEvent ? "Edit Note" : "Add Note"}
           </Typography>
           <span className="text-danger">{validateNote}</span>
-          
-            <TextField
+
+          <TextField
             label="Title"
             autoFocus
             value={eventTitle}
@@ -2060,7 +2735,10 @@ const Calendar = () => {
                     <TimePicker
                       label="Start Time"
                       value={dayjs(timeStart)}
-                      onChange={(newValue) => setTimeStart(new Date(newValue))}
+                      onChange={(newValue) => {
+                        console.log(dayjs(newValue));
+                        setTimeStart(new Date(newValue));
+                      }}
                     />
                     <TimePicker
                       label="End Time"
@@ -2101,14 +2779,6 @@ const Calendar = () => {
           </Typography>
           <ColorPicker value={selectedColor} onChange={handleColorChange} />
           <DialogActions>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={selectedEvent ? handleUpdateNote : handleAddNote}
-              style={{ marginTop: "10px", backgroundColor: "#0487D9" }}
-            >
-              {selectedEvent ? "Save" : "Add"}
-            </Button>
             {selectedEvent ? (
               <>
                 <Button
@@ -2123,9 +2793,16 @@ const Calendar = () => {
             ) : (
               <></>
             )}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={selectedEvent ? handleUpdateNote : handleAddNote}
+              style={{ marginTop: "10px", backgroundColor: "#0487D9" }}
+            >
+              {selectedEvent ? "Save" : "Add"}
+            </Button>
           </DialogActions>
-          
-          </Box>  
+        </Box>
       </Dialog>
 
       <Dialog maxWidth="lg" open={isOpenCreateCategory} onClose={closeDialog}>
@@ -2153,6 +2830,16 @@ const Calendar = () => {
           />
         </Box>
         <DialogActions>
+          {/* {isUpdateCate && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setIsDeleteCategory(true)}
+              style={{ marginTop: "10px", backgroundColor: "#d90404" }}
+            >
+              Delete
+            </Button>
+          )} */}
           <Button
             variant="contained"
             color="primary"
@@ -2187,6 +2874,43 @@ const Calendar = () => {
             </Button>
             <Button
               onClick={handleDeleteNote}
+              color="primary"
+              style={{ backgroundColor: "red", color: "white" }}
+              autoFocus
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
+
+      <Dialog
+        maxWidth="sm"
+        open={isDeleteCategory}
+        onClose={handleDeleteCancel}
+      >
+        <Box p={2}>
+          <Typography
+            variant="h3"
+            style={{ marginBottom: "10px", fontWeight: "500" }}
+          >
+            Delete Confirmation
+          </Typography>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to delete this note?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => setIsDeleteCategory(false)}
+              style={{ backgroundColor: "#0487D9", color: "white" }}
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteCategory}
               color="primary"
               style={{ backgroundColor: "red", color: "white" }}
               autoFocus

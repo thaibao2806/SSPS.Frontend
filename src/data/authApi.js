@@ -1,14 +1,20 @@
 import axios from "axios"
+import { activeAccountOTP, changePassword, checkEmail, dashBoards, forgotPasswords, getUserAdmin, getUserId, getUsers, refresh, resetPasswordOtp, resetPasswords, updateUserAdmin, updateUsers, url } from "../config"
+
 const getUserByAdmin = (Page, PageSize, accessToken) => {
-    return axios.get(`http://localhost:5031/api/admin/user?Page=${Page}&PageSize=${PageSize}`, {
+    return axios.get(url + getUserAdmin +`?Page=${Page}&PageSize=${PageSize}`, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
     })
 }
 
+const activeAccount = ( email, otp) => {
+    return axios.post(url + activeAccountOTP, {email, otp})
+}
+
 const updateUserByAdmin = (id, firstName, lastName,  code,  phone, location, school,  accessToken) => {
-    return axios.put(`http://localhost:5031/api/admin/user/${id}`, {firstName, lastName,  code,  phone, location, school}, {
+    return axios.put(url + updateUserAdmin +`${id}`, {firstName, lastName,  code,  phone, location, school}, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -16,31 +22,41 @@ const updateUserByAdmin = (id, firstName, lastName,  code,  phone, location, sch
 }
 
 const getUserById = (id, accessToken) => {
-    return axios.get(`http://localhost:5031/api/admin/user/${id}`,  {
+    return axios.get(url + getUserId + `${id}`,  {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
     })
 }
 
-const checkEmail = (email) => {
-    return axios.post("http://localhost:5031/api/authenticate/forgot-password", {email})
+// const checkEmail = (email) => {
+//     return axios.post(url + forgotPasswords, {email})
+// }
+
+const checkEmailOTP = (email) => {
+    return axios.post(url + checkEmail, {email})
 }
 
 const forgotPassword = (token, password, confirmPassword) => {
-    return axios.post("http://localhost:5031/api/authenticate/reset-password", {token, password, confirmPassword})
+    return axios.post(url + resetPasswords, {token, password, confirmPassword})
+}
+
+const forgotPasswordOTP = (otp,email,  password, confirmPassword) => {
+    return axios.post(url + resetPasswordOtp, {otp,email, password, confirmPassword})
 }
 
 const resetPassword = (id, currentPassword, newPassword, confirmPassword, accessToken) => {
-    return axios.post(`http://localhost:5031/api/authenticate/change-password/${id}`, {currentPassword, newPassword, confirmPassword}, {
+    return axios.post(url + changePassword +`${id}`, {currentPassword, newPassword, confirmPassword}, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
     })
 }
 
+
+
 const refreshToken = (refreshToken,accessToken) => {
-    return axios.get(`http://localhost:5031/api/authenticate/refresh-token?refreshToken=${refreshToken}`, {
+    return axios.get(url + refresh + `${refreshToken}`, {
          headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -48,7 +64,7 @@ const refreshToken = (refreshToken,accessToken) => {
 }
 
 const getUser = (id, accessToken) => {
-    return axios.get(`http://localhost:5031/api/user/${id}`, {
+    return axios.get(url + getUsers + `${id}`, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -56,7 +72,7 @@ const getUser = (id, accessToken) => {
 }
 
 const updateUser = (id, firstName, lastName,  code,  phone, location, school,  accessToken) => {
-    return axios.put(`http://localhost:5031/api/user/${id}`, {firstName, lastName,  code,  phone, location, school}, {
+    return axios.put(url + updateUsers + `${id}`, {firstName, lastName,  code,  phone, location, school}, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -64,7 +80,7 @@ const updateUser = (id, firstName, lastName,  code,  phone, location, school,  a
 }
 
 const dashBoard = (year, accessToken) => {
-    return axios.post(`http://localhost:5031/api/admin/user/dashboard?year=${year}`, null, {
+    return axios.post(url + dashBoards + `${year}`, null, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -81,5 +97,8 @@ export {
     refreshToken, 
     getUser,
     updateUser,
-    dashBoard
+    dashBoard,
+    checkEmailOTP,
+    forgotPasswordOTP,
+    activeAccount
 }

@@ -23,6 +23,7 @@ const AddColumnModal = ({ visible, onClose, handleColumnAdd, columnData }) => {
   const [fromDate, setFromDate] = React.useState(new Date());
   const [toDate, setToDate] = React.useState(new Date());
   const [color, setColor] = React.useState(null);
+  const [colors, setColors] = React.useState(null);
   const [cards, setCards] = React.useState([]);
   const [isUpdate, setIsUpdate] = React.useState(false);
   const [validate, setValidate] = React.useState("");
@@ -36,9 +37,14 @@ const AddColumnModal = ({ visible, onClose, handleColumnAdd, columnData }) => {
       setFromDate(dayjs(columnData.fromDate));
       setToDate(dayjs(columnData.toDate));
       setColor(`#${columnData.color}`);
+      setColors(columnData.color);
       setCards(columnData.cards);
+      console.log(columnData.color)
+
     }
   }, [columnData, visible]);
+  console.log(color)
+
 
   const handleClose = () => {
     onClose();
@@ -51,6 +57,7 @@ const AddColumnModal = ({ visible, onClose, handleColumnAdd, columnData }) => {
 
   const handleColor = (color) => {
     setColor(color)
+    setColors(color);
   }
 
   return (
@@ -127,14 +134,14 @@ const AddColumnModal = ({ visible, onClose, handleColumnAdd, columnData }) => {
                   title,
                   fromDate,
                   toDate,
-                  color.hex,
+                  color.hex || colors,
                   cards
                 )
               : handleColumnAdd(
                   title,
                   fromDate,
                   toDate,
-                  color.hex,
+                  color.hex || colors,
                   cards
                 );}
 

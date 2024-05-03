@@ -52,9 +52,9 @@ function App() {
           <main className="content">
             {/* <div></div> */}
             <Topbar setIsSidebar={setIsSidebar} toggleSidebar={toggleSidebar} />
-            <div style={{ paddingLeft: "0px", paddingTop:"70px" }}>
+            <div style={{ paddingLeft: "0px", paddingTop:"55px" }}>
               <Routes>
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/" element={<Dashboard />} />
                 {/* <Route path="/team" element={<Team />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/invoices" element={<Invoices />} />
@@ -69,7 +69,7 @@ function App() {
                 }/>
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/todo" element={<Board />} />
-                <Route path="/" element={<Calendar />} />
+                <Route path="/calendar-money-plan" element={<Calendar />} />
                 <Route path="/geography" element={<Geography />} />
                 <Route path="/update-account" element={<UpdateAccount />} />
               </Routes>

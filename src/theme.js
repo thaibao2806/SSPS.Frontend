@@ -60,6 +60,36 @@ export const tokens = (mode) => ({
           800: "#2a2d64",
           900: "#151632",
         },
+        boxDashboard: {
+          100:"#1F2A40"
+        },
+        iconTopbar: {
+          100: "#ffff"
+        },
+        tableCalendar: {
+          100: "#bbbaba79"
+        },
+        buttonsCalendar: {
+          100: "#8c8b8b"
+        },
+        borderCalendar: {
+          100: "#525252"
+        },
+        colorButonCalendar: {
+          100: "#fcfcfc"
+        },
+        boxList: {
+          100: "#da73d0"
+        },
+        buttonCalendar: {
+          100: "#f893db"
+        },
+        listCategory: {
+          100: "#f893db"
+        },
+        toolBar: {
+          100: "#461d67"
+        }
       }
     : {
         grey: {
@@ -117,6 +147,36 @@ export const tokens = (mode) => ({
           800: "#c3c6fd",
           900: "#e1e2fe",
         },
+        boxDashboard: {
+          100:"#FFFF"
+        },
+        iconTopbar: {
+          100: "#000"
+        },
+        tableCalendar: {
+          100: "#78787879"
+        },
+        buttonsCalendar: {
+          100: "#ffff"
+        },
+        borderCalendar: {
+          100: "#000"
+        },
+        colorButonCalendar: {
+          100: "#000"
+        },
+        boxList: {
+          100: "#FFBDEB"
+        },
+        buttonCalendar: {
+          100: "#CF8CFF"
+        },
+        listCategory: {
+          100: "#F19AD7"
+        },
+        toolBar: {
+          100: "#4d5360"
+        }
       }),
 });
 
@@ -141,7 +201,7 @@ export const themeSettings = (mode) => {
               light: colors.grey[100],
             },
             background: {
-              default: colors.primary[500],
+              default: "#1b0729",
             },
           }
         : {
@@ -158,7 +218,8 @@ export const themeSettings = (mode) => {
               light: colors.grey[100],
             },
             background: {
-              default: "#fcfcfc",
+              // default: "#FFE1F6",
+              default: "#F5F5F5",
             },
           }),
     },

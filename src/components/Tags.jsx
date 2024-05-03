@@ -39,6 +39,7 @@ const Tag = styled.button`
   flex: 1;
   font-size: 1rem;
   font-weight: bold;
+  margin: 0 5px 0 5px;
 
   ${({activeTag}) => activeTag && css`
     background: #b85600;

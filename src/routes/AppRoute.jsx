@@ -25,6 +25,7 @@ import Board from '../pages/user/board/Board';
 import { ToastContainer } from 'react-toastify';
 import Pomodoro from '../pages/user/pomodoro';
 import SettingsContextProvider from '../context/SettingsContext';
+import VerifyRegister from '../pages/VerifyRegister';
 
 
 const AppRoute = () => {
@@ -45,13 +46,14 @@ const AppRoute = () => {
           } />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/todo" element={<Board />} />
-          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/calendar-money-plan" element={<Calendar />} />
           {/* <Route path="/geography" element={<Geography />} /> */}
           <Route path="/update-account" element={<UpdateAccount />} />
         </Route>
         <Route path="login" element={<Login />} />
         <Route path="/system/admin/login" element={<LoginAdmin />} />
         <Route path="register" element={<Register />} />
+        <Route path="/verify-account" element={<VerifyRegister />} />
         <Route path="/system/admin/*" element={<AppAdmin />}></Route>
         <Route path="*" element={<NotFound />} />
         <Route path="/checkmail" element={<CheckEmail />} />

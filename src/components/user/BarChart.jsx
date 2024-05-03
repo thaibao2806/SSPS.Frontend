@@ -3,7 +3,10 @@ import { ResponsiveBar } from "@nivo/bar";
 import { tokens } from "../../theme";
 import { mockBarData as data } from "../../data/mockData";
 
-const BarChart = ({ isDashboard = false }) => {
+const BarChart = ({ isDashboard = false, data }) => {
+  if (!data) {
+    return <div>No data available.</div>;
+  }
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -39,13 +42,14 @@ const BarChart = ({ isDashboard = false }) => {
           },
         },
       }}
-      keys={["hot dog", "burger", "sandwich", "kebab", "fries", "donut"]}
-      indexBy="country"
+      keys={["expectMoney", "actualMoney"]}
+      indexBy="doM"
       margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
       padding={0.3}
+      groupMode="grouped"
       valueScale={{ type: "linear" }}
       indexScale={{ type: "band", round: true }}
-      colors={{ scheme: "nivo" }}
+      colors={["rgba(255, 99, 132, 0.6)", "rgba(54, 162, 235, 0.6)"]}
       defs={[
         {
           id: "dots",
@@ -124,6 +128,54 @@ const BarChart = ({ isDashboard = false }) => {
         return e.id + ": " + e.formattedValue + " in country: " + e.indexValue;
       }}
     />
+    // <ResponsiveBar
+    //   data={data}
+    //   keys={["expectMoney", "actualMoney"]} // Sử dụng expectMoney và actualMoney
+    //   indexBy="doM" // Sử dụng doM làm chỉ mục
+    //   margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+    //   padding={0.3}
+    //   groupMode="grouped" // Chuyển sang chế độ cột cạnh nhau
+    //   colors={["rgba(255, 99, 132, 0.6)", "rgba(54, 162, 235, 0.6)"]} // Màu sắc của các cột
+    //   borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
+    //   axisBottom={{
+    //     tickSize: 5,
+    //     tickPadding: 5,
+    //     tickRotation: 0,
+    //   }}
+    //   axisLeft={{
+    //     tickSize: 5,
+    //     tickPadding: 5,
+    //     tickRotation: 0,
+    //   }}
+    //   labelSkipWidth={12}
+    //   labelSkipHeight={12}
+    //   labelTextColor={{ from: "color", modifiers: [["darker", 1.6]] }}
+    //   legends={[
+    //     {
+    //       dataFrom: "keys",
+    //       anchor: "bottom-right",
+    //       direction: "column",
+    //       justify: false,
+    //       translateX: 120,
+    //       translateY: 0,
+    //       itemsSpacing: 2,
+    //       itemWidth: 100,
+    //       itemHeight: 20,
+    //       itemDirection: "left-to-right",
+    //       itemOpacity: 0.85,
+    //       symbolSize: 20,
+    //       effects: [
+    //         {
+    //           on: "hover",
+    //           style: {
+    //             itemOpacity: 1,
+    //           },
+    //         },
+    //       ],
+    //     },
+    //   ]}
+    //   enableLabel={false}
+    // />
   );
 };
 

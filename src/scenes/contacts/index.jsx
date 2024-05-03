@@ -103,7 +103,7 @@ const Contacts = () => {
   const [editedData, setEditedData] = useState([]);
   const user = useSelector(state => state.auth.login?.currentUser)
   const [paginationModel, setPaginationModel] = useState({
-    pageSize: 10,
+    pageSize: 100,
     page: 1,
     total: 0,
     isLoading: false
@@ -198,7 +198,7 @@ const Contacts = () => {
       } else {
         toast.error("Update fail !!");
       }
-      getUser();
+      getUser(paginationModel.page, paginationModel.pageSize);
       return updatedRow;
     } catch (error) {
       if (error.response.status === 401) {
@@ -247,14 +247,14 @@ const Contacts = () => {
             backgroundColor={
               status === "ACTIVE"
                 ? colors.greenAccent[600]
-                : status === "NONACTIVE"
+                : status === "INACTIVE"
                 ? colors.greenAccent[700]
                 : colors.greenAccent[700]
             }
             borderRadius="4px"
           >
             {status === "ACTIVE" && <LockOpenOutlinedIcon />}
-            {status === "NONACTIVE" && <LockOpenOutlinedIcon />}
+            {status === "INACTIVE" && <LockOpenOutlinedIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
               {status}
             </Typography>

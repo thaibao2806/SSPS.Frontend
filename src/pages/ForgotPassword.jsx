@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/apiRequest";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import { AiFillEye } from "react-icons/ai";
-import { forgotPassword } from "../data/authApi";
+import { forgotPassword, forgotPasswordOTP } from "../data/authApi";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -14,25 +14,32 @@ const ForgotPassword = () => {
   const [validated, setValidated] = useState("");
   const [validatedConfirmPassword, setValidatedConfirmPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isShowPassword, setIsShowPassword] = useState(false)
+  const [isShowPassword, setIsShowPassword] = useState(false);
   const [password, setPassword] = useState("");
-  const [token, setToken] = useState("")
+  const [otp, setOTP] = useState("");
+  const [token, setToken] = useState("");
+  const [email, setEmail] = useState("")
 
   useEffect(() => {
     // Lấy đường dẫn từ URL
     const fullURL = window.location.href;
+    const emailLocal = localStorage.getItem("emailOTP")
+    setEmail(emailLocal)
+    console.log(emailLocal)
 
-     const urlToken = fullURL.replace(
-      "http://localhost:5173/forgot-password?", ""
+
+    const urlToken = fullURL.replace(
+      "http://localhost:5173/forgot-password?",
+      ""
     );
 
-    setToken(urlToken)
-    displayThemeButtons()
-  }, []); 
+    setToken(urlToken);
+    displayThemeButtons();
+  }, []);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!confirmPassword || !password) {
+    e.preventDefault();
+    if (!confirmPassword || !password || !otp) {
       setValidated("Need to fill in all information !");
       return;
     } else {
@@ -50,18 +57,18 @@ const ForgotPassword = () => {
     } else {
       setValidatedPassword("");
     }
-
-    if(confirmPassword !== password) {
+    if (confirmPassword !== password) {
       setValidatedConfirmPassword("Re-entered password is incorrect!");
     } else {
-      setValidatedConfirmPassword("")
+      setValidatedConfirmPassword("");
     }
 
-    let res = await forgotPassword(token, password, confirmPassword)
-    if(res && res.data.msgCode === "SUCCESS") {
-      navigate("/login")
-    } 
-
+    let res = await forgotPasswordOTP(otp, email, password, confirmPassword);
+    if (res && res.data.msgCode === "SUCCESS") {
+      navigate("/login");
+    }else {
+      setValidated(res.data.msgDesc)
+    }
   };
 
   const themes = [
@@ -139,6 +146,13 @@ const ForgotPassword = () => {
               {validated || validatedPassword || validatedConfirmPassword}
             </span>
             <form>
+              <input
+                type="text"
+                value={otp}
+                placeholder="OTP"
+                onChange={(e) => setOTP(e.target.value)}
+                onKeyDown={handlePressEnter}
+              />
               <div className="position-relative w-100">
                 <input
                   type={isShowPassword ? "text" : "password"}
@@ -177,9 +191,9 @@ const ForgotPassword = () => {
               className="d-flex flex-row align-items-center justify-content-center pb-2"
               style={{ fontSize: "15px" }}
             >
-              <p className="mb-0">Back to login?</p>
-              <Link to={"/login"} className="btn btn-danger ms-2">
-                Login
+              <p className="mb-0">Edit email</p>
+              <Link to={"/checkmail"} className="btn btn-danger ms-2">
+                Check Email
               </Link>
             </div>
           </div>

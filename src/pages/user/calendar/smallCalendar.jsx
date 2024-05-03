@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 const smallCalendar = () => {
   return (
     <Box sx={{"& .css-1q04gal-MuiDateCalendar-root " : {
-      width: "250px"
+      width: "250px",
     }}}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DateCalendar />

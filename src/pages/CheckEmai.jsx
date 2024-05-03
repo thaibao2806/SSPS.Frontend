@@ -4,7 +4,7 @@ import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/apiRequest";
-import { checkEmail } from "../data/authApi";
+import { checkEmail, checkEmailOTP } from "../data/authApi";
 import Spinner from "react-bootstrap/Spinner";
 import "./login.css";
 
@@ -59,11 +59,15 @@ const CheckEmail = () => {
       setValidatedEmail("");
     }
 
-    let res = await checkEmail(email);
+    let res = await checkEmailOTP(email);
 
     if (res && res.status === 200 && res.data.msgCode === "SUCCESS") {
       setIsLoading(false)
+      localStorage.setItem("emailOTP", email);
       setValidated("Email sent!");
+      setTimeout(()=> {
+        navigate("/forgot-password")
+      }, 2000)
     } else {
       setValidated("")
       setIsLoading(false);

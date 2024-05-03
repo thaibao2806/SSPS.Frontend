@@ -21,9 +21,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { logOutUser } from "../../../redux/apiRequest";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 const BoardPage = () => {
   // const [ board, setBoard ] = useState();
+  const theme = useTheme();
+const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const { board, setBoard } = useBoard();
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -141,7 +145,7 @@ const BoardPage = () => {
   };
 
   return (
-    <div className="board-container">
+    <div className={`board-container ${isSmallScreen ? 'small-screen' : 'large-screen'}`}>
       <div>
         <span>SSPS Board</span>
         <button
@@ -335,14 +339,15 @@ const BoardPage = () => {
           };
 
           const handleClickEdit = (column) => {
+            console.log(column)
             console.log(column.id)
             setSelectedColumnData(column)
+            // setColor(column.color)
             setIsUpdate(true);
           }
 
           const handleUpdateColumn = async(id,title, fromDate, toDate, color,cards) => {
             try {
-              
               let res = await updateTodoNote(
                 id,
                 title,

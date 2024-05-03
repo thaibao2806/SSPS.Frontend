@@ -48,6 +48,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
+import DateRangeIcon from '@mui/icons-material/DateRange';
 
 const drawerWidth = 240;
 
@@ -133,7 +134,10 @@ export default function Topbar({ toggleSidebar }) {
       console.log(decode?.firstName);
       setFirstName(decode?.firstName);
       setLastName(decode?.lastName);
+      
     }
+
+    console.log(colors)
   }, []);
 
   useEffect(() => {
@@ -143,7 +147,7 @@ export default function Topbar({ toggleSidebar }) {
     // Logic to map pathnames to tab indices
     if (pathname === "/") {
       tabIndex = 0;
-    } else if (pathname === "/dashboard") {
+    } else if (pathname === "/calendar-money-plan") {
       tabIndex = 1;
     } else if (pathname === "/todo") {
       tabIndex = 2;
@@ -222,9 +226,9 @@ export default function Topbar({ toggleSidebar }) {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AppBar sx={{ background:"#4d5360" }}>
+      <AppBar sx={{ background:colors.boxDashboard[100] , height: "55px"}}>
         <Toolbar>
-          <img src={Logo} alt="" srcset="" width="45px" height="45px" style={{transform: "scale(1)"}}/>
+          <img src={Logo} alt="" srcset="" width="35px" height="35px" style={{transform: "scale(1)"}}/>
           {/* <AddBusinessRoundedIcon sx={{ transform: "scale(2)" }} /> */}
           {isMatch ? (
             <>
@@ -241,22 +245,23 @@ export default function Topbar({ toggleSidebar }) {
                 textColor="inherit"
                 value={value}
                 onChange={(e, value) => setValue(value)}
+                TabIndicatorProps={{style: {height:"4px"}}}
               >
                 <Tab
                   component={Link}
                   to="/"
                   label={
                   <Tooltip title="Home" placement="bottom">
-                    <HomeOutlinedIcon sx={{ transform: "scale(1.5)" }} />
+                    <HomeOutlinedIcon sx={{ transform: "scale(1.5)", color: colors.iconTopbar[100] }} />
                   </Tooltip>
                 }
                 />
                 <Tab
                   component={Link}
-                  to="/dashboard"
+                  to="/calendar-money-plan"
                   label={
-                  <Tooltip title="Report" placement="bottom">
-                    <InsertChartOutlinedIcon sx={{ transform: "scale(1.5)" }} />
+                  <Tooltip title="Expense management" placement="bottom">
+                    <DateRangeIcon sx={{ transform: "scale(1.5)" , color: colors.iconTopbar[100]}} />
                   </Tooltip>
                   }
                 />
@@ -269,7 +274,7 @@ export default function Topbar({ toggleSidebar }) {
                       fontSize: "1.5rem",
                     },
                   }}>
-                    <FormatListBulletedIcon sx={{ transform: "scale(1.5)" }} />
+                    <FormatListBulletedIcon sx={{ transform: "scale(1.5)" , color: colors.iconTopbar[100]}} />
                   </Tooltip>
                   }
                 />
@@ -278,7 +283,7 @@ export default function Topbar({ toggleSidebar }) {
                   to="/pomodoro"
                   label={
                   <Tooltip title="Pomodoro " placement="bottom">
-                    <AccessAlarmsIcon sx={{ transform: "scale(1.5)" }} />
+                    <AccessAlarmsIcon sx={{ transform: "scale(1.5)" , color: colors.iconTopbar[100]}} />
                   </Tooltip>
                   }
                 />
@@ -287,16 +292,16 @@ export default function Topbar({ toggleSidebar }) {
                   to="/faq"
                   label={
                   <Tooltip title="FAQ " placement="bottom">
-                    <HelpOutlineOutlinedIcon sx={{ transform: "scale(1.5)" }} />
+                    <HelpOutlineOutlinedIcon sx={{ transform: "scale(1.5)" , color: colors.iconTopbar[100]}} />
                   </Tooltip>
                   }
                 />
               </Tabs>
               <Button sx={{ marginLeft: "auto" }} onClick={colorMode.toggleColorMode}>
                 {theme.palette.mode === "dark" ? (
-                  <DarkModeOutlinedIcon  style={{ color: "white" }}/>
+                  <DarkModeOutlinedIcon  style={{ color: colors.iconTopbar[100] }}/>
                 ) : (
-                  <LightModeOutlinedIcon style={{ color: "white" }}/>
+                  <LightModeOutlinedIcon style={{ color: colors.iconTopbar[100] }}/>
                 )}
               </Button>
               {user ? (
@@ -379,10 +384,10 @@ export default function Topbar({ toggleSidebar }) {
                 </>
               ) : (
                 <>
-                  <Button sx={{ marginLeft: "10px" }} variant="text">
+                  <Button sx={{ marginLeft: "10px" }} variant="outlined" color="info">
                 <Link
                   to={"login"}
-                  style={{textDecoration:"none", color: "white"}}
+                  style={{textDecoration:"none", color: "black"}}
                 >
                   Log in
                 </Link>

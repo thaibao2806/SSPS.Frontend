@@ -2,11 +2,12 @@ import axios from "axios";
  import {  toast } from "react-toastify";
 
 import { logOut, loginFailed, loginStart, loginSuccess, registerFailed, registerStart, registerSuccess} from "./authSlice";
+import { createUsers, loginAdmins, loginUsers, register, registerOTP, url } from "../config";
 
 export const loginUser  = async(user, dispatch, navigate) => {
     dispatch(loginStart())
     try {
-    const res = await axios.post("http://localhost:5031/api/authenticate/login", user);
+    const res = await axios.post( url + loginUsers, user);
     console.log(res)
     // navigate("/admin/dashboard");
     if(res && res.status === 200) {
@@ -33,7 +34,7 @@ export const loginUser  = async(user, dispatch, navigate) => {
 export const loginAdmin  = async(user, dispatch, navigate) => {
     dispatch(loginStart())
     try {
-    const res = await axios.post("http://localhost:5031/api/authenticate/login", user);
+    const res = await axios.post( url + loginAdmins, user);
     console.log(res)
     // navigate("/admin/dashboard");
     if(res && res.status === 200) {
@@ -60,7 +61,7 @@ export const loginAdmin  = async(user, dispatch, navigate) => {
 export const registerUser  = async(user, dispatch, navigate) => {
     dispatch(registerStart())
     try {
-    let res = await axios.post("http://localhost:5031/api/authenticate/register", user);
+    let res = await axios.post(url + registerOTP, user);
     if(res && res.status === 200) {
         if(res.data.msgCode === "REGISTER_FAILED" && res.data.msgDesc === "Email was exist") {
             dispatch(registerFailed("Email already exists"))
@@ -68,7 +69,7 @@ export const registerUser  = async(user, dispatch, navigate) => {
         } else {
             dispatch(registerSuccess());
             toast.success("Register success")
-            navigate("/login");
+            navigate("/verify-account");
             return null;
         }
     }
@@ -82,7 +83,7 @@ export const registerUser  = async(user, dispatch, navigate) => {
 export const createUser  = async(user, dispatch) => {
     dispatch(registerStart())
     try {
-    let res = await axios.post("http://localhost:5031/api/authenticate/register", user);
+    let res = await axios.post(url + createUsers, user);
     if(res && res.status === 200) {
         if(res.data.msgCode === "REGISTER_FAILED" && res.data.msgDesc === "Email was exist") {
             dispatch(registerFailed("Email already exists"))

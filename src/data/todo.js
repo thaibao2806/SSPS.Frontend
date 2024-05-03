@@ -1,7 +1,9 @@
 import axios from "axios";
+import { createCard, createTodo, deleteCard, deleteTodo, getTodo, swapCard, updateCard, updateTodo, url } from "../config";
+
 
 export const createTodoNote = (title, fromDate, toDate, color, cards, accessToken) => {
-    return axios.post("http://localhost:5031/api/user/to-do-note", {title, fromDate, toDate, color, cards}, {
+    return axios.post(url + createTodo, {title, fromDate, toDate, color, cards}, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -9,7 +11,7 @@ export const createTodoNote = (title, fromDate, toDate, color, cards, accessToke
 }
 
 export const updateTodoNote = (id,title, fromDate, toDate, color, cards, accessToken) => {
-    return axios.put("http://localhost:5031/api/user/to-do-note", {id,title, fromDate, toDate, color, cards}, {
+    return axios.put(url + updateTodo, {id,title, fromDate, toDate, color, cards}, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -17,7 +19,7 @@ export const updateTodoNote = (id,title, fromDate, toDate, color, cards, accessT
 }
 
 export const deleteTodoNote = (id, accessToken) => {
-    return axios.post(`http://localhost:5031/api/user/to-do-note/delete?Id=${id}`, null, {
+    return axios.post(url + deleteTodo +`?Id=${id}`, null, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -25,7 +27,7 @@ export const deleteTodoNote = (id, accessToken) => {
 }
 
 export const getAllTodoNote = (accessToken) => {
-    return axios.get("http://localhost:5031/api/user/to-do-note/get-all", {
+    return axios.get(url + getTodo, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -33,7 +35,7 @@ export const getAllTodoNote = (accessToken) => {
 }
 
 export const createTodoCard = (toDoNoteId, card, accessToken) => {
-    return axios.post("http://localhost:5031/api/user/to-do-card", {toDoNoteId, card}, {
+    return axios.post(url + createCard, {toDoNoteId, card}, {
        headers: {
             Authorization: `Bearer ${accessToken}`
         } 
@@ -41,7 +43,7 @@ export const createTodoCard = (toDoNoteId, card, accessToken) => {
 }
 
 export const updateTodoCard = (toDoNoteId, cardId, title, description, accessToken) => {
-    return axios.put("http://localhost:5031/api/user/to-do-card", {toDoNoteId, cardId, title, description}, {
+    return axios.put(url + updateCard, {toDoNoteId, cardId, title, description}, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -49,7 +51,7 @@ export const updateTodoCard = (toDoNoteId, cardId, title, description, accessTok
 }
 
 export const deleteTodoCard = (ToDoNoteId, CardId, accessToken) => {
-    return axios.post(`http://localhost:5031/api/user/to-do-card/delete?ToDoNoteId=${ToDoNoteId}&CardId=${CardId}`, null, {
+    return axios.post(url + deleteCard +`?ToDoNoteId=${ToDoNoteId}&CardId=${CardId}`, null, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -57,7 +59,7 @@ export const deleteTodoCard = (ToDoNoteId, CardId, accessToken) => {
 }
 
 export const swapTodoCard = (CardId, FromToDoNoteId, ToToDoNoteId, accessToken) => {
-    return axios.get(`http://localhost:5031/api/user/to-do-card/swap?CardId=${CardId}&FromToDoNoteId=${FromToDoNoteId}&ToToDoNoteId=${ToToDoNoteId}`, {
+    return axios.get(url + swapCard +`?CardId=${CardId}&FromToDoNoteId=${FromToDoNoteId}&ToToDoNoteId=${ToToDoNoteId}`, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }

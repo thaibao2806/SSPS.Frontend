@@ -34,7 +34,7 @@ const OuterCircle = styled.div`
 const InnerCircle = styled.div`
   width: 20rem;
   height: 20rem;
-  background: #e9d4d4;
+  background: #ccb5b5;
   border-radius: 50%;
   display: grid;
   place-items: center ;

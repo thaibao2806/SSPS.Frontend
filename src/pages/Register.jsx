@@ -41,8 +41,8 @@ const Register = () => {
 
  useEffect(() => {
    // Lấy danh sách các tỉnh thành phố
-   axios.get("https://provinces.open-api.vn/api/?depth=1").then((response) => {
-     setProvinces(response.data);
+   axios.get("https://vapi.vnappmob.com/api/province").then((response) => {
+     setProvinces(response.data.results);
    });
  }, []);
 
@@ -50,9 +50,10 @@ const Register = () => {
  useEffect(() => {
    if (selectedProvince !== "") {
      axios
-       .get(`https://provinces.open-api.vn/api/p/${selectedProvince}?depth=2`)
+       .get(`https://vapi.vnappmob.com/api/province/district/${selectedProvince}`)
        .then((response) => {
-         setDistricts(response.data.districts);
+         setDistricts(response.data.results);
+         console.log(response.data.results)
        });
    }
  }, [selectedProvince]);
@@ -61,15 +62,16 @@ const Register = () => {
  useEffect(() => {
    if (selectedDistrict !== "") {
      axios
-       .get(`https://provinces.open-api.vn/api/d/${selectedDistrict}?depth=2`)
+       .get(`https://vapi.vnappmob.com/api/province/ward/${selectedDistrict}`)
        .then((response) => {
-         setWards(response.data.wards);
+         setWards(response.data.results);
        });
    }
  }, [selectedDistrict]);
 
  const handleProvinceChange = (e) => {
    setSelectedProvince(e.target.value);
+   console.log(e)
    setDistricts([]);
    setWards([]);
  };
@@ -92,16 +94,16 @@ const Register = () => {
      const result = ` ${
        wards.find(
          (ward) =>
-           String(ward.code) === String(selectedWard) && ward !== undefined
-       )?.name
+           String(ward.ward_id) === String(selectedWard) && ward !== undefined
+       )?.ward_name
      }, ${
        districts.find(
-         (district) => String(district.code) === String(selectedDistrict)
-       )?.name
+         (district) => String(district.district_id) === String(selectedDistrict)
+       )?.district_name
      }, ${
        provinces.find(
-         (province) => String(province.code) === String(selectedProvince)
-       )?.name
+         (province) => String(province.province_id) === String(selectedProvince)
+       )?.province_name
      }`;
      return result;
    }
@@ -113,6 +115,7 @@ const Register = () => {
       event.preventDefault();
       event.stopPropagation();
     }
+    localStorage.setItem("emailRegister", email)
 
     if (
       !email ||
@@ -272,9 +275,9 @@ const Register = () => {
                     <option value="" disabled>
                       Province
                     </option>
-                    {provinces.map((province) => (
-                      <option key={province.code} value={province.code}>
-                        {province.name}
+                    {provinces?.map((province) => (
+                      <option key={province.province_id} value={province.province_id}>
+                        {province.province_name}
                       </option>
                     ))}
                   </select>
@@ -288,8 +291,8 @@ const Register = () => {
                       District
                     </option>
                     {districts.map((district) => (
-                      <option key={district.code} value={district.code}>
-                        {district.name}
+                      <option key={district.district_id} value={district.district_id}>
+                        {district.district_name}
                       </option>
                     ))}
                   </select>
@@ -306,8 +309,8 @@ const Register = () => {
                       Ward
                     </option>
                     {wards.map((ward) => (
-                      <option key={ward.code} value={ward.code}>
-                        {ward.name}
+                      <option key={ward.ward_id} value={ward.ward_id}>
+                        {ward.ward_name}
                       </option>
                     ))}
                   </select>
