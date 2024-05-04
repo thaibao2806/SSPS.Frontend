@@ -1,11 +1,12 @@
 import axios from "axios";
 import jwt_decode from "jwt-decode"
+import { refresh, url } from "./config";
 
 
 
 export const refreshToken = async(user) => {
     try {
-      const res = await axios.post("https://auth-server-fmp.vercel.app/auth/refresh-token",{}, {
+      const res = await axios.post(url + refresh ,{}, {
         headers: {
           Authorization: `Bearer ${user?.data.token}`,
         },

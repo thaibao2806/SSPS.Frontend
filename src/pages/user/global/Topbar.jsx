@@ -37,18 +37,16 @@ import Stack from "@mui/material/Stack";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
-import InsertChartOutlinedIcon from '@mui/icons-material/InsertChartOutlined';
-import Logo from "../../../assets/logo.png"
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
+import InsertChartOutlinedIcon from "@mui/icons-material/InsertChartOutlined";
+import Logo from "../../../assets/logo.png";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
 import DrawerComp from "./Drawer";
-import AppBar from '@mui/material/AppBar';
-import AccessAlarmsIcon from '@mui/icons-material/AccessAlarms';
-import {
-  useMediaQuery,
-} from "@mui/material";
+import AppBar from "@mui/material/AppBar";
+import AccessAlarmsIcon from "@mui/icons-material/AccessAlarms";
+import { useMediaQuery } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
-import DateRangeIcon from '@mui/icons-material/DateRange';
+import DateRangeIcon from "@mui/icons-material/DateRange";
 
 const drawerWidth = 240;
 
@@ -134,10 +132,9 @@ export default function Topbar({ toggleSidebar }) {
       console.log(decode?.firstName);
       setFirstName(decode?.firstName);
       setLastName(decode?.lastName);
-      
     }
 
-    console.log(colors)
+    console.log(colors);
   }, []);
 
   useEffect(() => {
@@ -222,13 +219,25 @@ export default function Topbar({ toggleSidebar }) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AppBar sx={{ background:colors.boxDashboard[100] , height: "55px"}}>
+      <AppBar sx={{ background: colors.boxDashboard[100], height: "55px" }}>
         <Toolbar>
-          <img src={Logo} alt="" srcset="" width="35px" height="35px" style={{transform: "scale(1)"}}/>
+          {/* <img src={Logo} alt="" srcset="" width="35px" height="35px" style={{transform: "scale(1)"}}/> */}
+          <Typography
+            sx={{
+              fontSize: "2rem",
+              color: "black",
+              fontWeight: "550",
+              background: "linear-gradient(90deg, #00ffff, #ff00c3)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            SSPS
+          </Typography>
           {/* <AddBusinessRoundedIcon sx={{ transform: "scale(2)" }} /> */}
           {isMatch ? (
             <>
@@ -245,63 +254,99 @@ export default function Topbar({ toggleSidebar }) {
                 textColor="inherit"
                 value={value}
                 onChange={(e, value) => setValue(value)}
-                TabIndicatorProps={{style: {height:"4px"}}}
+                TabIndicatorProps={{ style: { height: "4px" } }}
               >
                 <Tab
                   component={Link}
                   to="/"
                   label={
-                  <Tooltip title="Home" placement="bottom">
-                    <HomeOutlinedIcon sx={{ transform: "scale(1.5)", color: colors.iconTopbar[100] }} />
-                  </Tooltip>
-                }
+                    <Tooltip title="Home" placement="bottom">
+                      <HomeOutlinedIcon
+                        sx={{
+                          transform: "scale(1.5)",
+                          color: colors.iconTopbar[100],
+                        }}
+                      />
+                    </Tooltip>
+                  }
                 />
                 <Tab
                   component={Link}
                   to="/calendar-money-plan"
                   label={
-                  <Tooltip title="Expense management" placement="bottom">
-                    <DateRangeIcon sx={{ transform: "scale(1.5)" , color: colors.iconTopbar[100]}} />
-                  </Tooltip>
+                    <Tooltip title="Expense management" placement="bottom">
+                      <DateRangeIcon
+                        sx={{
+                          transform: "scale(1.5)",
+                          color: colors.iconTopbar[100],
+                        }}
+                      />
+                    </Tooltip>
                   }
                 />
                 <Tab
                   component={Link}
                   to="/todo"
                   label={
-                  <Tooltip title="Todolist" placement="bottom" sx={{
-                    "& .MuiTooltip-tooltip": {
-                      fontSize: "1.5rem",
-                    },
-                  }}>
-                    <FormatListBulletedIcon sx={{ transform: "scale(1.5)" , color: colors.iconTopbar[100]}} />
-                  </Tooltip>
+                    <Tooltip
+                      title="Todolist"
+                      placement="bottom"
+                      sx={{
+                        "& .MuiTooltip-tooltip": {
+                          fontSize: "1.5rem",
+                        },
+                      }}
+                    >
+                      <FormatListBulletedIcon
+                        sx={{
+                          transform: "scale(1.5)",
+                          color: colors.iconTopbar[100],
+                        }}
+                      />
+                    </Tooltip>
                   }
                 />
                 <Tab
                   component={Link}
                   to="/pomodoro"
                   label={
-                  <Tooltip title="Pomodoro " placement="bottom">
-                    <AccessAlarmsIcon sx={{ transform: "scale(1.5)" , color: colors.iconTopbar[100]}} />
-                  </Tooltip>
+                    <Tooltip title="Pomodoro " placement="bottom">
+                      <AccessAlarmsIcon
+                        sx={{
+                          transform: "scale(1.5)",
+                          color: colors.iconTopbar[100],
+                        }}
+                      />
+                    </Tooltip>
                   }
                 />
                 <Tab
                   component={Link}
                   to="/faq"
                   label={
-                  <Tooltip title="FAQ " placement="bottom">
-                    <HelpOutlineOutlinedIcon sx={{ transform: "scale(1.5)" , color: colors.iconTopbar[100]}} />
-                  </Tooltip>
+                    <Tooltip title="FAQ " placement="bottom">
+                      <HelpOutlineOutlinedIcon
+                        sx={{
+                          transform: "scale(1.5)",
+                          color: colors.iconTopbar[100],
+                        }}
+                      />
+                    </Tooltip>
                   }
                 />
               </Tabs>
-              <Button sx={{ marginLeft: "auto" }} onClick={colorMode.toggleColorMode}>
+              <Button
+                sx={{ marginLeft: "auto" }}
+                onClick={colorMode.toggleColorMode}
+              >
                 {theme.palette.mode === "dark" ? (
-                  <DarkModeOutlinedIcon  style={{ color: colors.iconTopbar[100] }}/>
+                  <DarkModeOutlinedIcon
+                    style={{ color: colors.iconTopbar[100] }}
+                  />
                 ) : (
-                  <LightModeOutlinedIcon style={{ color: colors.iconTopbar[100] }}/>
+                  <LightModeOutlinedIcon
+                    style={{ color: colors.iconTopbar[100] }}
+                  />
                 )}
               </Button>
               {user ? (
@@ -311,7 +356,12 @@ export default function Topbar({ toggleSidebar }) {
                       <Stack direction="row" spacing={2}>
                         <Avatar
                           onClick={handleClick}
-                          style={{ width: "30px", height: "30px", color: "white", fontSize: "15px" }}
+                          style={{
+                            width: "30px",
+                            height: "30px",
+                            color: "white",
+                            fontSize: "15px",
+                          }}
                           {...stringAvatar(firstName, lastName)}
                         />
                       </Stack>
@@ -384,25 +434,32 @@ export default function Topbar({ toggleSidebar }) {
                 </>
               ) : (
                 <>
-                  <Button sx={{ marginLeft: "10px" }} variant="outlined" color="info">
-                <Link
-                  to={"login"}
-                  style={{textDecoration:"none", color: "black"}}
-                >
-                  Log in
-                </Link>
-              </Button>
-              <Button  sx={{ marginLeft: "10px" }} variant="contained" color="info">
-                <Link
-                  to={"register"}
-                  style={{textDecoration:"none", color: "white"}}
-                >
-                  Register
-                </Link>
-              </Button>
+                  <Button
+                    sx={{ marginLeft: "10px" }}
+                    variant="outlined"
+                    color="info"
+                  >
+                    <Link
+                      to={"login"}
+                      style={{ textDecoration: "none", color: "black" }}
+                    >
+                      Log in
+                    </Link>
+                  </Button>
+                  <Button
+                    sx={{ marginLeft: "10px" }}
+                    variant="contained"
+                    color="info"
+                  >
+                    <Link
+                      to={"register"}
+                      style={{ textDecoration: "none", color: "white" }}
+                    >
+                      Register
+                    </Link>
+                  </Button>
                 </>
               )}
-              
             </>
           )}
         </Toolbar>

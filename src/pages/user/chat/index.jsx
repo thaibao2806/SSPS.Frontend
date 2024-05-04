@@ -43,6 +43,10 @@ import {
   VolumeOff,
   VolumeUp,
 } from "@mui/icons-material";
+import AddMoneyPlan from "../../../components/MoneyPlan/AddMoneyPlan";
+import AddNote from "../../../components/Notes/AddNote";
+import AddColumn from "../../../components/Todo/AddColumn";
+import AddCard from "../../../components/Todo/AddCard";
 
 const ChatAI = () => {
   const theme = useTheme();
@@ -58,10 +62,16 @@ const ChatAI = () => {
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const open = Boolean(anchorEl);
   const openSetting = Boolean(anchorEl1);
+  const [moneyPLan, setMoneyPlan] = useState(false);
+  const [note, setNote] = useState(false);
+  const [todo, setTodo] = useState(false);
+  const [task, setTask] = useState(false);
 
   useEffect(() => {
     scrollToBottom();
-  }, [conversation]); // Trigger lại khi conversation thay đổi
+  }, [conversation]);
+  
+  
 
   useEffect(() => {
     // Kiểm tra và xóa cuộc trò chuyện sau 24 giờ
@@ -78,12 +88,13 @@ const ChatAI = () => {
     }
     setConversation(savedConversations);
     scrollToBottom();
+    console.log(moneyPLan, chatContent)
   }, []);
 
   const handleDeleteMessages = () => {
     // Xóa tin nhắn từ state
     setIsConfirmDeleteOpen(false);
-    setAnchorEl1(null)
+    setAnchorEl1(null);
     setConversation([]);
     // Xóa tin nhắn từ localStorage
     localStorage.removeItem("conversations");
@@ -117,7 +128,7 @@ const ChatAI = () => {
 
   const handleCloseSetting = () => {
     setAnchorEl1(null);
-    setIsConfirmDeleteOpen(false)
+    setIsConfirmDeleteOpen(false);
   };
 
   const handleChange = (event) => {
@@ -152,83 +163,92 @@ const ChatAI = () => {
     }
   };
 
+  const handleCloseMoneyPlan = () => {
+    setMoneyPlan(false);
+  };
+
   const responseChatBox = async () => {
     setResponseChat(true);
     try {
       if (chatContent.trim().toLowerCase() === "@moneyplan") {
         // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
         setResponseChat(false); // Tắt trạng thái phản hồi
+        setMoneyPlan(true)
         popoverVolumn ? null : new Audio(TingTing).play();
         const updatedConversation = [
           ...conversation,
           { sender: "You", message: chatContent },
-          { sender: "Ai", message: "Please create a financial plan!"},
+          { sender: "Ai", message: "Please create a financial plan!" },
         ];
         setConversation(updatedConversation);
         localStorage.setItem(
           "conversations",
           JSON.stringify(updatedConversation)
         );
-        alert("Please create a financial plan!");
-        return
+        setChatContent("")
+        return;
       }
 
       if (chatContent.trim().toLowerCase() === "@todolist") {
         // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
         setResponseChat(false); // Tắt trạng thái phản hồi
+        setTodo(true)
         popoverVolumn ? null : new Audio(TingTing).play();
         const updatedConversation = [
           ...conversation,
           { sender: "You", message: chatContent },
-          { sender: "Ai", message: "Please create a todolist column!"},
+          { sender: "Ai", message: "Please create a todolist column!" },
         ];
         setConversation(updatedConversation);
         localStorage.setItem(
           "conversations",
           JSON.stringify(updatedConversation)
         );
-        alert("Please create a financial plan!");
-        return
+        setChatContent("")
+        return;
       }
 
       if (chatContent.trim().toLowerCase() === "@note") {
         // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
         setResponseChat(false); // Tắt trạng thái phản hồi
+        setNote(true)
         popoverVolumn ? null : new Audio(TingTing).play();
         const updatedConversation = [
           ...conversation,
           { sender: "You", message: chatContent },
-          { sender: "Ai", message: "Please create a todolist column!"},
+          { sender: "Ai", message: "Please create a todolist column!" },
         ];
         setConversation(updatedConversation);
         localStorage.setItem(
           "conversations",
           JSON.stringify(updatedConversation)
         );
-        alert("Please create a financial plan!");
-        return
+        setChatContent("")
+        return;
       }
 
-      if (chatContent.trim().toLowerCase() === "@todocard") {
+      if (chatContent.trim().toLowerCase() === "@task") {
         // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
         setResponseChat(false); // Tắt trạng thái phản hồi
+        setTask(true)
         popoverVolumn ? null : new Audio(TingTing).play();
         const updatedConversation = [
           ...conversation,
           { sender: "You", message: chatContent },
-          { sender: "Ai", message: "Please create a todolist column!"},
+          { sender: "Ai", message: "Please create a todolist column!" },
         ];
         setConversation(updatedConversation);
         localStorage.setItem(
           "conversations",
           JSON.stringify(updatedConversation)
         );
+        setChatContent("")
         alert("Please create a financial plan!");
-        return
+        return;
       }
       let res = await chatBox(chatContent);
       // setIsTyping([...isTyping, true]);
-      
+
       if (res.result === true) {
         console.log(res.data);
         // setIsTyping(isTyping.slice(0, -1));
@@ -244,6 +264,7 @@ const ChatAI = () => {
           "conversations",
           JSON.stringify(updatedConversation)
         );
+        setChatContent("")
         console.log(res.data?.message);
       } else {
         setResponseChat(false);
@@ -261,6 +282,7 @@ const ChatAI = () => {
           "conversations",
           JSON.stringify(updatedConversation)
         );
+        setChatContent("")
       }
     } catch (e) {
       setResponseChat(false);
@@ -275,6 +297,7 @@ const ChatAI = () => {
         "conversations",
         JSON.stringify(updatedConversation)
       );
+      setChatContent("")
     }
   };
 
@@ -517,7 +540,7 @@ const ChatAI = () => {
             <TextField
               multiline
               rows={1}
-              maxRows={4} 
+              maxRows={4}
               variant="outlined"
               fullWidth
               autoFocus
@@ -548,43 +571,10 @@ const ChatAI = () => {
           </Box>
         </Popover>
       </Box>
-
-      {/* <Dialog
-        maxWidth="sm"
-        open={isConfirmDeleteOpen}
-        onClose={handleCloseDialog}
-      >
-        <Box p={2}>
-          <Typography
-            variant="h3"
-            style={{ marginBottom: "10px", fontWeight: "500" }}
-          >
-            Delete Confirmation
-          </Typography>
-          <DialogContent>
-            <DialogContentText>
-              Are you sure you want to delete this note?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={handleCloseDialog}
-              style={{ backgroundColor: "#0487D9", color: "white" }}
-              color="primary"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleDeleteMessages}
-              color="primary"
-              style={{ backgroundColor: "red", color: "white" }}
-              autoFocus
-            >
-              Delete
-            </Button>
-          </DialogActions>
-        </Box>
-      </Dialog> */}
+      <AddMoneyPlan isDialogOpenCreate={moneyPLan} closeCreateDialog={handleCloseMoneyPlan} />
+      <AddNote isOpenCreateNote = {note} closeDialog={() => setNote(false)}/>
+      <AddColumn visible={todo} oncloseNote={() => setTodo(false)}/>
+      <AddCard visible={task} onCloseTask={() => setTask(false)}/>
     </div>
   );
 };

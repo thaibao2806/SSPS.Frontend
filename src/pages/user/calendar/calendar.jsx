@@ -707,6 +707,14 @@ const Calendar = () => {
         setErrorCreate("Money plan was exist!!");
         setValidateMoneyPlan("");
       }
+      if (res && res.data.msgCode === "TOTAL_USAGE_MONEY_IS_TOO_LARGE") {
+        setErrorCreate("Plan details is too large !!");
+        setValidateMoneyPlan("");
+      }
+      if (res && res.data.msgCode === "EXPECT_AMOUNT_IS_NOT_ENOUGH") {
+        setErrorCreate("Expect amount is not enough !!");
+        setValidateMoneyPlan("");
+      }
     } catch (error) {
       if (error.response?.status === 401) {
         console.log(401);
@@ -1287,6 +1295,14 @@ const Calendar = () => {
       } else {
         toast.error("Update failed!!!");
       }
+      if (res && res.data.msgCode === "TOTAL_USAGE_MONEY_IS_TOO_LARGE") {
+        setErrorCreate("Plan details is too large !!");
+        setValidateMoneyPlan("");
+      }
+      if (res && res.data.msgCode === "EXPECT_AMOUNT_IS_NOT_ENOUGH") {
+        setErrorCreate("Expect amount is not enough !!");
+        setValidateMoneyPlan("");
+      }
     } catch (error) {
       if (error.response.status === 401) {
         console.log(401);
@@ -1381,6 +1397,11 @@ const Calendar = () => {
         fromDate = dayjs(timeStart).format("YYYY-MM-DDTHH:mm:ss");
 
         toDate = dayjs(timeEnd).format("YYYY-MM-DDTHH:mm:ss");
+      }
+
+      if (fromDate > toDate) {
+        setValidateNote("Start time is less than end time");
+        return;
       }
 
       let res = await updateNote(
@@ -2830,7 +2851,7 @@ const Calendar = () => {
           />
         </Box>
         <DialogActions>
-          {/* {isUpdateCate && (
+          {isUpdateCate && (
             <Button
               variant="contained"
               color="primary"
@@ -2839,7 +2860,7 @@ const Calendar = () => {
             >
               Delete
             </Button>
-          )} */}
+          )}
           <Button
             variant="contained"
             color="primary"
