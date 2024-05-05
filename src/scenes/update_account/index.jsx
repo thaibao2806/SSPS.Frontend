@@ -10,10 +10,14 @@ import { useEffect, useState } from "react";
 import jwt_decode from "jwt-decode"; 
 import {  getUserById, updateUserByAdmin } from "../../data/authApi";
  import { ToastContainer, toast } from "react-toastify";
+import { createAxios } from "../../createInstance";
+import { updateToken } from "../../redux/authSlice";
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const user = useSelector((state) => state.auth.login?.currentUser);
+  const dispatch = useDispatch()
+  let axoisJWT = createAxios(user, dispatch, updateToken)
   const [validated, setValidated] = useState("");
   const [validatedEmail, setValidatedEmail] = useState("");
   const [validatedPhone, setValidatedPhone] = useState("");
@@ -42,7 +46,7 @@ const Form = () => {
   }, [id])
 
   const getAdminById = async() => {
-    let res = await getUserById(id, user.data.accessToken)
+    let res = await getUserById(id, user.data.accessToken, axoisJWT)
     if(res && res.status === 200) {
       setFistName(res.data.data.firstName)
       setLastName(res.data.data.lastName)
@@ -92,7 +96,8 @@ const Form = () => {
       phone,
       location,
       school,
-      user.data?.accessToken
+      user.data?.accessToken,
+      axoisJWT
     );
     if(res && res.status === 200) {
       toast.success("Update sucess!!")

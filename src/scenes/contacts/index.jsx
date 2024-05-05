@@ -28,6 +28,8 @@ import { getUserByAdmin, updateUserByAdmin } from "../../data/authApi";
 import { ToastContainer, toast } from "react-toastify";
 import { logOutUser } from "../../redux/apiRequest";
 import { useNavigate } from "react-router-dom";
+import { createAxios } from "../../createInstance";
+import { updateToken } from "../../redux/authSlice";
 const roles = ["Market", "Finance", "Development"];
 const randomRole = () => {
   return randomArrayItem(roles);
@@ -102,6 +104,7 @@ const Contacts = () => {
   const [rowModesModel, setRowModesModel] = useState({});
   const [editedData, setEditedData] = useState([]);
   const user = useSelector(state => state.auth.login?.currentUser)
+  let axoisJWT = createAxios(user, dispatch, updateToken)
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 100,
     page: 1,
@@ -117,7 +120,7 @@ const Contacts = () => {
   const getUser = async (page, pageSize) => {
     try {
       setPaginationModel((prev) => ({ ...prev, isLoading: true }));
-      let res = await getUserByAdmin(page, pageSize, user.data.accessToken);
+      let res = await getUserByAdmin(page, pageSize, user.data.accessToken, axoisJWT);
       if (res && res.status === 200) {
         setRows(res.data?.data);
         setPaginationModel((prev) => ({
@@ -191,7 +194,8 @@ const Contacts = () => {
         editedRowData.phone,
         editedRowData.location,
         editedRowData.school,
-        user.data.accessToken
+        user.data.accessToken,
+        axoisJWT
       );
       if (res && res.status === 200) {
         toast.success("Update success!!");

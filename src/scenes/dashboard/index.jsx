@@ -15,17 +15,21 @@ import ProgressCircle from "../../components/admin/ProgressCircle";
 import { useEffect, useState } from "react";
 import { dashBoard, getUserByAdmin } from "../../data/authApi";
 import jwt_decode from "jwt-decode"; 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { mockBarData as data } from "../../data/mockData";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { format } from "date-fns";
+import { createAxios } from "../../createInstance";
+import { updateToken } from "../../redux/authSlice";
 
 
 const Dashboard = () => {
   const theme = useTheme();
+  const dispatch = useDispatch()
   const user = useSelector((state) => state.auth.login?.currentUser);
+  let axoisJWT = createAxios(user, dispatch, updateToken)
   const [userData, setUserData] = useState(null)
   const [totalUser, setTotalUser] = useState(0)
   const [totalNewUsers, setTotalNewUsers] = useState([])
@@ -43,7 +47,7 @@ const Dashboard = () => {
   }, [totalMoneyPlans, totalNewUsers, totalNotes])
 
   const getUser = async() => {
-    let res = await getUserByAdmin(1, 20, user.data?.accessToken);
+    let res = await getUserByAdmin(1, 20, user.data?.accessToken, axoisJWT);
     if (res && res.data.msgCode === "SUCCESS") {
       setUserData(res.data.data);
     }
@@ -52,7 +56,7 @@ const Dashboard = () => {
   const dataDashBoard = async() => {
     console.log("year", year)
     const yearFilter = format(year, "yyyy");
-    let res = await dashBoard(yearFilter, user.data?.accessToken);
+    let res = await dashBoard(yearFilter, user.data?.accessToken, axoisJWT);
     if(res && res.data.msgCode === "SUCCESS") {
       setTotalUser(res.data.data?.amountOfUser);
       setTotalNewUsers(res.data.data?.amountOfNewUser);

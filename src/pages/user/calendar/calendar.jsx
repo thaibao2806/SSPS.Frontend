@@ -97,6 +97,8 @@ import MenuList from "@mui/material/MenuList";
 // import MenuItem from '@mui/material/MenuItem';
 // import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from "@mui/material/ListItemIcon";
+import { createAxios } from "../../../createInstance";
+import { updateToken } from "../../../redux/authSlice";
 
 const Calendar = () => {
   const theme = useTheme();
@@ -106,6 +108,7 @@ const Calendar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.login?.currentUser);
+  let axoisJWT = createAxios(user, dispatch, updateToken)
   const [currentEvents, setCurrentEvents] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDialogOpenCreate, setIsDialogOpenCreate] = useState(false);
@@ -235,21 +238,21 @@ const Calendar = () => {
 
   const getCategory = async () => {
     try {
-      let res = await getCategories(user.data?.accessToken);
+      let res = await getCategories(user.data?.accessToken, axoisJWT);
       if (res && res.data.msgCode === "SUCCESS") {
         setCategoriesList(res.data?.data);
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        console.log(401);
-        const timeoutDelay = 5000;
+      // if (error.response.status === 401) {
+      //   console.log(401);
+      //   const timeoutDelay = 5000;
 
-        toast.warning("Session expired. Logging out in 5 seconds.");
+      //   toast.warning("Session expired. Logging out in 5 seconds.");
 
-        setTimeout(() => {
-          logOutUser(dispatch, navigate);
-        }, timeoutDelay);
-      }
+      //   setTimeout(() => {
+      //     logOutUser(dispatch, navigate);
+      //   }, timeoutDelay);
+      // }
     }
   };
 
@@ -422,7 +425,7 @@ const Calendar = () => {
         }));
         console.log(data);
 
-        let res = await updateUsage(moneyPlanId, data, user.data?.accessToken);
+        let res = await updateUsage(moneyPlanId, data, user.data?.accessToken, axoisJWT);
         if (res && res.data.msgCode === "SUCCESS") {
           toast.success("Update success!!!");
           if (type === "DAY") {
@@ -689,7 +692,8 @@ const Calendar = () => {
         fromDate,
         endDate,
         usageMoneys,
-        user.data?.accessToken
+        user.data?.accessToken,
+        axoisJWT
       );
       if (res && res.status === 200 && res.data.msgCode === "SUCCESS") {
         toast.success("Create success!!");
@@ -882,7 +886,7 @@ const Calendar = () => {
             timeZone: "+00:00",
           })
         );
-        let res = await getNote(FromDate, ToDate, user.data?.accessToken);
+        let res = await getNote(FromDate, ToDate, user.data?.accessToken, axoisJWT);
         if (res && res.data.msgCode === "SUCCESS") {
           res.data?.data.forEach((item) =>
             convertedData.push({
@@ -901,7 +905,8 @@ const Calendar = () => {
         type,
         startDate,
         endDate,
-        user.data?.accessToken
+        user.data?.accessToken,
+        axoisJWT
       );
       if (res && res.data?.msgCode === "SUCCESS") {
         setDataUpdate(res.data?.data);
@@ -1151,7 +1156,7 @@ const Calendar = () => {
     }
     console.log("id", id);
     let checkctg, ctgId;
-    let res = await getMoneyPlanById(id, user.data?.accessToken);
+    let res = await getMoneyPlanById(id, user.data?.accessToken, axoisJWT);
 
     if (res && res.data.result) {
       console.log("test", res.data.data);
@@ -1188,7 +1193,7 @@ const Calendar = () => {
   const handleDeleteConfirm = async () => {
     try {
       const moneyPlanId = idUpdate;
-      let res = await deletePlan(moneyPlanId, user.data?.accessToken);
+      let res = await deletePlan(moneyPlanId, user.data?.accessToken, axoisJWT);
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Delete success!!");
         setActualAmount(0);
@@ -1208,16 +1213,16 @@ const Calendar = () => {
         setPopupOpen(false);
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        console.log(401);
-        const timeoutDelay = 5000;
+      // if (error.response.status === 401) {
+      //   console.log(401);
+      //   const timeoutDelay = 5000;
 
-        toast.warning("Session expired. Logging out in 5 seconds.");
+      //   toast.warning("Session expired. Logging out in 5 seconds.");
 
-        setTimeout(() => {
-          logOutUser(dispatch, navigate);
-        }, timeoutDelay);
-      }
+      //   setTimeout(() => {
+      //     logOutUser(dispatch, navigate);
+      //   }, timeoutDelay);
+      // }
     }
   };
 
@@ -1270,7 +1275,8 @@ const Calendar = () => {
         actualAmount,
         currencyUnit,
         usage,
-        user.data?.accessToken
+        user.data?.accessToken,
+        axoisJWT
       );
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Update success!!");
@@ -1304,16 +1310,16 @@ const Calendar = () => {
         setValidateMoneyPlan("");
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        console.log(401);
-        const timeoutDelay = 5000;
+      // if (error.response.status === 401) {
+      //   console.log(401);
+      //   const timeoutDelay = 5000;
 
-        toast.warning("Session expired. Logging out in 5 seconds.");
+      //   toast.warning("Session expired. Logging out in 5 seconds.");
 
-        setTimeout(() => {
-          logOutUser(dispatch, navigate);
-        }, timeoutDelay);
-      }
+      //   setTimeout(() => {
+      //     logOutUser(dispatch, navigate);
+      //   }, timeoutDelay);
+      // }
     }
   };
 
@@ -1351,7 +1357,8 @@ const Calendar = () => {
         color,
         fromDate,
         toDate,
-        user.data?.accessToken
+        user.data?.accessToken,
+        axoisJWT
       );
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Create Success!!");
@@ -1367,16 +1374,16 @@ const Calendar = () => {
         toast.error("failed!!!");
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        console.log(401);
-        const timeoutDelay = 5000;
+      // if (error.response.status === 401) {
+      //   console.log(401);
+      //   const timeoutDelay = 5000;
 
-        toast.warning("Session expired. Logging out in 5 seconds.");
+      //   toast.warning("Session expired. Logging out in 5 seconds.");
 
-        setTimeout(() => {
-          logOutUser(dispatch, navigate);
-        }, timeoutDelay);
-      }
+      //   setTimeout(() => {
+      //     logOutUser(dispatch, navigate);
+      //   }, timeoutDelay);
+      // }
     }
   };
 
@@ -1411,7 +1418,8 @@ const Calendar = () => {
         color,
         fromDate,
         toDate,
-        user.data?.accessToken
+        user.data?.accessToken,
+        axoisJWT
       );
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Update success!!");
@@ -1456,7 +1464,8 @@ const Calendar = () => {
         color,
         fromDate,
         toDate,
-        user.data?.accessToken
+        user.data?.accessToken,
+        axoisJWT
       );
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Update success!!");
@@ -1488,7 +1497,7 @@ const Calendar = () => {
   const handleDeleteNote = async () => {
     try {
       let id = idNote;
-      let res = await deleteNote(id, user.data?.accessToken);
+      let res = await deleteNote(id, user.data?.accessToken, axoisJWT);
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Delete success!!");
         if (type === "DAY") {
@@ -1504,16 +1513,16 @@ const Calendar = () => {
         toast.error("Delete Failed!!");
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        console.log(401);
-        const timeoutDelay = 5000;
+      // if (error.response.status === 401) {
+      //   console.log(401);
+      //   const timeoutDelay = 5000;
 
-        toast.warning("Session expired. Logging out in 5 seconds.");
+      //   toast.warning("Session expired. Logging out in 5 seconds.");
 
-        setTimeout(() => {
-          logOutUser(dispatch, navigate);
-        }, timeoutDelay);
-      }
+      //   setTimeout(() => {
+      //     logOutUser(dispatch, navigate);
+      //   }, timeoutDelay);
+      // }
     }
   };
 
@@ -1559,7 +1568,7 @@ const Calendar = () => {
         const categories = categoriesList.map((event) =>
           event.id === selectedCategory.id ? updatedCategoriesList : event
         );
-        let res = await updateCategories(categories, user.data?.accessToken);
+        let res = await updateCategories(categories, user.data?.accessToken, axoisJWT);
         if (res && res.data.msgCode === "SUCCESS") {
           toast.success("Update success!!");
           getCategory();
@@ -1571,16 +1580,16 @@ const Calendar = () => {
         }
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        console.log(401);
-        const timeoutDelay = 5000;
+      // if (error.response.status === 401) {
+      //   console.log(401);
+      //   const timeoutDelay = 5000;
 
-        toast.warning("Session expired. Logging out in 5 seconds.");
+      //   toast.warning("Session expired. Logging out in 5 seconds.");
 
-        setTimeout(() => {
-          logOutUser(dispatch, navigate);
-        }, timeoutDelay);
-      }
+      //   setTimeout(() => {
+      //     logOutUser(dispatch, navigate);
+      //   }, timeoutDelay);
+      // }
     }
   };
 
@@ -1599,7 +1608,7 @@ const Calendar = () => {
       categoriesList.forEach((item) => {
         categories.push(item);
       });
-      let res = await updateCategories(categories, user.data?.accessToken);
+      let res = await updateCategories(categories, user.data?.accessToken, axoisJWT);
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Update success!!");
         getCategory();
@@ -1608,16 +1617,16 @@ const Calendar = () => {
         toast.error("Update failed!!");
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        console.log(401);
-        const timeoutDelay = 5000;
+      // if (error.response.status === 401) {
+      //   console.log(401);
+      //   const timeoutDelay = 5000;
 
-        toast.warning("Session expired. Logging out in 5 seconds.");
+      //   toast.warning("Session expired. Logging out in 5 seconds.");
 
-        setTimeout(() => {
-          logOutUser(dispatch, navigate);
-        }, timeoutDelay);
-      }
+      //   setTimeout(() => {
+      //     logOutUser(dispatch, navigate);
+      //   }, timeoutDelay);
+      // }
     }
   };
 
@@ -1848,7 +1857,7 @@ const Calendar = () => {
     if (selectedCategory) {
       let res = await deleteCategories(
         selectedCategory.id,
-        user.data?.accessToken
+        user.data?.accessToken, axoisJWT
       );
       if (res && res.data.result) {
         getCategory();

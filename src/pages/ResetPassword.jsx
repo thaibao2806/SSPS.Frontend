@@ -9,9 +9,12 @@ import { AiFillEyeInvisible } from "react-icons/ai";
 import { AiFillEye } from "react-icons/ai";
 import jwt_decode from "jwt-decode"; 
 import "./login.css";
+import { createAxios } from "../createInstance";
+import { updateToken } from "../redux/authSlice";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [validatedConfirmPassword, setValidatedConfirmPassword] = useState("");
   const [validated, setValidated] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -21,6 +24,7 @@ const ResetPassword = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isShowNewPassword, setIsShowNewPassword] = useState(false);
   const user = useSelector((state) => state.auth.login?.currentUser);
+  let axoisJWT = createAxios(user, dispatch, updateToken)
 
   useEffect(() => {
     if (user) {
@@ -66,7 +70,8 @@ const ResetPassword = () => {
       currentPassword,
       password,
       confirmPassword,
-      user.data.accessToken
+      user.data.accessToken,
+      axoisJWT
     );
 
     if (res && res.status === 200 && res.data.msgCode === "SUCCESS") {

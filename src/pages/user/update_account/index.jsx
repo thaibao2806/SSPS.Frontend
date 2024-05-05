@@ -3,16 +3,20 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/user/Header";
-import {useSelector } from "react-redux";
+import {useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import jwt_decode from "jwt-decode"; 
 // import {  getUserById, updateUserByAdmin } from "../../../data/authApi";
  import { ToastContainer, toast } from "react-toastify";
 import { getUser, getUserById, updateUser, updateUserByAdmin } from "../../../data/authApi";
+import { createAxios } from "../../../createInstance";
+import { updateToken } from "../../../redux/authSlice";
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const user = useSelector((state) => state.auth.login?.currentUser);
+  const dispatch = useDispatch()
+  let axoisJWT = createAxios(user, dispatch, updateToken)
   const [validated, setValidated] = useState("");
   const [validatedEmail, setValidatedEmail] = useState("");
   const [validatedPhone, setValidatedPhone] = useState("");
@@ -41,8 +45,7 @@ const Form = () => {
   }, [id])
 
   const getAdminById = async() => {
-    console.log("aaaaa")
-    let res = await getUser(id, user.data.accessToken)
+    let res = await getUser(id, user.data.accessToken, axoisJWT)
     if(res && res.status === 200) {
       setFistName(res.data.data.firstName)
       setLastName(res.data.data.lastName)

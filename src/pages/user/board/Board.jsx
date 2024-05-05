@@ -22,6 +22,8 @@ import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { logOutUser } from "../../../redux/apiRequest";
 import { useMediaQuery, useTheme } from "@mui/material";
+import { createAxios } from "../../../createInstance";
+import { updateToken } from "../../../redux/authSlice";
 
 const BoardPage = () => {
   // const [ board, setBoard ] = useState();
@@ -32,6 +34,7 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const user = useSelector((state) => state.auth.login?.currentUser);
+  let axoisJWT = createAxios(user, dispatch, updateToken)
   const [openAddColumn, setOpenAddColumn] = useState(false)
   useEffect(() => {
     getAllNote()
@@ -47,7 +50,8 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
         _card.id,
         source.fromColumnId,
         destination.toColumnId,
-        user.data?.accessToken
+        user.data?.accessToken,
+        axoisJWT
       );
       if (res && res.data.msgCode === "SUCCESS") {
         const updatedBoard = moveCard(board, source, destination);
@@ -71,7 +75,7 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const getAllNote = async() => {
     try {
-      let res = await getAllTodoNote(user.data?.accessToken);
+      let res = await getAllTodoNote(user.data?.accessToken, axoisJWT);
       if (res && res.data.msgCode === "SUCCESS") {
         const newColumns = res.data?.data.map((item) => ({
           id: item.id,
@@ -121,7 +125,8 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
         toDate,
         color,
         cards,
-        user.data?.accessToken
+        user.data?.accessToken,
+        axoisJWT
       );
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Create success!!!");
@@ -195,7 +200,8 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
                 props.id,
                 title,
                 detail,
-                user.data?.accessToken
+                user.data?.accessToken,
+                axoisJWT
               );
               if (res && res.data.msgCode === "SUCCESS") {
                 toast.success("Update success");
@@ -224,7 +230,8 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
               let res = await deleteTodoCard(
                 column.id,
                 props.id,
-                user.data?.accessToken
+                user.data?.accessToken,
+                axoisJWT
               );
               if (res && res.data.msgCode === "SUCCESS") {
                 toast.success("Delete success!");
@@ -312,7 +319,8 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
               let res = await createTodoCard(
                 props.id,
                 card,
-                user.data?.accessToken
+                user.data?.accessToken,
+                axoisJWT
               );
               if (res && res.data.msgCode === "SUCCESS") {
                 toast.success("Create success");
@@ -355,7 +363,8 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
                 toDate,
                 color,
                 cards,
-                user.data?.accessToken
+                user.data?.accessToken,
+                axoisJWT
               );
 
               if (res && res.data.msgCode === "SUCCESS") {
@@ -381,7 +390,7 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
           const handleDeleteColumn = async() => {
             try {
-              let res = await deleteTodoNote(props.id, user.data?.accessToken);
+              let res = await deleteTodoNote(props.id, user.data?.accessToken,axoisJWT);
               if (res && res.data.msgCode === "SUCCESS") {
                 toast.success("Delete success!!");
               } else {

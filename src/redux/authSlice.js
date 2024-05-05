@@ -51,7 +51,7 @@ const authSlice = createSlice({
         },
         updateToken: (state, action) => {
         // Cập nhật token trong Redux store
-            state.login.currentUser.data.accessToken = action.payload;
+            state.login.currentUser = action.payload;
         },
         
     }

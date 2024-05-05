@@ -241,9 +241,18 @@ export default function Topbar({ toggleSidebar }) {
           {/* <AddBusinessRoundedIcon sx={{ transform: "scale(2)" }} /> */}
           {isMatch ? (
             <>
-              <Typography sx={{ fontSize: "2rem", paddingLeft: "2%" }}>
+              {/* <Typography
+                sx={{
+                  fontSize: "2rem",
+                  paddingLeft: "2%",
+                  background: "linear-gradient(90deg, #00ffff, #ff00c3)",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
                 SSPS
-              </Typography>
+              </Typography> */}
               <DrawerComp />
             </>
           ) : (

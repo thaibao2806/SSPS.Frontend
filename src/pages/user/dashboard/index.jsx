@@ -54,6 +54,8 @@ import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 import ExcelJS from "exceljs";
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { createAxios } from "../../../createInstance";
+import {updateToken} from "../../../redux/authSlice"
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -71,6 +73,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.login?.currentUser);
+  let axoiJWT = createAxios(user, dispatch, updateToken)
   const [expectual, setExpectual] = useState("");
   const [actual, setActual] = useState("");
   const [type, setType] = useState("YEAR");
@@ -108,27 +111,14 @@ const Dashboard = () => {
     }
   }, [type]);
 
-  const getListRange = async (type, fromDate, toDate) => {
-    let res = await getMoneyPlanRangeType(
-      type,
-      fromDate,
-      toDate,
-      user.data?.accessToken
-    );
-    console.log(res.data?.data);
-    if (res.data?.result) {
-      setListMoneyPlan(
-        res.data?.data.sort((a, b) => new Date(a.date) - new Date(b.date))
-      );
-    }
-  };
-
   const getData = async (type, fromDate, toDate) => {
+    console.log("đang voa day")
     let res = await reportMoneyPlan(
       type,
       fromDate,
       toDate,
-      user.data?.accessToken
+      user.data?.accessToken,
+      axoiJWT
     );
     if (res.data?.result) {
       setExpectual(res.data?.data?.totalExpectMoney.toFixed(2));
@@ -138,6 +128,24 @@ const Dashboard = () => {
       );
     }
   };
+
+  const getListRange = async (type, fromDate, toDate) => {
+    let res = await getMoneyPlanRangeType(
+      type,
+      fromDate,
+      toDate,
+      user.data?.accessToken,
+      axoiJWT
+    );
+    console.log(res.data?.data);
+    if (res.data?.result) {
+      setListMoneyPlan(
+        res.data?.data.sort((a, b) => new Date(a.date) - new Date(b.date))
+      );
+    }
+  };
+
+  
 
   const handleChange = (value) => {
     console.log(value.target.value);
