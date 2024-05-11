@@ -20,6 +20,10 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  Card,
+  CardContent,
+  CardActions,
+  CardHeader,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { tokens } from "../../../theme";
@@ -39,13 +43,13 @@ import StatBox from "../../../components/user/StatBox";
 import ProgressCircle from "../../../components/admin/ProgressCircle";
 import { useEffect, useState } from "react";
 import { reportMoneyPlan } from "../../../data/reportApi";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import EditIcon from "@mui/icons-material/Edit";
 import dayjs from "dayjs";
-import { format } from "date-fns";
+import { format, isAfter } from "date-fns";
 import Actual from "../../../assets/actual-web.png";
 import Expect from "../../../assets/expectual-web.png";
 import { Table } from "react-bootstrap";
@@ -53,9 +57,13 @@ import { getMoneyPlanRangeType } from "../../../data/calendarApi";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 import ExcelJS from "exceljs";
-import useMediaQuery from '@mui/material/useMediaQuery';
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { createAxios } from "../../../createInstance";
-import {updateToken} from "../../../redux/authSlice"
+import { updateToken } from "../../../redux/authSlice";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import Slider from "react-slick";
+import { getAllTodoNote } from "../../../data/todo";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -66,14 +74,62 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
+function Arrow(props) {
+  const { className, style, onClick } = props;
+  return (
+    <div
+      className={className}
+      style={{ ...style, display: "block", background: "red" }}
+      onClick={onClick}
+    />
+  );
+}
+
+var settings = {
+  dots: false,
+  infinite: false,
+  speed: 500,
+  slidesToShow: 2,
+  slidesToScroll: 2,
+  initialSlide: 0,
+  // nextArrow: <Arrow />,
+  // prevArrow: <Arrow />,
+  responsive: [
+    {
+      breakpoint: 1024,
+      settings: {
+        slidesToShow: 2,
+        slidesToScroll: 2,
+        infinite: true,
+        dots: false,
+      },
+    },
+    {
+      breakpoint: 768,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        initialSlide: 2,
+      },
+    },
+    {
+      breakpoint: 480,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1,
+      },
+    },
+  ],
+};
+
 const Dashboard = () => {
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.login?.currentUser);
-  let axoiJWT = createAxios(user, dispatch, updateToken)
+  let axoiJWT = createAxios(user, dispatch, updateToken);
   const [expectual, setExpectual] = useState("");
   const [actual, setActual] = useState("");
   const [type, setType] = useState("YEAR");
@@ -94,6 +150,11 @@ const Dashboard = () => {
   const [selectYear, setSelectYear] = useState(new Date());
   const [listDiagram, setListDiagram] = useState([]);
   const [listMoneyPlan, setListMoneyPlan] = useState([]);
+  const [startIndex, setStartIndex] = useState(0);
+  const cardsPerPage = isSmallScreen ? 1 : 4; // Số lượng card trên mỗi trang
+  const [display, setDisplay] = useState(true);
+  const [width, setWidth] = useState(400);
+  const [todo, setTodo] = useState([]);
 
   useEffect(() => {
     if (type === "MONTH") {
@@ -111,8 +172,19 @@ const Dashboard = () => {
     }
   }, [type]);
 
+  useEffect(() => {
+    getTodo();
+  }, []);
+
+  const getTodo = async () => {
+    let res = await getAllTodoNote(user.data?.accessToken, axoiJWT);
+    if (res && res.data.result === true) {
+      setTodo(res.data.data);
+    }
+  };
+
   const getData = async (type, fromDate, toDate) => {
-    console.log("đang voa day")
+    // console.log("đang voa day");
     let res = await reportMoneyPlan(
       type,
       fromDate,
@@ -145,8 +217,6 @@ const Dashboard = () => {
     }
   };
 
-  
-
   const handleChange = (value) => {
     console.log(value.target.value);
     setType(value.target.value);
@@ -175,7 +245,6 @@ const Dashboard = () => {
   };
 
   const exportData = async () => {
-
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Data");
     let totalExpect = 0;
@@ -239,20 +308,29 @@ const Dashboard = () => {
 
     // Xuất ra file Excel
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), `ssps_report_${type === "MONTH" ? format(selectFromDate, "MMM_yyyy"): format(selectYear, "yyyy")}.xlsx`);
+    saveAs(
+      new Blob([buffer]),
+      `ssps_report_${
+        type === "MONTH"
+          ? format(selectFromDate, "MMM_yyyy")
+          : format(selectYear, "yyyy")
+      }.xlsx`
+    );
   };
 
   return (
     <Box m="20px">
       <Box
         display="grid"
-        gridTemplateColumns={isSmallScreen ? 'repeat(1, 1fr)' : 'repeat(12, 1fr)'}
-        gridAutoRows={isSmallScreen ? 'auto' : '140px'}
+        gridTemplateColumns={
+          isSmallScreen ? "repeat(1, 1fr)" : "repeat(12, 1fr)"
+        }
+        gridAutoRows={isSmallScreen ? "auto" : "140px"}
         gap="20px"
       >
         {/* ROW 1 */}
         <Box
-          gridColumn={isSmallScreen ? 'span 1' : 'span 4'}
+          gridColumn={isSmallScreen ? "span 1" : "span 4"}
           // backgroundColor="#ffff"
           boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
           borderRadius="10px"
@@ -275,7 +353,7 @@ const Dashboard = () => {
           />
         </Box>
         <Box
-          gridColumn={isSmallScreen ? 'span 1' : 'span 4'}
+          gridColumn={isSmallScreen ? "span 1" : "span 4"}
           // backgroundColor="#ffff"
           backgroundColor={colors.boxDashboard[100]}
           boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
@@ -297,10 +375,11 @@ const Dashboard = () => {
             }
           />
         </Box>
+
         <Box
-          gridColumn={isSmallScreen ? 'span 1' : 'span 4'}
-          gridRow={isSmallScreen ? 'auto' : 'span 2'}
-          height={isSmallScreen ? 'auto' : '640px'}
+          gridColumn={isSmallScreen ? "span 1" : "span 4"}
+          gridRow={isSmallScreen ? "auto" : "span 2"}
+          height={isSmallScreen ? "auto" : "410px"}
           // backgroundColor="#ffff"
           boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
           borderRadius="10px"
@@ -324,24 +403,68 @@ const Dashboard = () => {
               />
             </IconButton>
           </Box>
-          <TableContainer component={Paper} >
-            <Table sx={{ minWidth: 650, }} aria-label="simple table">
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
-                <TableRow >
-                  <TableCell sx={{ fontWeight: "bold"}} style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100], background:colors.boxDashboard[100]}}>Name</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: "bold" }} style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100]}}>
+                <TableRow>
+                  <TableCell
+                    sx={{ fontWeight: "bold" }}
+                    style={{
+                      color: colors.grey[100],
+                      backgroundColor: colors.boxDashboard[100],
+                      background: colors.boxDashboard[100],
+                    }}
+                  >
+                    Name
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{ fontWeight: "bold" }}
+                    style={{
+                      color: colors.grey[100],
+                      backgroundColor: colors.boxDashboard[100],
+                    }}
+                  >
                     Expect
                   </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: "bold" }} style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100]}}>
+                  <TableCell
+                    align="right"
+                    sx={{ fontWeight: "bold" }}
+                    style={{
+                      color: colors.grey[100],
+                      backgroundColor: colors.boxDashboard[100],
+                    }}
+                  >
                     Actual
                   </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: "bold" }} style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100]}}>
+                  <TableCell
+                    align="right"
+                    sx={{ fontWeight: "bold" }}
+                    style={{
+                      color: colors.grey[100],
+                      backgroundColor: colors.boxDashboard[100],
+                    }}
+                  >
                     Day
                   </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: "bold" }} style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100]}}>
+                  <TableCell
+                    align="right"
+                    sx={{ fontWeight: "bold" }}
+                    style={{
+                      color: colors.grey[100],
+                      backgroundColor: colors.boxDashboard[100],
+                    }}
+                  >
                     Category
                   </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: "bold" }} style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100]}}>
+                  <TableCell
+                    align="right"
+                    sx={{ fontWeight: "bold" }}
+                    style={{
+                      color: colors.grey[100],
+                      backgroundColor: colors.boxDashboard[100],
+                    }}
+                  >
                     Priority
                   </TableCell>
                 </TableRow>
@@ -351,24 +474,62 @@ const Dashboard = () => {
                 {listMoneyPlan.map((row, index) =>
                   row?.usageMoneys.map((item) => (
                     <TableRow
-                    
                       key={row.id + item.name + index}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell component="th" scope="row" style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100]}}>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          color: colors.grey[100],
+                          backgroundColor: colors.boxDashboard[100],
+                        }}
+                      >
                         {item.name}
                       </TableCell>
-                      <TableCell align="right" style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100]}}>
+                      <TableCell
+                        align="right"
+                        style={{
+                          color: colors.grey[100],
+                          backgroundColor: colors.boxDashboard[100],
+                        }}
+                      >
                         {item.expectAmount.toFixed(2)}
                       </TableCell>
-                      <TableCell align="right" style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100]}}>
+                      <TableCell
+                        align="right"
+                        style={{
+                          color: colors.grey[100],
+                          backgroundColor: colors.boxDashboard[100],
+                        }}
+                      >
                         {item.actualAmount.toFixed(2)}
                       </TableCell>
-                      <TableCell align="right" style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100]}}>
+                      <TableCell
+                        align="right"
+                        style={{
+                          color: colors.grey[100],
+                          backgroundColor: colors.boxDashboard[100],
+                        }}
+                      >
                         {format(new Date(row.date), "dd-MM-yyyy")}
                       </TableCell>
-                      <TableCell align="right" style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100]}}>{item.categoryName}</TableCell>
-                      <TableCell align="right" style={{color: colors.grey[100], backgroundColor: colors.boxDashboard[100]}}>
+                      <TableCell
+                        align="right"
+                        style={{
+                          color: colors.grey[100],
+                          backgroundColor: colors.boxDashboard[100],
+                        }}
+                      >
+                        {item.categoryName}
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        style={{
+                          color: colors.grey[100],
+                          backgroundColor: colors.boxDashboard[100],
+                        }}
+                      >
                         {item.priority === 1
                           ? "Highly"
                           : item.priority === 2
@@ -385,9 +546,9 @@ const Dashboard = () => {
 
         {/* ROW 2 */}
         <Box
-          gridColumn={isSmallScreen ? 'span 1' : 'span 8'}
-          gridRow={isSmallScreen ? 'auto' : 'span 2'}
-          height={isSmallScreen ? 'auto' : '480px'}
+          gridColumn={isSmallScreen ? "span 1" : "span 8"}
+          gridRow={isSmallScreen ? "auto" : "span 2"}
+          height={isSmallScreen ? "auto" : "480px"}
           // backgroundColor="#ffff"
           boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
           borderRadius="10px"
@@ -459,6 +620,107 @@ const Dashboard = () => {
           </Box>
         </Box>
 
+        <Box
+          gridColumn={isSmallScreen ? "span 1" : "span 4"}
+          gridRow={isSmallScreen ? "auto" : "span 1"}
+          height={isSmallScreen ? "auto" : "220px"}
+          width={isSmallScreen ? "auto" : "550px"}
+          // backgroundColor="#ffff"
+          boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
+          borderRadius="10px"
+          backgroundColor={colors.boxDashboard[100]}
+          mt={isSmallScreen ? "auto" : "100px"}
+        >
+          <Box mt="15px">
+            <Typography
+              color={colors.grey[100]}
+              variant="h5"
+              fontWeight="600"
+              pl="15px"
+            >
+              TodoList
+            </Typography>
+            <Box
+              display="flex "
+              mt="10px"
+              alignItems="center"
+              justifyContent="center"
+              sx={{
+                ".slick-prev:before, .slick-next:before": {
+                  color: colors.greenAccent[500],
+                },
+              }}
+            >
+              <div className="slider-container">
+                <div
+                  style={{
+                    width: 480 + "px",
+                    display: display ? "block" : "none",
+                  }}
+                >
+                  <Slider {...settings}>
+                    {todo.map((card, index) => (
+                      <div key={index}>
+                        <Card
+                          sx={{
+                            minWidth: "50px",
+                            marginRight: "20px",
+                            height: "150px",
+                            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
+                            border: "1px solid #00000085",
+                            backgroundColor: `${colors.boxDashboard[100]}`,
+                          }}
+                        >
+                          <CardContent>
+                            <Link to="/todo" style={{color: `${colors.grey[100]}`}}>
+                              <Typography
+                                variant="h5"
+                              >
+                                {card.title}
+                              </Typography>
+                            </Link>
+                            <Typography
+                              sx={{
+                                mb: 1.5,
+                                color: isAfter(
+                                  new Date(),
+                                  new Date(card.toDate)
+                                )
+                                  ? "error.main"
+                                  : "text.secondary",
+                              }}
+                              color="text.secondary"
+                            >
+                              {format(new Date(card.fromDate), "dd/MM/yyyy")} -{" "}
+                              {format(new Date(card.toDate), "dd/MM/yyyy")}
+                            </Typography>
+                            <div
+                              style={{ overflowY: "auto", maxHeight: "100px" }}
+                            >
+                              <ul>
+                                {card.cards.map((task, taskIndex) => (
+                                  <li>
+                                    <Typography
+                                      key={taskIndex}
+                                      component="div"
+                                      style={{ overflowWrap: "anywhere" }}
+                                    >
+                                      {task.title}
+                                    </Typography>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ))}
+                  </Slider>
+                </div>
+              </div>
+            </Box>
+          </Box>
+        </Box>
         {/* ROW 3 */}
       </Box>
 
