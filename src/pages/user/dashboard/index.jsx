@@ -64,6 +64,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { getAllTodoNote } from "../../../data/todo";
+import Stack from "@mui/material/Stack";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -121,6 +122,14 @@ var settings = {
     },
   ],
 };
+
+const DemoPaper = styled(Paper)(({ theme }) => ({
+  minWidth: 230,
+  height: 150,
+  padding: theme.spacing(2),
+  ...theme.typography.body2,
+  textAlign: "center",
+}));
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -623,7 +632,7 @@ const Dashboard = () => {
         <Box
           gridColumn={isSmallScreen ? "span 1" : "span 4"}
           gridRow={isSmallScreen ? "auto" : "span 1"}
-          height={isSmallScreen ? "auto" : "220px"}
+          height={isSmallScreen ? "220px" : "220px"}
           width={isSmallScreen ? "auto" : "550px"}
           // backgroundColor="#ffff"
           boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
@@ -665,23 +674,26 @@ const Dashboard = () => {
                           sx={{
                             minWidth: "50px",
                             marginRight: "20px",
-                            height: "150px",
-                            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
-                            border: "1px solid #00000085",
+                            height: "140px",
+                            margin: "10px 10px 0px 10px",
+                            boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                            borderRadius: "10px",
+                            //box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+                            // border: "1px solid #00000085",
                             backgroundColor: `${colors.boxDashboard[100]}`,
                           }}
                         >
                           <CardContent>
-                            <Link to="/todo" style={{color: `${colors.grey[100]}`}}>
-                              <Typography
-                                variant="h5"
-                              >
+                            <Link
+                              to="/todo"
+                              style={{ color: `${colors.grey[100]}` }}
+                            >
+                              <Typography sx={{ mb: 0.5 }} variant="h5">
                                 {card.title}
                               </Typography>
                             </Link>
                             <Typography
                               sx={{
-                                mb: 1.5,
                                 color: isAfter(
                                   new Date(),
                                   new Date(card.toDate)
@@ -695,7 +707,7 @@ const Dashboard = () => {
                               {format(new Date(card.toDate), "dd/MM/yyyy")}
                             </Typography>
                             <div
-                              style={{ overflowY: "auto", maxHeight: "100px" }}
+                              style={{ overflowY: "auto", maxHeight: "67px" }}
                             >
                               <ul>
                                 {card.cards.map((task, taskIndex) => (
