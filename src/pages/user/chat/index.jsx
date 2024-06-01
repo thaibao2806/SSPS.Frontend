@@ -26,6 +26,7 @@ import {
   ListItemText,
   MenuItem,
   MenuList,
+  TextareaAutosize,
   useTheme,
 } from "@mui/material";
 import { chatBox } from "../../../data/chatApi";
@@ -47,6 +48,17 @@ import AddMoneyPlan from "../../../components/MoneyPlan/AddMoneyPlan";
 import AddNote from "../../../components/Notes/AddNote";
 import AddColumn from "../../../components/Todo/AddColumn";
 import AddCard from "../../../components/Todo/AddCard";
+import { ref, getDownloadURL } from "firebase/storage";
+import { auth, imageStore } from "../../../firebases";
+
+const LargeImageOverlay = ({ imageUrl, onClose }) => {
+  return (
+    <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0, 0, 0, 0.8)", zIndex: 10000 }}>
+      <img src={imageUrl} alt="Large Image" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", maxWidth: "90%", maxHeight: "90%" }} />
+      <button onClick={onClose} style={{ position: "absolute", top: "10px", right: "10px", background: "transparent", border: "none", color: "#fff", fontSize: "20px", cursor: "pointer" }}>Close</button>
+    </div>
+  );
+};
 
 const ChatAI = () => {
   const theme = useTheme();
@@ -54,7 +66,7 @@ const ChatAI = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorEl1, setAnchorEl1] = useState(null);
   const [chatContent, setChatContent] = useState("");
-  const [conversation, setConversation] = useState([]);
+  const [msgersation, setmsgersation] = useState([]);
   const [responseChat, setResponseChat] = useState(false);
   const [popoverVolumn, setPopoverVolumn] = useState(false);
   const endOfChatRef = useRef(null);
@@ -66,38 +78,39 @@ const ChatAI = () => {
   const [note, setNote] = useState(false);
   const [todo, setTodo] = useState(false);
   const [task, setTask] = useState(false);
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState("");
+  const [imageUrls, setImageUrls] = useState("");
+  const [showLargeImage, setShowLargeImage] = useState(false);
+
 
   useEffect(() => {
     scrollToBottom();
-  }, [conversation]);
-  
-  
+  }, [msgersation]);
 
   useEffect(() => {
     // Kiểm tra và xóa cuộc trò chuyện sau 24 giờ
-    const savedConversations = JSON.parse(
-      localStorage.getItem("conversations")
-    );
-    if (savedConversations === null) {
-      setConversation([]);
+    const savedmsgersations = JSON.parse(localStorage.getItem("msgersations"));
+    if (savedmsgersations === null) {
+      setmsgersation([]);
       return;
     }
     const storedVolumeState = localStorage.getItem("isVolumeOn");
     if (storedVolumeState !== null) {
       setPopoverVolumn(JSON.parse(storedVolumeState));
     }
-    setConversation(savedConversations);
+    setmsgersation(savedmsgersations);
     scrollToBottom();
-    console.log(moneyPLan, chatContent)
+    console.log(moneyPLan, chatContent);
   }, []);
 
   const handleDeleteMessages = () => {
     // Xóa tin nhắn từ state
     setIsConfirmDeleteOpen(false);
     setAnchorEl1(null);
-    setConversation([]);
+    setmsgersation([]);
     // Xóa tin nhắn từ localStorage
-    localStorage.removeItem("conversations");
+    localStorage.removeItem("msgersations");
   };
 
   const handleCloseDialog = () => {
@@ -147,17 +160,14 @@ const ChatAI = () => {
   const handleSendMessage = async () => {
     if (chatContent.trim() !== "") {
       const currentTime = new Date().getTime();
-      const newConversation = {
+      const newmsgersation = {
         sender: "You",
         message: chatContent,
         time: currentTime,
       };
-      const updatedConversation = [...conversation, newConversation];
-      setConversation(updatedConversation);
-      localStorage.setItem(
-        "conversations",
-        JSON.stringify(updatedConversation)
-      );
+      const updatedmsgersation = [...msgersation, newmsgersation];
+      setmsgersation(updatedmsgersation);
+      localStorage.setItem("msgersations", JSON.stringify(updatedmsgersation));
       setChatContent("");
       await responseChatBox();
     }
@@ -173,77 +183,95 @@ const ChatAI = () => {
       if (chatContent.trim().toLowerCase() === "@moneyplan") {
         // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
         setResponseChat(false); // Tắt trạng thái phản hồi
-        setMoneyPlan(true)
+        setMoneyPlan(true);
         popoverVolumn ? null : new Audio(TingTing).play();
-        const updatedConversation = [
-          ...conversation,
+        const updatedmsgersation = [
+          ...msgersation,
           { sender: "You", message: chatContent },
           { sender: "Ai", message: "Please create a financial plan!" },
         ];
-        setConversation(updatedConversation);
+        setmsgersation(updatedmsgersation);
         localStorage.setItem(
-          "conversations",
-          JSON.stringify(updatedConversation)
+          "msgersations",
+          JSON.stringify(updatedmsgersation)
         );
-        setChatContent("")
+        setChatContent("");
         return;
       }
 
       if (chatContent.trim().toLowerCase() === "@todolist") {
         // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
         setResponseChat(false); // Tắt trạng thái phản hồi
-        setTodo(true)
+        setTodo(true);
         popoverVolumn ? null : new Audio(TingTing).play();
-        const updatedConversation = [
-          ...conversation,
+        const updatedmsgersation = [
+          ...msgersation,
           { sender: "You", message: chatContent },
           { sender: "Ai", message: "Please create a todolist column!" },
         ];
-        setConversation(updatedConversation);
+        setmsgersation(updatedmsgersation);
         localStorage.setItem(
-          "conversations",
-          JSON.stringify(updatedConversation)
+          "msgersations",
+          JSON.stringify(updatedmsgersation)
         );
-        setChatContent("")
+        setChatContent("");
         return;
       }
 
       if (chatContent.trim().toLowerCase() === "@note") {
         // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
         setResponseChat(false); // Tắt trạng thái phản hồi
-        setNote(true)
+        setNote(true);
         popoverVolumn ? null : new Audio(TingTing).play();
-        const updatedConversation = [
-          ...conversation,
+        const updatedmsgersation = [
+          ...msgersation,
           { sender: "You", message: chatContent },
           { sender: "Ai", message: "Please create a todolist column!" },
         ];
-        setConversation(updatedConversation);
+        setmsgersation(updatedmsgersation);
         localStorage.setItem(
-          "conversations",
-          JSON.stringify(updatedConversation)
+          "msgersations",
+          JSON.stringify(updatedmsgersation)
         );
-        setChatContent("")
+        setChatContent("");
         return;
       }
 
       if (chatContent.trim().toLowerCase() === "@task") {
         // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
         setResponseChat(false); // Tắt trạng thái phản hồi
-        setTask(true)
+        setTask(true);
         popoverVolumn ? null : new Audio(TingTing).play();
-        const updatedConversation = [
-          ...conversation,
+        const updatedmsgersation = [
+          ...msgersation,
           { sender: "You", message: chatContent },
           { sender: "Ai", message: "Please create a todolist column!" },
         ];
-        setConversation(updatedConversation);
+        setmsgersation(updatedmsgersation);
         localStorage.setItem(
-          "conversations",
-          JSON.stringify(updatedConversation)
+          "msgersations",
+          JSON.stringify(updatedmsgersation)
         );
-        setChatContent("")
+        setChatContent("");
         alert("Please create a financial plan!");
+        return;
+      }
+
+      if (chatContent.trim().toLowerCase() === "@image") {
+        const imageUrl =
+          "https://firebasestorage.googleapis.com/v0/b/sspsnotification.appspot.com/o/Danh%20m%E1%BB%A5c%20xu%E1%BA%A5t%20kho%20-%20L%E1%BB%97i%20l%E1%BB%8Dc%20theo%20%C4%91i%E1%BB%81u%20ki%E1%BB%87n.png?alt=media&token=4ad305fa-0b29-478d-81b0-f139f6e19d7c"; // Replace with your image URL
+        const updatedmsgersation = [
+          ...msgersation,
+          { sender: "You", message: chatContent },
+          { sender: "Ai", message: imageUrl, isImage: true },
+        ];
+        setmsgersation(updatedmsgersation);
+        localStorage.setItem(
+          "msgersations",
+          JSON.stringify(updatedmsgersation)
+        );
+        setChatContent("");
+        setResponseChat(false);
         return;
       }
       let res = await chatBox(chatContent);
@@ -252,52 +280,68 @@ const ChatAI = () => {
       if (res.result === true) {
         console.log(res.data);
         // setIsTyping(isTyping.slice(0, -1));
-        setResponseChat(false);
-        popoverVolumn ? null : new Audio(TingTing).play();
-        const updatedConversation = [
-          ...conversation,
-          { sender: "You", message: chatContent },
-          { sender: "Ai", message: res.data?.message },
-        ];
-        setConversation(updatedConversation);
-        localStorage.setItem(
-          "conversations",
-          JSON.stringify(updatedConversation)
-        );
-        setChatContent("")
-        console.log(res.data?.message);
+        if (!res.data?.isImage) {
+          setResponseChat(false);
+          popoverVolumn ? null : new Audio(TingTing).play();
+          const updatedmsgersation = [
+            ...msgersation,
+            { sender: "You", message: chatContent },
+            { sender: "Ai", message: res.data?.response },
+          ];
+          setmsgersation(updatedmsgersation);
+          localStorage.setItem(
+            "msgersations",
+            JSON.stringify(updatedmsgersation)
+          );
+          setChatContent("");
+          console.log(res.data?.response);
+        } else {
+          popoverVolumn ? null : new Audio(TingTing).play();
+          // const imageUrl =
+          // "https://firebasestorage.googleapis.com/v0/b/sspsnotification.appspot.com/o/Danh%20m%E1%BB%A5c%20xu%E1%BA%A5t%20kho%20-%20L%E1%BB%97i%20l%E1%BB%8Dc%20theo%20%C4%91i%E1%BB%81u%20ki%E1%BB%87n.png?alt=media&token=4ad305fa-0b29-478d-81b0-f139f6e19d7c"; 
+          const imageUrl = res.data?.response
+          const updatedmsgersation = [
+            ...msgersation,
+            { sender: "You", message: chatContent },
+            { sender: "Ai", message: imageUrl, isImage: true },
+          ];
+          setmsgersation(updatedmsgersation);
+          localStorage.setItem(
+            "msgersations",
+            JSON.stringify(updatedmsgersation)
+          );
+          setChatContent("");
+          setResponseChat(false);
+        }
       } else {
         setResponseChat(false);
         popoverVolumn ? null : new Audio(TingTing).play();
-        const updatedConversation = [
-          ...conversation,
+        const updatedmsgersation = [
+          ...msgersation,
           { sender: "You", message: chatContent },
           {
             sender: "Ai",
             message: "Sorry, I can't answer this question right now",
           },
         ];
-        setConversation(updatedConversation);
+        setmsgersation(updatedmsgersation);
         localStorage.setItem(
-          "conversations",
-          JSON.stringify(updatedConversation)
+          "msgersations",
+          JSON.stringify(updatedmsgersation)
         );
-        setChatContent("")
+        setChatContent("");
       }
     } catch (e) {
       setResponseChat(false);
       popoverVolumn ? null : new Audio(TingTing).play();
-      const updatedConversation = [
-        ...conversation,
+      const updatedmsgersation = [
+        ...msgersation,
         { sender: "You", message: chatContent },
         { sender: "Ai", message: "Sorry, I cannot answer your question yet" },
       ];
-      setConversation(updatedConversation);
-      localStorage.setItem(
-        "conversations",
-        JSON.stringify(updatedConversation)
-      );
-      setChatContent("")
+      setmsgersation(updatedmsgersation);
+      localStorage.setItem("msgersations", JSON.stringify(updatedmsgersation));
+      setChatContent("");
     }
   };
 
@@ -339,11 +383,26 @@ const ChatAI = () => {
     border: `2px solid ${theme.palette.background.paper}`,
   }));
 
+  const handleImageClick = (imageUrl) => {
+    setSelectedImageUrl(imageUrl);
+    //setImageDialogOpen(true);
+    setShowLargeImage(true);
+    // handleClose();
+  };
+
+  const handleCloseLargeImage = () => {
+    setShowLargeImage(false);
+    setSelectedImageUrl("");
+  };
   return (
     <div>
+      {/* {imageUrls ? <img src={imageUrls} alt="Firebase Image" /> : <p>Loading image...</p>} */}
+      {showLargeImage && <LargeImageOverlay imageUrl={selectedImageUrl} onClose={handleCloseLargeImage} />}
       <Box sx={{ "& > :not(style)": { m: 1 } }}>
-        <Box>
-          <Fab color="secondary" aria-label="chat" onClick={handleClick}>
+        
+        <Box >
+          
+          <Fab color="secondary"  aria-label="chat" onClick={handleClick}   >
             {/* <MarkUnreadChatAltOutlinedIcon sx={{ fontSize: '30px', color:"white" }} /> */}
             <Stack direction="row" spacing={2}>
               <Avatar
@@ -367,7 +426,7 @@ const ChatAI = () => {
             vertical: "top",
             horizontal: "left",
           }}
-          style={{ zIndex: 99999 }}
+          style={{  zIndex: showLargeImage ? 9998 : 9999 }}
         >
           <Box
             sx={{
@@ -446,7 +505,7 @@ const ChatAI = () => {
                     <ListItemIcon>
                       <DeleteIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText>Clear conversation</ListItemText>
+                    <ListItemText>Clear msgersation</ListItemText>
                   </MenuItem>
                   {isConfirmDeleteOpen && (
                     <Card>
@@ -498,8 +557,8 @@ const ChatAI = () => {
                 padding: "8px",
               }}
             >
-              {conversation?.map((msg, index) => (
-                <div
+              {msgersation?.map((msg, index) => (
+                <Box
                   key={index}
                   style={{
                     textAlign: "left",
@@ -525,11 +584,25 @@ const ChatAI = () => {
                       display: "inline-block",
                       maxWidth: "80%",
                       fontSize: "14px",
+                      whiteSpace: "pre-line", // Giữ nguyên các dòng mới
                     }}
                   >
-                    {msg.message}
+                    {msg.isImage ? (
+                      <img
+                        src={msg.message}
+                        alt="AI response"
+                        style={{
+                          cursor: "pointer",
+                          maxWidth: "250px",
+                          maxHeight: "250px",
+                        }}
+                        onClick={() => handleImageClick(msg.message)}
+                      />
+                    ) : (
+                      msg.message
+                    )}
                   </Typography>
-                </div>
+                </Box>
               ))}
               {responseChat && (
                 <Typography variant="body2">Typing...</Typography>
@@ -539,7 +612,7 @@ const ChatAI = () => {
             </Box>
             <TextField
               multiline
-              rows={1}
+              minRows={1}
               maxRows={4}
               variant="outlined"
               fullWidth
@@ -547,12 +620,13 @@ const ChatAI = () => {
               value={chatContent}
               onChange={handleChange}
               onKeyPress={(event) => {
-                if (event.key === "Enter" && !responseChat) {
+                if (event.key === "Enter" && !event.shiftKey && !responseChat) {
                   event.preventDefault(); // Prevents the addition of a new line
                   handleSendMessage();
                 }
               }}
               InputProps={{
+                inputComponent: TextareaAutosize,
                 endAdornment: (
                   <InputAdornment position="end">
                     <Fab
@@ -571,10 +645,38 @@ const ChatAI = () => {
           </Box>
         </Popover>
       </Box>
-      <AddMoneyPlan isDialogOpenCreate={moneyPLan} closeCreateDialog={handleCloseMoneyPlan} />
-      <AddNote isOpenCreateNote = {note} closeDialog={() => setNote(false)}/>
-      <AddColumn visible={todo} oncloseNote={() => setTodo(false)}/>
-      <AddCard visible={task} onCloseTask={() => setTask(false)}/>
+      <AddMoneyPlan
+        isDialogOpenCreate={moneyPLan}
+        closeCreateDialog={handleCloseMoneyPlan}
+      />
+      <AddNote isOpenCreateNote={note} closeDialog={() => setNote(false)} />
+      <AddColumn visible={todo} oncloseNote={() => setTodo(false)} />
+      <AddCard visible={task} onCloseTask={() => setTask(false)} />
+
+      <Dialog
+        open={imageDialogOpen}
+        onClose={() => setImageDialogOpen(false)}
+        maxWidth="lg"
+      >
+        <DialogContent>
+          <img
+            src={selectedImageUrl}
+            alt="Enlarged"
+            style={{ width: "100%" }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setImageDialogOpen(false);
+              handleClick();
+            }}
+            color="primary"
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

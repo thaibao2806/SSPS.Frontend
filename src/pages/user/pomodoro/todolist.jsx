@@ -55,6 +55,14 @@ const Container = styled.div`
   flex-direction: column;
   padding-top: 4px;
   font-size: 1.6rem;
+
+  @media (max-width: 1000px) {
+    margin-top: 20px;
+  }
+
+  @media (max-width: 650px) {
+    margin-top: 20px;
+  }
 `;
 
 const Title = styled.h1`

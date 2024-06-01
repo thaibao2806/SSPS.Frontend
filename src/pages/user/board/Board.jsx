@@ -16,7 +16,16 @@ import { FaEdit } from "react-icons/fa";
 import AddCardModal from "../../../components/AddCardModal/AddCardModal";
 import AddColumnModal from "../../../components/AddColumnModal/AddColumnModal";
 import { useEffect, useState } from "react";
-import { createTodoCard, createTodoNote, deleteTodoCard, deleteTodoNote, getAllTodoNote, swapTodoCard, updateTodoCard, updateTodoNote } from "../../../data/todo";
+import {
+  createTodoCard,
+  createTodoNote,
+  deleteTodoCard,
+  deleteTodoNote,
+  getAllTodoNote,
+  swapTodoCard,
+  updateTodoCard,
+  updateTodoNote,
+} from "../../../data/todo";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -28,23 +37,23 @@ import { updateToken } from "../../../redux/authSlice";
 const BoardPage = () => {
   // const [ board, setBoard ] = useState();
   const theme = useTheme();
-const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { board, setBoard } = useBoard();
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.login?.currentUser);
-  let axoisJWT = createAxios(user, dispatch, updateToken)
-  const [openAddColumn, setOpenAddColumn] = useState(false)
+  let axoisJWT = createAxios(user, dispatch, updateToken);
+  const [openAddColumn, setOpenAddColumn] = useState(false);
   useEffect(() => {
-    getAllNote()
+    getAllNote();
   }, []);
   const handleColumnMove = (_card, source, destination) => {
     const updatedBoard = moveColumn(board, source, destination);
     setBoard(updatedBoard);
   };
 
-  const handleCardMove = async(_card, source, destination) => {
+  const handleCardMove = async (_card, source, destination) => {
     try {
       let res = await swapTodoCard(
         _card.id,
@@ -73,7 +82,7 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
     }
   };
 
-  const getAllNote = async() => {
+  const getAllNote = async () => {
     try {
       let res = await getAllTodoNote(user.data?.accessToken, axoisJWT);
       if (res && res.data.msgCode === "SUCCESS") {
@@ -102,17 +111,16 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
         }, timeoutDelay);
       }
     }
-  }
+  };
 
-  const getColumn = async(card) => {
-    
+  const getColumn = async (card) => {
     const column = board.columns.filter((column) =>
       column?.cards.includes(card)
     );
     return column[0];
   };
 
-  const handleColumnAdd = async(title, fromDate, toDate, color) => {
+  const handleColumnAdd = async (title, fromDate, toDate, color) => {
     try {
       if (!user?.data) {
         navigate("/login");
@@ -150,7 +158,11 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   };
 
   return (
-    <div className={`board-container ${isSmallScreen ? 'small-screen' : 'large-screen'}`}>
+    <div
+      className={`board-container ${
+        isSmallScreen ? "small-screen" : "large-screen"
+      }`}
+    >
       <div>
         <span>SSPS Board</span>
         <button
@@ -175,19 +187,19 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
         renderCard={(props) => {
           const [opened, setOpened] = useState(false);
           const [selectedCardData, setSelectedCardData] = useState(null);
-          const [color, setColor] = useState("")
+          const [color, setColor] = useState("");
           const handleCardClick = (cardData) => {
             setOpened(true);
             setSelectedCardData(cardData);
           };
           useEffect(() => {
-            getColor()
-          }, [])
-          const getColor = async() => {
-            const column = await getColumn(props)
-            setColor(column.color)
-          }
-          const handleCardUpdate = async(title, detail) => {
+            getColor();
+          }, []);
+          const getColor = async () => {
+            const column = await getColumn(props);
+            setColor(column.color);
+          };
+          const handleCardUpdate = async (title, detail) => {
             try {
               const card = {
                 id: props.id,
@@ -224,7 +236,7 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
             }
           };
 
-          const handleDeleteCard = async(props) => {
+          const handleDeleteCard = async (props) => {
             try {
               const column = await getColumn(props);
               let res = await deleteTodoCard(
@@ -256,13 +268,13 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
                 }, timeoutDelay);
               }
             }
-          }
+          };
 
           return (
             <>
               <div
                 className="kanban-card"
-                style={{ background: `#${color}` }}
+                style={{ background: `#${color}`, wordWrap: "break-word" }}
               >
                 <div
                   style={{
@@ -270,7 +282,12 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
                     paddingBottom: "5px",
                   }}
                 >
-                  <span className="title-card">{props.title} </span>
+                  <span
+                    className="title-card"
+                    style={{ display: "block", whiteSpace: "pre-wrap" }}
+                  >
+                    {props.title}{" "}
+                  </span>
                   <div>
                     <button
                       className="remove-button"
@@ -288,7 +305,10 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
                     </button>
                   </div>
                 </div>
-                <span className="kanban-card-description">
+                <span
+                  className="kanban-card-description"
+                  style={{ display: "block", whiteSpace: "pre-wrap" }}
+                >
                   {props.description}
                 </span>
               </div>
@@ -305,11 +325,10 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
           );
         }}
         renderColumnHeader={(props) => {
-          
           const [modalOpened, setModalOpened] = useState(false);
-          const [isUpdate, setIsUpdate] = useState(false)
-          const [selectedColumnData, setSelectedColumnData] = useState(null)
-          const handleCardAdd = async(title, detail) => {
+          const [isUpdate, setIsUpdate] = useState(false);
+          const [selectedColumnData, setSelectedColumnData] = useState(null);
+          const handleCardAdd = async (title, detail) => {
             try {
               const card = {
                 id: new Date().getTime(),
@@ -343,18 +362,24 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
                 }, timeoutDelay);
               }
             }
-            
           };
 
           const handleClickEdit = (column) => {
-            console.log(column)
-            console.log(column.id)
-            setSelectedColumnData(column)
+            console.log(column);
+            console.log(column.id);
+            setSelectedColumnData(column);
             // setColor(column.color)
             setIsUpdate(true);
-          }
+          };
 
-          const handleUpdateColumn = async(id,title, fromDate, toDate, color,cards) => {
+          const handleUpdateColumn = async (
+            id,
+            title,
+            fromDate,
+            toDate,
+            color,
+            cards
+          ) => {
             try {
               let res = await updateTodoNote(
                 id,
@@ -386,11 +411,15 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
                 }, timeoutDelay);
               }
             }
-          }
+          };
 
-          const handleDeleteColumn = async() => {
+          const handleDeleteColumn = async () => {
             try {
-              let res = await deleteTodoNote(props.id, user.data?.accessToken,axoisJWT);
+              let res = await deleteTodoNote(
+                props.id,
+                user.data?.accessToken,
+                axoisJWT
+              );
               if (res && res.data.msgCode === "SUCCESS") {
                 toast.success("Delete success!!");
               } else {
@@ -434,7 +463,9 @@ const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
           return (
             <>
               <div className="column-header">
-                <span style={{ fontWeight: 600, fontSize:"16px" }}>{props.title}</span>
+                <span style={{ fontWeight: 600, fontSize: "16px" }}>
+                  {props.title}
+                </span>
                 <div>
                   <IoMdAdd
                     color="white"

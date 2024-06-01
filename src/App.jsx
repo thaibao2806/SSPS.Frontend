@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Topbar from "./pages/user/global/Topbar";
 import Sidebar from "./pages/user/global/Sidebar";
@@ -21,25 +21,56 @@ import Calendar from "./pages/user/calendar/calendar";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import Pomodoros from "./pages/user/pomodoro";
-import {createGlobalStyle} from "styled-components"
+import { createGlobalStyle } from "styled-components";
 import StateProvider from "./components/StateProvider";
+import Notifications from "./components/Notifications";
 
 const GlobalStyle = createGlobalStyle`
 
-`
+`;
 
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [notifications, setNotifications] = useState(() => {
+    const savedNotifications = localStorage.getItem('notifications');
+    return savedNotifications ? JSON.parse(savedNotifications) : [];
+  }); // State to store notifications
+
+  useEffect(() => {
+    localStorage.setItem('notifications', JSON.stringify(notifications));
+    const unseenCount = notifications.filter((notif) => !notif.viewed).length;
+    setNotificationCount(unseenCount);
+  }, [notifications]);
+
+  const handleNotification = (payload) => {
+    const newNotification = {
+      ...payload.notification,
+      viewed: false,
+      date: new Date().toLocaleString(),
+    };
+    setNotifications((prevNotifications) => [newNotification, ...prevNotifications]); // Thêm thông báo mới vào đầu mảng
+  };
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'NOTIFICATION_RECEIVED') {
+          handleNotification(event.data.payload);
+        }
+      });
+    }
+  }, []);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
+      <Notifications onNotification={handleNotification} />
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
@@ -51,8 +82,16 @@ function App() {
           /> */}
           <main className="content">
             {/* <div></div> */}
-            <Topbar setIsSidebar={setIsSidebar} toggleSidebar={toggleSidebar} />
-            <div style={{ paddingLeft: "0px", paddingTop:"55px" }}>
+            <Topbar
+              setIsSidebar={setIsSidebar}
+              toggleSidebar={toggleSidebar}
+              notification={notificationCount}
+              listNotification = {notifications}
+              setNotificationCount = {setNotificationCount}
+              setNotifications = {setNotifications}
+
+            />
+            <div style={{ paddingLeft: "0px", paddingTop: "55px" }}>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 {/* <Route path="/team" element={<Team />} />
@@ -62,11 +101,14 @@ function App() {
                 {/* <Route path="/bar" element={<Bar />} />
                 <Route path="/pie" element={<Pie />} />
                 <Route path="/line" element={<Line />} /> */}
-                <Route path="/pomodoro" element={
-                  <StateProvider>
-                    <Pomodoros />
-                  </StateProvider>
-                }/>
+                <Route
+                  path="/pomodoro"
+                  element={
+                    <StateProvider>
+                      <Pomodoros />
+                    </StateProvider>
+                  }
+                />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/todo" element={<Board />} />
                 <Route path="/calendar-money-plan" element={<Calendar />} />
@@ -75,7 +117,7 @@ function App() {
               </Routes>
             </div>
             <div className="chat-ai-button">
-              <ChatAI/>
+              <ChatAI />
             </div>
           </main>
         </div>

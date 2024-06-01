@@ -30,6 +30,7 @@ import { logOutUser } from "../../redux/apiRequest";
 import { useNavigate } from "react-router-dom";
 import { createAxios } from "../../createInstance";
 import { updateToken } from "../../redux/authSlice";
+import { LockClockOutlined, LockPersonOutlined } from "@mui/icons-material";
 const roles = ["Market", "Finance", "Development"];
 const randomRole = () => {
   return randomArrayItem(roles);
@@ -194,6 +195,7 @@ const Contacts = () => {
         editedRowData.phone,
         editedRowData.location,
         editedRowData.school,
+        editedRowData.status,
         user.data.accessToken,
         axoisJWT
       );
@@ -238,7 +240,7 @@ const Contacts = () => {
     {
       field: "status",
       headerName: "Status",
-      width: 100,
+      width: 120,
       editable: false,
       renderCell: ({ row: { status } }) => {
         return (
@@ -258,7 +260,8 @@ const Contacts = () => {
             borderRadius="4px"
           >
             {status === "ACTIVE" && <LockOpenOutlinedIcon />}
-            {status === "INACTIVE" && <LockOpenOutlinedIcon />}
+            {status === "INACTIVE" && <LockPersonOutlined />}
+            {status === "BLOCK" && <LockClockOutlined />}
             <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
               {status}
             </Typography>
@@ -365,7 +368,7 @@ const Contacts = () => {
           loading={paginationModel.isLoading}
         />
       </Box>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
     </Box>
   );
 };

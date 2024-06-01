@@ -75,3 +75,17 @@
     font-size: 14px;
     font-weight: 500;
 }
+
+@media (max-width: 768px) {
+    .react-kanban-board {
+        flex-direction: column;
+    }
+
+    .react-kanban-board > :nth-child(1) > div {
+        width: 100%;
+    }
+
+    .react-kanban-column {
+        margin-bottom: 1rem;
+    }
+}

@@ -4,7 +4,8 @@ import { activeAccountOTP, changePassword, checkEmail, dashBoards, forgotPasswor
 const getUserByAdmin = (Page, PageSize, accessToken,axoisJWT) => {
     return axoisJWT.get(url + getUserAdmin +`?Page=${Page}&PageSize=${PageSize}`, {
         headers: {
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
+            "ngrok-skip-browser-warning": "69420"
         }
     })
 }
@@ -13,10 +14,11 @@ const activeAccount = ( email, otp) => {
     return axios.post(url + activeAccountOTP, {email, otp})
 }
 
-const updateUserByAdmin = (id, firstName, lastName,  code,  phone, location, school,  accessToken, axoisJWT) => {
-    return axoisJWT.put(url + updateUserAdmin +`${id}`, {firstName, lastName,  code,  phone, location, school}, {
+const updateUserByAdmin = (id, firstName, lastName,  code,  phone, location, school, statsus,  accessToken, axoisJWT) => {
+    return axoisJWT.put(url + updateUserAdmin +`${id}`, {firstName, lastName,  code,  phone, location, school, statsus}, {
         headers: {
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
+            "ngrok-skip-browser-warning": "69420"
         }
     })
 }
@@ -24,7 +26,8 @@ const updateUserByAdmin = (id, firstName, lastName,  code,  phone, location, sch
 const getUserById = (id, accessToken, axoisJWT) => {
     return axoisJWT.get(url + getUserId + `${id}`,  {
         headers: {
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
+            "ngrok-skip-browser-warning": "69420"
         }
     })
 }
@@ -48,7 +51,8 @@ const forgotPasswordOTP = (otp,email,  password, confirmPassword) => {
 const resetPassword = (id, currentPassword, newPassword, confirmPassword, accessToken, axoisJWT) => {
     return axoisJWT.post(url + changePassword +`${id}`, {currentPassword, newPassword, confirmPassword}, {
         headers: {
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
+            "ngrok-skip-browser-warning": "69420"
         }
     })
 }
@@ -58,23 +62,28 @@ const resetPassword = (id, currentPassword, newPassword, confirmPassword, access
 const refreshToken = (refreshToken,accessToken) => {
     return axios.get(url + refresh + `${refreshToken}`, {
          headers: {
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
+            "ngrok-skip-browser-warning": "69420"
         }
     })
 }
 
 const getUser = (id, accessToken, axoisJWT) => {
+    console.log(url + updateUsers + `${id}`)
     return axoisJWT.get(url + getUsers + `${id}`, {
         headers: {
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
+            "ngrok-skip-browser-warning": "69420"
         }
     })
 }
 
-const updateUser = (id, firstName, lastName,  code,  phone, location, school,  accessToken, axoisJWT) => {
-    return axoisJWT.put(url + updateUsers + `${id}`, {firstName, lastName,  code,  phone, location, school}, {
+const updateUser = (id, firstName, lastName,  code,  phone, location, school,status,  accessToken, axoisJWT) => {
+    console.log(url + updateUsers + `${id}`)
+    return axoisJWT.put(url + updateUsers + `${id}`, {firstName, lastName,  code,  phone, location, school, status}, {
         headers: {
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
+            "ngrok-skip-browser-warning": "69420"
         }
     })
 }
@@ -82,7 +91,8 @@ const updateUser = (id, firstName, lastName,  code,  phone, location, school,  a
 const dashBoard = (year, accessToken, axoisJWT) => {
     return axoisJWT.post(url + dashBoards + `${year}`, null, {
         headers: {
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
+            "ngrok-skip-browser-warning": "69420"
         }
     })
 }

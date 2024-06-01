@@ -11,6 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
+import { createAxios } from '../../createInstance';
+import { updateToken } from '../../redux/authSlice';
 
 const AddNote = ({isOpenCreateNote,closeDialog }) => {
   const theme = useTheme();
@@ -20,6 +22,7 @@ const AddNote = ({isOpenCreateNote,closeDialog }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.login?.currentUser);
+  let axoiJWT = createAxios(user, dispatch, updateToken);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [validateNote, setValidateNote] = useState("");
   const [eventTitle, setEventTitle] = useState("");
@@ -77,7 +80,8 @@ const AddNote = ({isOpenCreateNote,closeDialog }) => {
         color,
         fromDate,
         toDate,
-        user.data?.accessToken
+        user.data?.accessToken,
+        axoiJWT
       );
       if (res && res.data.msgCode === "SUCCESS") {
         handleClose();

@@ -20,6 +20,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { tokens } from "../../theme";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
+import { createAxios } from "../../createInstance";
+import { updateToken } from "../../redux/authSlice";
 
 const AddMoneyPlan = ({ isDialogOpenCreate, closeCreateDialog }) => {
   const theme = useTheme();
@@ -29,6 +31,7 @@ const AddMoneyPlan = ({ isDialogOpenCreate, closeCreateDialog }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.login?.currentUser);
+  let axoiJWT = createAxios(user, dispatch, updateToken);
   const [errorCreate, setErrorCreate] = useState("");
   const [validateMoneyPlan, setValidateMoneyPlan] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
@@ -104,7 +107,7 @@ const AddMoneyPlan = ({ isDialogOpenCreate, closeCreateDialog }) => {
 
   const getCategory = async () => {
     try {
-      let res = await getCategories(user.data?.accessToken);
+      let res = await getCategories(user.data?.accessToken, axoiJWT);
       if (res && res.data.msgCode === "SUCCESS") {
         setCategoriesList(res.data?.data);
       }
@@ -242,7 +245,8 @@ const AddMoneyPlan = ({ isDialogOpenCreate, closeCreateDialog }) => {
         fromDate,
         endDate,
         usageMoneys,
-        user.data?.accessToken
+        user.data?.accessToken,
+        axoiJWT
       );
       if (res && res.status === 200 && res.data.msgCode === "SUCCESS") {
         toast.success("Create success!!");

@@ -7,8 +7,13 @@ import TimerSetting from "../../../components/TimerSettingModal/TimerSetting";
 import styled from "styled-components";
 import TodoList from "./todolist";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 const Pomodoro = () => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMediumScreen = useMediaQuery('(max-width: 1000px)');
+  const isLargeScreen = useMediaQuery('(max-width: 1280px)');
   const [openModal, setOpenModal] = useState(false);
   const [currentTask, setCurrentTask] = useState("Work");
   const [timeLeft, setTimeLeft] = useState(25 * 60);
@@ -96,10 +101,20 @@ const BoxPomodoro = styled.div`
   display: flex;
   justify-content: space-evenly;
   margin-top: 10px;
+
+  @media (max-width: 1000px) {
+    display: block;
+  }
+
+  @media (max-width: 650px) {
+    display: block;
+  }
 `;
 
 const BoxButton = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+ 
 `;

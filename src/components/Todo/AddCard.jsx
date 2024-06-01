@@ -12,12 +12,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createTodoCard, getAllTodoNote } from "../../data/todo";
 import { toast } from "react-toastify";
+import { createAxios } from "../../createInstance";
+import { updateToken } from "../../redux/authSlice";
 
 const AddCard = ({ visible, onCloseTask }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.login?.currentUser);
-
+  let axoiJWT = createAxios(user, dispatch, updateToken);
   const [title, setTitle] = useState("");
   const [detail, setDetail] = useState("");
   const [checkUpdate, setCheckUpdate] = useState(false);
@@ -30,7 +32,7 @@ const AddCard = ({ visible, onCloseTask }) => {
   }, []);
 
   const getAllNote = async () => {
-    let res = await getAllTodoNote(user.data?.accessToken);
+    let res = await getAllTodoNote(user.data?.accessToken, axoiJWT);
     if (res && res.data.msgCode === "SUCCESS") {
       setTodoNote(res.data?.data);
     }
@@ -56,7 +58,7 @@ const AddCard = ({ visible, onCloseTask }) => {
         title,
         description: detail,
       };
-      let res = await createTodoCard(todoId, card, user.data?.accessToken);
+      let res = await createTodoCard(todoId, card, user.data?.accessToken, axoiJWT);
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Create success!!");
         handleClose()

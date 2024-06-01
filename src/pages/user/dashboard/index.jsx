@@ -24,6 +24,7 @@ import {
   CardContent,
   CardActions,
   CardHeader,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { tokens } from "../../../theme";
@@ -134,6 +135,8 @@ const DemoPaper = styled(Paper)(({ theme }) => ({
 const Dashboard = () => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMediumScreen = useMediaQuery('(max-width: 1000px)');
+  const isLargeScreen = useMediaQuery('(max-width: 1280px)');
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -188,7 +191,8 @@ const Dashboard = () => {
   const getTodo = async () => {
     let res = await getAllTodoNote(user.data?.accessToken, axoiJWT);
     if (res && res.data.result === true) {
-      setTodo(res.data.data);
+      setTodo(res.data?.data);
+      console.log(res.data?.data);
     }
   };
 
@@ -327,19 +331,55 @@ const Dashboard = () => {
     );
   };
 
+  function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function calculateProgress(fromDateStr, toDateStr) {
+    let fromDate = new Date(fromDateStr);
+    let toDate = new Date(toDateStr);
+
+    let now = new Date();
+    let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    let fromDateWithoutTime = new Date(
+      fromDate.getFullYear(),
+      fromDate.getMonth(),
+      fromDate.getDate()
+    );
+    let toDateWithoutTime = new Date(
+      toDate.getFullYear(),
+      toDate.getMonth(),
+      toDate.getDate()
+    );
+
+    let totalDuration = Math.floor(
+      (toDateWithoutTime - fromDateWithoutTime) / (1000 * 60 * 60 * 24)
+    );
+    let passedDuration = Math.floor(
+      (today - fromDateWithoutTime) / (1000 * 60 * 60 * 24)
+    );
+
+    if (passedDuration >= totalDuration) {
+      return 1;
+    } else {
+      return passedDuration / totalDuration;
+    }
+  }
+
   return (
     <Box m="20px">
       <Box
         display="grid"
         gridTemplateColumns={
-          isSmallScreen ? "repeat(1, 1fr)" : "repeat(12, 1fr)"
+          isSmallScreen ? "repeat(1, 1fr)" : isMediumScreen ? 'repeat(6, 1fr)' : "repeat(12, 1fr)"
         }
         gridAutoRows={isSmallScreen ? "auto" : "140px"}
         gap="20px"
       >
         {/* ROW 1 */}
         <Box
-          gridColumn={isSmallScreen ? "span 1" : "span 4"}
+          gridColumn={isSmallScreen ? "span 1" : isMediumScreen ? 'span 3'  : "span 4"}
           // backgroundColor="#ffff"
           boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
           borderRadius="10px"
@@ -349,8 +389,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title={expectual}
-            subtitle="Total ExpectAmount"
+            title={numberWithCommas(expectual)}
+            subtitle="Total Expect Amount"
             progress="0.75"
             increase="+14%"
             imageSrc={Expect}
@@ -362,7 +402,7 @@ const Dashboard = () => {
           />
         </Box>
         <Box
-          gridColumn={isSmallScreen ? "span 1" : "span 4"}
+          gridColumn={isSmallScreen ? "span 1" : isMediumScreen ? "span 3" : "span 4"}
           // backgroundColor="#ffff"
           backgroundColor={colors.boxDashboard[100]}
           boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
@@ -372,8 +412,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title={actual}
-            subtitle="Total ActualAmount"
+            title={numberWithCommas(actual)}
+            subtitle="Total Actual Amount"
             progress="0.50"
             increase="+21%"
             imageSrc={Actual}
@@ -386,9 +426,11 @@ const Dashboard = () => {
         </Box>
 
         <Box
-          gridColumn={isSmallScreen ? "span 1" : "span 4"}
-          gridRow={isSmallScreen ? "auto" : "span 2"}
+          gridColumn={isSmallScreen ? "span 1" : isMediumScreen ? "span 6" : "span 4"}
+          gridRow={isSmallScreen ? "auto": "span 2"}
           height={isSmallScreen ? "auto" : "410px"}
+          mb={isSmallScreen ? "auto" : isMediumScreen ? "100px" : "0"}
+
           // backgroundColor="#ffff"
           boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
           borderRadius="10px"
@@ -413,7 +455,7 @@ const Dashboard = () => {
             </IconButton>
           </Box>
           <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <Table sx={{ minWidth: isSmallScreen ? "100%" : isMediumScreen ? "100" : "650px" }} aria-label="simple table">
               <TableHead>
                 <TableRow>
                   <TableCell
@@ -503,7 +545,7 @@ const Dashboard = () => {
                           backgroundColor: colors.boxDashboard[100],
                         }}
                       >
-                        {item.expectAmount.toFixed(2)}
+                        {numberWithCommas(item.expectAmount.toFixed(2))}
                       </TableCell>
                       <TableCell
                         align="right"
@@ -512,13 +554,20 @@ const Dashboard = () => {
                           backgroundColor: colors.boxDashboard[100],
                         }}
                       >
-                        {item.actualAmount.toFixed(2)}
+                        {numberWithCommas(item.actualAmount.toFixed(2))}
                       </TableCell>
                       <TableCell
                         align="right"
                         style={{
                           color: colors.grey[100],
                           backgroundColor: colors.boxDashboard[100],
+                          cursor:"pointer",
+                          textDecoration:"underline"
+                        }}
+                        onClick={() => {
+                          navigate(
+                            `/calendar-money-plan?dayDetail=${row.date}`
+                          );
                         }}
                       >
                         {format(new Date(row.date), "dd-MM-yyyy")}
@@ -555,10 +604,11 @@ const Dashboard = () => {
 
         {/* ROW 2 */}
         <Box
-          gridColumn={isSmallScreen ? "span 1" : "span 8"}
+          gridColumn={isSmallScreen ? "span 1" : isMediumScreen ? "span 6" : "span 8"}
           gridRow={isSmallScreen ? "auto" : "span 2"}
           height={isSmallScreen ? "auto" : "480px"}
           // backgroundColor="#ffff"
+          mt={ isSmallScreen ? "auto" : isMediumScreen ? "110px" : "auto"}
           boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
           borderRadius="10px"
           backgroundColor={colors.boxDashboard[100]}
@@ -630,15 +680,15 @@ const Dashboard = () => {
         </Box>
 
         <Box
-          gridColumn={isSmallScreen ? "span 1" : "span 4"}
+          gridColumn={isSmallScreen ? "span 1" : isMediumScreen ? "span 6" : "span 4"}
           gridRow={isSmallScreen ? "auto" : "span 1"}
           height={isSmallScreen ? "220px" : "220px"}
-          width={isSmallScreen ? "auto" : "550px"}
+          width={isSmallScreen ? "auto" : isMediumScreen ? "auto" : "550px"}
           // backgroundColor="#ffff"
           boxShadow="0px 5px 15px rgba(0, 0, 0, 0.1)"
           borderRadius="10px"
           backgroundColor={colors.boxDashboard[100]}
-          mt={isSmallScreen ? "auto" : "100px"}
+          mt={isSmallScreen ? "auto" : isMediumScreen ? "290px" : "100px"}
         >
           <Box mt="15px">
             <Typography
@@ -651,7 +701,7 @@ const Dashboard = () => {
             </Typography>
             <Box
               display="flex "
-              mt="10px"
+              // mt="10px"
               alignItems="center"
               justifyContent="center"
               sx={{
@@ -674,24 +724,63 @@ const Dashboard = () => {
                           sx={{
                             minWidth: "50px",
                             marginRight: "20px",
-                            height: "140px",
+                            height: "150px",
                             margin: "10px 10px 0px 10px",
                             boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
                             borderRadius: "10px",
-                            //box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-                            // border: "1px solid #00000085",
                             backgroundColor: `${colors.boxDashboard[100]}`,
                           }}
                         >
                           <CardContent>
-                            <Link
-                              to="/todo"
-                              style={{ color: `${colors.grey[100]}` }}
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                              }}
                             >
-                              <Typography sx={{ mb: 0.5 }} variant="h5">
-                                {card.title}
-                              </Typography>
-                            </Link>
+                              <Link
+                                to="/todo"
+                                style={{ color: `${colors.grey[100]}` }}
+                              >
+                                <Typography sx={{ mb: 0.5, fontSize: "18px" }}>
+                                  {card.title}
+                                </Typography>
+                              </Link>
+                              <Stack spacing={2}>
+                                <Box sx={{ position: "relative" }}>
+                                  <CircularProgress
+                                    color="success"
+                                    variant="determinate"
+                                    value={
+                                      calculateProgress(
+                                        card.fromDate,
+                                        card.toDate
+                                      ) * 100
+                                    }
+                                    size={30}
+                                  />
+                                  <Typography
+                                    variant="b"
+                                    color="success"
+                                    sx={{
+                                      position: "absolute",
+                                      top: 9,
+                                      left: 4,
+                                      fontSize: "9px",
+                                    }}
+                                  >
+                                    {(
+                                      calculateProgress(
+                                        card.fromDate,
+                                        card.toDate
+                                      ) * 100
+                                    ).toFixed(0)}
+                                    %
+                                  </Typography>
+                                </Box>
+                              </Stack>
+                            </Box>
                             <Typography
                               sx={{
                                 color: isAfter(
@@ -700,6 +789,7 @@ const Dashboard = () => {
                                 )
                                   ? "error.main"
                                   : "text.secondary",
+                                fontSize: "12px",
                               }}
                               color="text.secondary"
                             >
@@ -707,21 +797,28 @@ const Dashboard = () => {
                               {format(new Date(card.toDate), "dd/MM/yyyy")}
                             </Typography>
                             <div
-                              style={{ overflowY: "auto", maxHeight: "67px" }}
+                              style={{
+                                overflowY: "auto",
+                                maxHeight: "67px",
+                                listStyle: "none",
+                              }}
                             >
-                              <ul>
-                                {card.cards.map((task, taskIndex) => (
-                                  <li>
-                                    <Typography
-                                      key={taskIndex}
-                                      component="div"
-                                      style={{ overflowWrap: "anywhere" }}
-                                    >
-                                      {task.title}
-                                    </Typography>
-                                  </li>
-                                ))}
-                              </ul>
+                              {card?.cards.map((task, taskIndex) => (
+                                <Typography
+                                  key={taskIndex}
+                                  component="div"
+                                  style={{
+                                    overflowWrap: "anywhere",
+                                    background: `#${card.color}`,
+                                    padding: "5px 5px 5px 10px",
+                                    borderRadius: "10px",
+                                    color: "#ffff",
+                                    marginTop: "5px",
+                                  }}
+                                >
+                                  {task.title}
+                                </Typography>
+                              ))}
                             </div>
                           </CardContent>
                         </Card>

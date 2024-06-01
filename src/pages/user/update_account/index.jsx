@@ -3,20 +3,25 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/user/Header";
-import {useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import jwt_decode from "jwt-decode"; 
+import jwt_decode from "jwt-decode";
 // import {  getUserById, updateUserByAdmin } from "../../../data/authApi";
- import { ToastContainer, toast } from "react-toastify";
-import { getUser, getUserById, updateUser, updateUserByAdmin } from "../../../data/authApi";
+import { ToastContainer, toast } from "react-toastify";
+import {
+  getUser,
+  getUserById,
+  updateUser,
+  updateUserByAdmin,
+} from "../../../data/authApi";
 import { createAxios } from "../../../createInstance";
 import { updateToken } from "../../../redux/authSlice";
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const user = useSelector((state) => state.auth.login?.currentUser);
-  const dispatch = useDispatch()
-  let axoisJWT = createAxios(user, dispatch, updateToken)
+  const dispatch = useDispatch();
+  let axoisJWT = createAxios(user, dispatch, updateToken);
   const [validated, setValidated] = useState("");
   const [validatedEmail, setValidatedEmail] = useState("");
   const [validatedPhone, setValidatedPhone] = useState("");
@@ -30,35 +35,36 @@ const Form = () => {
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
   const [school, setSchool] = useState("");
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
     if (user) {
       const decode = jwt_decode(user?.data.accessToken);
       setId(decode?.id);
-      // setLastName(decode?.lastName);
     }
-
   }, []);
 
-  useEffect(()=> {
-    getAdminById()
-  }, [id])
+  useEffect(() => {
+    if (id) {
+      getAdminById();
+    }
+  }, [id]);
 
-  const getAdminById = async() => {
-    let res = await getUser(id, user.data.accessToken, axoisJWT)
-    if(res && res.status === 200) {
-      setFistName(res.data.data.firstName)
-      setLastName(res.data.data.lastName)
-      setCode(res.data.data.code)
-      setEmail(res.data.data.email)
+  const getAdminById = async () => {
+    let res = await getUser(id, user.data.accessToken, axoisJWT);
+    if (res && res.status === 200) {
+      setFistName(res.data.data.firstName);
+      setLastName(res.data.data.lastName);
+      setCode(res.data.data.code);
+      setEmail(res.data.data.email);
       setLocation(res.data.data.location);
       setSchool(res.data.data.school);
       setPhone(res.data.data.phone);
+      setStatus(res.data.data.status)
     }
-  }
+  };
 
-  const handleFormSubmit = async() => {
-
+  const handleFormSubmit = async () => {
     const res = await updateUser(
       id,
       fistName,
@@ -67,10 +73,12 @@ const Form = () => {
       phone,
       location,
       school,
-      user.data.accessToken
+      status,
+      user.data.accessToken,
+      axoisJWT
     );
-    if(res && res.status === 200) {
-      toast.success("Update sucess!!")
+    if (res && res.status === 200) {
+      toast.success("Update sucess!!");
     } else {
       toast.error("Update failed!!");
     }

@@ -16,11 +16,14 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logOutUser } from "../../redux/apiRequest";
 import { toast } from "react-toastify";
+import { createAxios } from "../../createInstance";
+import { updateToken } from "../../redux/authSlice";
 
 const AddColumn = ({ visible, oncloseNote }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.login?.currentUser);
+  let axoiJWT = createAxios(user, dispatch, updateToken);
   const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [fromDate, setFromDate] = useState(new Date());
@@ -66,7 +69,9 @@ const AddColumn = ({ visible, oncloseNote }) => {
         toDate,
         color.hex,
         cards,
-        user.data?.accessToken
+        user.data?.accessToken,
+        axoiJWT
+
       );
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Create success!!!");

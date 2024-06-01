@@ -52,6 +52,7 @@ const Login = () => {
     const user = {
       email: email,
       password,
+      deviceToken:"fZLPTlX-Cw6QF0O1vTeB0k:APA91bF-3TSMGgNk07xiB92y2dx4mJQdX6zHD5JN5ccleaFNfLqphCfANc400IAhWA6PcwFrPwbcKaPyhEE0r9ix5XIKI98hqstXZZMzQ6fWG2kdV76ouZ-n21LLfrvIAPHBX0tqfRoN"
     };
 
     if (rememberPassword) {

@@ -1,44 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import CssBaseline from "@mui/material/CssBaseline";
-import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
 import { ColorModeContext, tokens } from "../../../theme";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import PasswordIcon from "@mui/icons-material/Password";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logOutUser } from "../../../redux/apiRequest";
-import { Button, MenuItem, Popover } from "@mui/material";
+import { Badge, Button, MenuItem, Popover } from "@mui/material";
 import jwt_decode from "jwt-decode";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
-import InsertChartOutlinedIcon from "@mui/icons-material/InsertChartOutlined";
-import Logo from "../../../assets/logo.png";
+import AddCardIcon from '@mui/icons-material/AddCard';
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import DrawerComp from "./Drawer";
@@ -47,6 +34,7 @@ import AccessAlarmsIcon from "@mui/icons-material/AccessAlarms";
 import { useMediaQuery } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import DateRangeIcon from "@mui/icons-material/DateRange";
+import NotificationsOutlined from "@mui/icons-material/NotificationsOutlined";
 
 const drawerWidth = 240;
 
@@ -114,13 +102,20 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Topbar({ toggleSidebar }) {
+export default function Topbar({
+  toggleSidebar,
+  notification,
+  listNotification,
+  setNotificationCount,
+  setNotifications,
+}) {
   const theme = useTheme();
   const [value, setValue] = useState(0);
   const [open, setOpen] = React.useState(false);
   const colors = tokens(theme.palette.mode);
   const colorMode = React.useContext(ColorModeContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl1, setAnchorEl1] = React.useState(null);
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
   const [selected, setSelected] = React.useState("Dashboard");
@@ -133,7 +128,7 @@ export default function Topbar({ toggleSidebar }) {
       setFirstName(decode?.firstName);
       setLastName(decode?.lastName);
     }
-
+    console.log("check noti", notification);
     console.log(colors);
   }, []);
 
@@ -193,8 +188,13 @@ export default function Topbar({ toggleSidebar }) {
     setAnchorEl(event.currentTarget);
   };
 
+  const handleClickNoti = (event) => {
+    setAnchorEl1(event.currentTarget);
+  };
+
   const handleClose = () => {
     setAnchorEl(null);
+    setAnchorEl1(null);
   };
 
   const updateAccount = () => {
@@ -205,8 +205,14 @@ export default function Topbar({ toggleSidebar }) {
     navigate("/reset-password");
   };
 
+  const donate = () => {
+    navigate("https://www.paypal.com/vn/home?locale.x=vi_VN");
+  };
+
   const opens = Boolean(anchorEl);
+  const opensNoti = Boolean(anchorEl1);
   const id = opens ? "simple-popover" : undefined;
+  const idNoti = opensNoti ? "simple-popover-1" : undefined;
 
   const handleLogOut = () => {
     logOutUser(dispatch, navigate);
@@ -218,6 +224,28 @@ export default function Topbar({ toggleSidebar }) {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleNotificationClick = (index) => {
+    const newList = [...listNotification];
+    if (!newList[index].viewed) {
+      newList[index].viewed = true; // Mark notification as viewed
+      setNotificationCount((prevCount) => prevCount - 1);
+    }
+    console.log("test", newList[index]);
+
+    setNotifications(newList);
+    const notification = newList[index];
+    navigate(
+      `/calendar-money-plan?title=${newList[index].title}&date=${newList[index].date}`,
+      { state: { notification } }
+    );
+  };
+
+  const handleClearAll = () => {
+    setNotifications([]);
+    setNotificationCount(0);
+    localStorage.removeItem("notifications");
   };
 
   return (
@@ -329,7 +357,7 @@ export default function Topbar({ toggleSidebar }) {
                     </Tooltip>
                   }
                 />
-                <Tab
+                {/* <Tab
                   component={Link}
                   to="/faq"
                   label={
@@ -342,9 +370,9 @@ export default function Topbar({ toggleSidebar }) {
                       />
                     </Tooltip>
                   }
-                />
+                /> */}
               </Tabs>
-              <Button
+              <IconButton
                 sx={{ marginLeft: "auto" }}
                 onClick={colorMode.toggleColorMode}
               >
@@ -357,14 +385,85 @@ export default function Topbar({ toggleSidebar }) {
                     style={{ color: colors.iconTopbar[100] }}
                   />
                 )}
-              </Button>
+              </IconButton>
+              <IconButton aria-describedby={idNoti} onClick={handleClickNoti}>
+                <Badge color="secondary" badgeContent={notification} max={99}>
+                  <NotificationsOutlined
+                    style={{ color: colors.iconTopbar[100] }}
+                  />
+                </Badge>
+              </IconButton>
+              <Popover
+                id={idNoti}
+                open={opensNoti}
+                anchorEl={anchorEl1}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                PaperProps={{
+                  style: {
+                    padding:"5px",
+                    maxHeight: "400px",
+                    overflowY: "auto",
+                  },
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{ p: 2, textAlign: "center", fontWeight: "bold" }}
+                >
+                  Notifications ({notification})
+                </Typography>
+                <Divider />
+                <Box sx={{ maxHeight: "300px", overflowY: "auto" }}>
+                  <List sx={{ minWidth: "300px" }}>
+                    {listNotification.length === 0 ? (
+                      <ListItem>
+                        <ListItemText primary="No notifications" />
+                      </ListItem>
+                    ) : (
+                      listNotification.map((notification, index) => (
+                        <ListItemButton
+                          key={index}
+                          onClick={() => handleNotificationClick(index)}
+                          sx={{
+                            background: notification.viewed
+                              ? "#e6faff"
+                              : "lightgrey",
+                          }}
+                        >
+                          {/* Ensure notification is an object with title and body */}
+                          <ListItemText
+                            primary={`${notification.title} `}
+                            secondary={`${notification.body} :  ${notification.date}`}
+                          />
+                        </ListItemButton>
+                      ))
+                    )}
+                  </List>
+                </Box>
+                <Divider />
+                <Box textAlign="center">
+                  <Button
+                    onClick={handleClearAll}
+                    disabled={listNotification.length === 0}
+                  >
+                    Clear all
+                  </Button>
+                </Box>
+              </Popover>
               {user ? (
                 <>
                   <>
-                    <IconButton aria-describedby={id} variant="contained">
+                    <IconButton
+                      aria-describedby={id}
+                      variant="contained"
+                      onClick={handleClick}
+                    >
                       <Stack direction="row" spacing={2}>
                         <Avatar
-                          onClick={handleClick}
                           style={{
                             width: "30px",
                             height: "30px",
@@ -423,6 +522,18 @@ export default function Topbar({ toggleSidebar }) {
                           <ListItemText
                             onClick={resetPassword}
                             primary="Reset password"
+                          />
+                        </ListItem>
+                        <Divider />
+                        <ListItem button>
+                          <AddCardIcon
+                            style={{
+                              marginRight: "5px",
+                            }}
+                          />
+                          <ListItemText
+                            onClick={donate}
+                            primary="Donate"
                           />
                         </ListItem>
                         <Divider />

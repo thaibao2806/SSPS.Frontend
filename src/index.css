@@ -38,7 +38,7 @@ body,
 
 .chat-ai-button {
     position: fixed;
-    bottom: 20px; /* điều chỉnh khoảng cách từ bottom nếu cần */
+    bottom: 50px; /* điều chỉnh khoảng cách từ bottom nếu cần */
     right: 15px; /* điều chỉnh khoảng cách từ right nếu cần */
-    z-index: 9999; /* đảm bảo phần tử này hiển thị trên các phần tử khác */
+    z-index: 9999;
   }

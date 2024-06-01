@@ -66,7 +66,7 @@ import {
 } from "date-fns";
 import { Icons, ToastContainer, toast } from "react-toastify";
 import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import { ColorPicker } from "material-ui-color";
 import {
@@ -100,15 +100,22 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import { createAxios } from "../../../createInstance";
 import { updateToken } from "../../../redux/authSlice";
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 const Calendar = () => {
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const location = useLocation();
+  const { notification } = location.state || { notification: {} };
+  const query = useQuery();
+  const param = query.get("dayDetail");
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.login?.currentUser);
-  let axoisJWT = createAxios(user, dispatch, updateToken)
+  let axoisJWT = createAxios(user, dispatch, updateToken);
   const [currentEvents, setCurrentEvents] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDialogOpenCreate, setIsDialogOpenCreate] = useState(false);
@@ -229,11 +236,43 @@ const Calendar = () => {
     setIsListOpen((prevState) => !prevState); // Đảo ngược trạng thái danh sách
   };
 
+  function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
   // const hd = new holidays('VN')
   // const holiday = hd.getHolidays()
+  useEffect(() => {
+    if (notification?.date) {
+      const date = format(new Date(notification.date), "yyyy-MM-dd");
+      if (calendarRef.current) {
+        calendarRef.current.getApi().gotoDate(date);
+        setStartDate(date);
+        setEndDate(date);
+      }
+
+      handleDayButtonClick("timeGridDAY");
+    }
+  }, [notification?.date]);
+
+  useEffect(() => {
+    if (param) {
+      const date = format(new Date(param), "yyyy-MM-dd");
+      if (calendarRef.current) {
+      console.log("check param", param);
+
+        calendarRef.current.getApi().gotoDate(date);
+        setStartDate(date);
+        setEndDate(date);
+      }
+      handleDayButtonClick("timeGridDAY");
+
+    }
+  }, [param]);
 
   useEffect(() => {
     getCategory();
+    console.log("checkssss", param);
   }, []);
 
   const getCategory = async () => {
@@ -246,9 +285,7 @@ const Calendar = () => {
       // if (error.response.status === 401) {
       //   console.log(401);
       //   const timeoutDelay = 5000;
-
       //   toast.warning("Session expired. Logging out in 5 seconds.");
-
       //   setTimeout(() => {
       //     logOutUser(dispatch, navigate);
       //   }, timeoutDelay);
@@ -425,7 +462,12 @@ const Calendar = () => {
         }));
         console.log(data);
 
-        let res = await updateUsage(moneyPlanId, data, user.data?.accessToken, axoisJWT);
+        let res = await updateUsage(
+          moneyPlanId,
+          data,
+          user.data?.accessToken,
+          axoisJWT
+        );
         if (res && res.data.msgCode === "SUCCESS") {
           toast.success("Update success!!!");
           if (type === "DAY") {
@@ -886,7 +928,12 @@ const Calendar = () => {
             timeZone: "+00:00",
           })
         );
-        let res = await getNote(FromDate, ToDate, user.data?.accessToken, axoisJWT);
+        let res = await getNote(
+          FromDate,
+          ToDate,
+          user.data?.accessToken,
+          axoisJWT
+        );
         if (res && res.data.msgCode === "SUCCESS") {
           res.data?.data.forEach((item) =>
             convertedData.push({
@@ -1216,9 +1263,7 @@ const Calendar = () => {
       // if (error.response.status === 401) {
       //   console.log(401);
       //   const timeoutDelay = 5000;
-
       //   toast.warning("Session expired. Logging out in 5 seconds.");
-
       //   setTimeout(() => {
       //     logOutUser(dispatch, navigate);
       //   }, timeoutDelay);
@@ -1313,9 +1358,7 @@ const Calendar = () => {
       // if (error.response.status === 401) {
       //   console.log(401);
       //   const timeoutDelay = 5000;
-
       //   toast.warning("Session expired. Logging out in 5 seconds.");
-
       //   setTimeout(() => {
       //     logOutUser(dispatch, navigate);
       //   }, timeoutDelay);
@@ -1377,9 +1420,7 @@ const Calendar = () => {
       // if (error.response.status === 401) {
       //   console.log(401);
       //   const timeoutDelay = 5000;
-
       //   toast.warning("Session expired. Logging out in 5 seconds.");
-
       //   setTimeout(() => {
       //     logOutUser(dispatch, navigate);
       //   }, timeoutDelay);
@@ -1516,9 +1557,7 @@ const Calendar = () => {
       // if (error.response.status === 401) {
       //   console.log(401);
       //   const timeoutDelay = 5000;
-
       //   toast.warning("Session expired. Logging out in 5 seconds.");
-
       //   setTimeout(() => {
       //     logOutUser(dispatch, navigate);
       //   }, timeoutDelay);
@@ -1568,7 +1607,11 @@ const Calendar = () => {
         const categories = categoriesList.map((event) =>
           event.id === selectedCategory.id ? updatedCategoriesList : event
         );
-        let res = await updateCategories(categories, user.data?.accessToken, axoisJWT);
+        let res = await updateCategories(
+          categories,
+          user.data?.accessToken,
+          axoisJWT
+        );
         if (res && res.data.msgCode === "SUCCESS") {
           toast.success("Update success!!");
           getCategory();
@@ -1583,9 +1626,7 @@ const Calendar = () => {
       // if (error.response.status === 401) {
       //   console.log(401);
       //   const timeoutDelay = 5000;
-
       //   toast.warning("Session expired. Logging out in 5 seconds.");
-
       //   setTimeout(() => {
       //     logOutUser(dispatch, navigate);
       //   }, timeoutDelay);
@@ -1608,7 +1649,11 @@ const Calendar = () => {
       categoriesList.forEach((item) => {
         categories.push(item);
       });
-      let res = await updateCategories(categories, user.data?.accessToken, axoisJWT);
+      let res = await updateCategories(
+        categories,
+        user.data?.accessToken,
+        axoisJWT
+      );
       if (res && res.data.msgCode === "SUCCESS") {
         toast.success("Update success!!");
         getCategory();
@@ -1620,9 +1665,7 @@ const Calendar = () => {
       // if (error.response.status === 401) {
       //   console.log(401);
       //   const timeoutDelay = 5000;
-
       //   toast.warning("Session expired. Logging out in 5 seconds.");
-
       //   setTimeout(() => {
       //     logOutUser(dispatch, navigate);
       //   }, timeoutDelay);
@@ -1857,7 +1900,8 @@ const Calendar = () => {
     if (selectedCategory) {
       let res = await deleteCategories(
         selectedCategory.id,
-        user.data?.accessToken, axoisJWT
+        user.data?.accessToken,
+        axoisJWT
       );
       if (res && res.data.result) {
         getCategory();
@@ -1885,7 +1929,10 @@ const Calendar = () => {
 
   return (
     <Box m="10px 20px 0 20px">
-      <Box display={isSmallScreen ? "block" : "flex"} justifyContent="space-between">
+      <Box
+        display={isSmallScreen ? "block" : "flex"}
+        justifyContent="space-between"
+      >
         {/* CALENDAR SIDEBAR */}
 
         <Box
@@ -1925,7 +1972,10 @@ const Calendar = () => {
               <span>Expect: </span>{" "}
               <span style={{ color: "#38c171" }}>
                 {" "}
-                {expectAmount ? parseFloat(expectAmount).toFixed(2) : 0} {unit}
+                {expectAmount
+                  ? numberWithCommas(parseFloat(expectAmount).toFixed(2))
+                  : 0}{" "}
+                {unit}
               </span>
             </Typography>
             <Typography
@@ -1943,7 +1993,7 @@ const Calendar = () => {
                 }}
               >
                 {totalActucalAmount
-                  ? parseFloat(totalActucalAmount).toFixed(2)
+                  ? numberWithCommas(parseFloat(totalActucalAmount).toFixed(2))
                   : 0}{" "}
                 {unit}{" "}
               </span>
@@ -2087,20 +2137,20 @@ const Calendar = () => {
               color: colors.colorButonCalendar[100],
             },
             ".fc .fc-daygrid-day-top": {
-              margin: "0 auto"
+              margin: "0 auto",
             },
             ".fc-event-title ": {
-              fontSize: "12px"
+              fontSize: "12px",
             },
             ".fc .fc-daygrid-day-events": {
-              marginTop: "2px"
+              marginTop: "2px",
             },
             ".fc .fc-daygrid-event-harness": {
-              margin: "0 5px 1.7px 5px"
+              margin: "0 5px 1.7px 5px",
             },
             ".fc-v-event .fc-event-main-frame": {
-              padding: "2px 0 0 5px"
-            }
+              padding: "2px 0 0 5px",
+            },
           }}
         >
           <FullCalendar
