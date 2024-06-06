@@ -120,7 +120,7 @@ const AddColumnModal = ({ visible, onClose, handleColumnAdd, columnData }) => {
           variant="contained"
           style={{ marginTop: "10px", backgroundColor: "#0487D9" }}
           onClick={() => {
-            if(!title, !color) {
+            if(!title || !color) {
               setValidate("Need to enter title and color")
               return
             }

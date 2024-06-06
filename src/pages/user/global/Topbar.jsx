@@ -425,12 +425,13 @@ export default function Topbar({
                       </ListItem>
                     ) : (
                       listNotification.map((notification, index) => (
+                        <>
                         <ListItemButton
                           key={index}
                           onClick={() => handleNotificationClick(index)}
                           sx={{
                             background: notification.viewed
-                              ? "#e6faff"
+                              ? "#fdffff"
                               : "lightgrey",
                           }}
                         >
@@ -440,6 +441,9 @@ export default function Topbar({
                             secondary={`${notification.body} :  ${notification.date}`}
                           />
                         </ListItemButton>
+                        <Divider/>
+
+                        </>
                       ))
                     )}
                   </List>
@@ -524,7 +528,7 @@ export default function Topbar({
                             primary="Reset password"
                           />
                         </ListItem>
-                        <Divider />
+                        {/* <Divider />
                         <ListItem button>
                           <AddCardIcon
                             style={{
@@ -535,7 +539,7 @@ export default function Topbar({
                             onClick={donate}
                             primary="Donate"
                           />
-                        </ListItem>
+                        </ListItem> */}
                         <Divider />
                         <ListItem button>
                           <LogoutIcon
