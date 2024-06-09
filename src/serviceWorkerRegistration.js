@@ -18,7 +18,7 @@ const isLocalhost = Boolean(
       }
   
       window.addEventListener('load', () => {
-        const swUrl = `${process.env.PUBLIC_URL}/firebase-messaging-sw.js`;
+        const swUrl = `${process.env.PUBLIC_URL || ''}/firebase-messaging-sw.js`;
         console.log("check", swUrl)
         if (isLocalhost) {
           checkValidServiceWorker(swUrl, config);
