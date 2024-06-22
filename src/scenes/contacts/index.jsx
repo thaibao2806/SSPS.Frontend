@@ -273,7 +273,7 @@ const Contacts = () => {
       field: "actions",
       type: "actions",
       headerName: "Actions",
-      width: 100,
+      width: 90,
       cellClassName: "actions",
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;

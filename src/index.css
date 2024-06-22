@@ -42,3 +42,10 @@ body,
     right: 15px; /* điều chỉnh khoảng cách từ right nếu cần */
     z-index: 9999;
   }
+
+.chat-ai-button-admin {
+    position: fixed;
+    bottom: 70px; /* điều chỉnh khoảng cách từ bottom nếu cần */
+    right: 15px; /* điều chỉnh khoảng cách từ right nếu cần */
+    z-index: 9999;
+  }

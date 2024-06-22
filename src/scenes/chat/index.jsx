@@ -10,8 +10,8 @@ import { styled } from "@mui/material/styles";
 import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
-import Assitant from "../../../assets/assistan.jpg";
-import { tokens } from "../../../theme";
+import Assitant from "../../assets/assistan.jpg";
+import { tokens } from "../../theme";
 import {
   Button,
   Card,
@@ -29,10 +29,10 @@ import {
   TextareaAutosize,
   useTheme,
 } from "@mui/material";
-import { chatBox } from "../../../data/chatApi";
+import { chatBox } from "../../data/chatApi";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { is } from "date-fns/locale";
-import TingTing from "../../../assets/tingting.mp3";
+import TingTing from "../../assets/tingting.mp3";
 import {
   Close,
   Minimize,
@@ -44,16 +44,14 @@ import {
   VolumeOff,
   VolumeUp,
 } from "@mui/icons-material";
-import AddMoneyPlan from "../../../components/MoneyPlan/AddMoneyPlan";
-import AddNote from "../../../components/Notes/AddNote";
-import AddColumn from "../../../components/Todo/AddColumn";
-import AddCard from "../../../components/Todo/AddCard";
-import { ref, getDownloadURL } from "firebase/storage";
-import { auth, imageStore } from "../../../firebases";
+import AddMoneyPlan from "../../components/MoneyPlan/AddMoneyPlan";
+import AddNote from "../../components/Notes/AddNote";
+import AddColumn from "../../components/Todo/AddColumn";
+import AddCard from "../../components/Todo/AddCard";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { createAxios } from "../../../createInstance";
-import { updateToken } from "../../../redux/authSlice";
+import { createAxios } from "../../createInstance";
+import { updateToken } from "../../redux/authSlice";
 
 const LargeImageOverlay = ({ imageUrl, onClose }) => {
   return (
@@ -99,7 +97,7 @@ const LargeImageOverlay = ({ imageUrl, onClose }) => {
   );
 };
 
-const ChatAI = () => {
+const ChatAIAdmin = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
@@ -132,12 +130,12 @@ const ChatAI = () => {
 
   useEffect(() => {
     // Kiểm tra và xóa cuộc trò chuyện sau 24 giờ
-    const savedmsgersations = JSON.parse(localStorage.getItem("msgersations"));
+    const savedmsgersations = JSON.parse(localStorage.getItem("msgersationsAdmin"));
     if (savedmsgersations === null) {
       setmsgersation([]);
       return;
     }
-    const storedVolumeState = localStorage.getItem("isVolumeOn");
+    const storedVolumeState = localStorage.getItem("isVolumeOnAdmin");
     if (storedVolumeState !== null) {
       setPopoverVolumn(JSON.parse(storedVolumeState));
     }
@@ -152,7 +150,7 @@ const ChatAI = () => {
     setAnchorEl1(null);
     setmsgersation([]);
     // Xóa tin nhắn từ localStorage
-    localStorage.removeItem("msgersations");
+    localStorage.removeItem("msgersationsAdmin");
   };
 
   const handleCloseDialog = () => {
@@ -194,7 +192,7 @@ const ChatAI = () => {
     setPopoverVolumn((prevState) => {
       const newState = !prevState;
       // Lưu trạng thái mới vào Local Storage
-      localStorage.setItem("isVolumeOn", JSON.stringify(newState));
+      localStorage.setItem("isVolumeOnAdmin", JSON.stringify(newState));
       return newState;
     });
   };
@@ -209,7 +207,7 @@ const ChatAI = () => {
       };
       const updatedmsgersation = [...msgersation, newmsgersation];
       setmsgersation(updatedmsgersation);
-      localStorage.setItem("msgersations", JSON.stringify(updatedmsgersation));
+      localStorage.setItem("msgersationsAdmin", JSON.stringify(updatedmsgersation));
       setChatContent("");
       await responseChatBox();
     }
@@ -234,7 +232,7 @@ const ChatAI = () => {
         ];
         setmsgersation(updatedmsgersation);
         localStorage.setItem(
-          "msgersations",
+          "msgersationsAdmin",
           JSON.stringify(updatedmsgersation)
         );
         setChatContent("");
@@ -253,7 +251,7 @@ const ChatAI = () => {
         ];
         setmsgersation(updatedmsgersation);
         localStorage.setItem(
-          "msgersations",
+          "msgersationsAdmin",
           JSON.stringify(updatedmsgersation)
         );
         setChatContent("");
@@ -272,7 +270,7 @@ const ChatAI = () => {
         ];
         setmsgersation(updatedmsgersation);
         localStorage.setItem(
-          "msgersations",
+          "msgersationsAdmin",
           JSON.stringify(updatedmsgersation)
         );
         setChatContent("");
@@ -291,7 +289,7 @@ const ChatAI = () => {
         ];
         setmsgersation(updatedmsgersation);
         localStorage.setItem(
-          "msgersations",
+          "msgersationsAdmin",
           JSON.stringify(updatedmsgersation)
         );
         setChatContent("");
@@ -315,7 +313,7 @@ const ChatAI = () => {
           ];
           setmsgersation(updatedmsgersation);
           localStorage.setItem(
-            "msgersations",
+            "msgersationsAdmin",
             JSON.stringify(updatedmsgersation)
           );
           setChatContent("");
@@ -332,7 +330,7 @@ const ChatAI = () => {
           ];
           setmsgersation(updatedmsgersation);
           localStorage.setItem(
-            "msgersations",
+            "msgersationsAdmin",
             JSON.stringify(updatedmsgersation)
           );
           setChatContent("");
@@ -351,7 +349,7 @@ const ChatAI = () => {
         ];
         setmsgersation(updatedmsgersation);
         localStorage.setItem(
-          "msgersations",
+          "msgersationsAdmin",
           JSON.stringify(updatedmsgersation)
         );
         setChatContent("");
@@ -365,7 +363,7 @@ const ChatAI = () => {
         { sender: "Ai", message: "Sorry, I cannot answer your question yet" },
       ];
       setmsgersation(updatedmsgersation);
-      localStorage.setItem("msgersations", JSON.stringify(updatedmsgersation));
+      localStorage.setItem("msgersationsAdmin", JSON.stringify(updatedmsgersation));
       setChatContent("");
     }
   };
@@ -709,4 +707,4 @@ const ChatAI = () => {
   );
 };
 
-export default ChatAI;
+export default ChatAIAdmin;

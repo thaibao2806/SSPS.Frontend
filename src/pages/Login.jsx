@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import "../assets/login.css"
+import { useEffect, useState } from "react";
+import "../assets/login.css";
 import {
   MDBContainer,
   MDBCol,
@@ -11,22 +11,22 @@ import {
   MDBCard,
   MDBCardBody,
 } from "mdb-react-ui-kit";
-import { Button, Col, Container, Form,  InputGroup,  Row } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Button, Col, Container, Form, InputGroup, Row } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from '../redux/apiRequest';
+import { loginUser } from "../redux/apiRequest";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import { AiFillEye } from "react-icons/ai";
-import "./login.css"
+import "./login.css";
 
 const Login = () => {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [validatedEmail, setValidatedEmail] = useState("");
   const [validatedPassword, setValidatedPassword] = useState("");
   const [validated, setValidated] = useState("");
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberPassword, setRememberPassword] = useState(false);
   const [isShowPassword, setIsShowPassword] = useState(false);
   const error = useSelector((state) => state.auth.login?.msg);
@@ -36,23 +36,23 @@ const Login = () => {
     const savedPassword = localStorage.getItem("rememberedPassword");
     const savedEmail = localStorage.getItem("rememberedEmail");
     if (savedPassword && savedEmail) {
-      setEmail(savedEmail)
+      setEmail(savedEmail);
       setPassword(savedPassword);
       setRememberPassword(true);
     }
-  displayThemeButtons();
-
+    displayThemeButtons();
   }, []);
 
   const handleRememberPasswordChange = () => {
     setRememberPassword(!rememberPassword);
   };
 
-  const handleSubmit = async() => {
+  const handleSubmit = async () => {
     const user = {
       email: email,
       password,
-      deviceToken:"fZLPTlX-Cw6QF0O1vTeB0k:APA91bF-3TSMGgNk07xiB92y2dx4mJQdX6zHD5JN5ccleaFNfLqphCfANc400IAhWA6PcwFrPwbcKaPyhEE0r9ix5XIKI98hqstXZZMzQ6fWG2kdV76ouZ-n21LLfrvIAPHBX0tqfRoN"
+      deviceToken:
+        localStorage.getItem("deviceToken"),
     };
 
     if (rememberPassword) {
@@ -65,11 +65,11 @@ const Login = () => {
       localStorage.removeItem("rememberedEmail");
     }
 
-    if(!email || !password) {
+    if (!email || !password) {
       setValidated("Need to fill in all information !");
-      return
+      return;
     } else {
-      setValidated("")
+      setValidated("");
     }
 
     const passwordPattern =
@@ -85,24 +85,24 @@ const Login = () => {
     }
 
     const isEmailValid = email.includes("@");
-    if(!isEmailValid) {
+    if (!isEmailValid) {
       setValidatedEmail("Email invalidate!");
-      return
+      return;
     } else {
-      setValidatedEmail("")
+      setValidatedEmail("");
     }
 
-    let res = await loginUser(user, dispatch, navigate)
+    let res = await loginUser(user, dispatch, navigate);
     await setValidated(res || error || "");
-    console.log(res)
+    console.log(res);
   };
 
   const handlePressEnter = (e) => {
-    if(e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleSubmit();
     }
-  }
+  };
 
   const themes = [
     {
@@ -155,8 +155,6 @@ const Login = () => {
       div.addEventListener("click", () => setTheme(theme));
     });
   };
-
-
 
   return (
     <div className="body-login ">
@@ -243,6 +241,6 @@ const Login = () => {
       </section>
     </div>
   );
-}
+};
 
-export default Login
+export default Login;

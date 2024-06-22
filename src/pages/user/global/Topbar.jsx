@@ -431,8 +431,8 @@ export default function Topbar({
                           onClick={() => handleNotificationClick(index)}
                           sx={{
                             background: notification.viewed
-                              ? "#fdffff"
-                              : "lightgrey",
+                              ? theme.palette.theme === "dark" ? colors.grey[900] : "#dffff"
+                              : "lightgrey"
                           }}
                         >
                           {/* Ensure notification is an object with title and body */}

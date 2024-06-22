@@ -35,6 +35,7 @@
             vapidKey: "BOqV5cnHhm9TC1gNb3CSAJJ14jCaDEyDc2kq6dq_6InB3EONCwkiNWd8FCTiZ0lDRFzvGiRjg1XPFVnG_N767-U"
           });
           console.log("token", token);
+          localStorage.setItem("deviceToken",token)
         } catch (error) {
           console.error("An error occurred while retrieving the token. ", error);
         }

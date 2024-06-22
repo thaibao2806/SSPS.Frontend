@@ -214,6 +214,7 @@ const Calendar = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isDeleteCategory, setIsDeleteCategory] = useState(false);
   const [totalActucalAmount, setTotalActualAmount] = useState("");
+  const [isCategorySmall, setIsCategorySmall] = useState(false);
 
   const [anchorEl1, setAnchorEl1] = useState(null);
 
@@ -259,14 +260,13 @@ const Calendar = () => {
     if (param) {
       const date = format(new Date(param), "yyyy-MM-dd");
       if (calendarRef.current) {
-      console.log("check param", param);
+        console.log("check param", param);
 
         calendarRef.current.getApi().gotoDate(date);
         setStartDate(date);
         setEndDate(date);
       }
       handleDayButtonClick("timeGridDAY");
-
     }
   }, [param]);
 
@@ -1942,7 +1942,7 @@ const Calendar = () => {
           marginRight={isSmallScreen ? "0px" : "15px"}
           marginBottom={isSmallScreen ? "10px" : "0px"}
           borderRadius="10px"
-          width="250px"
+          width={isSmallScreen ? "100%" : "250px"}
           height="100%"
         >
           <Box
@@ -1952,22 +1952,71 @@ const Calendar = () => {
             borderRadius="10px"
             padding="15px"
           >
-            <Button
-              variant="contained"
-              // color="success"
-              onClick={handleCreatePlan}
-              style={{
-                marginBottom: "20px",
-                fontSize: "14px",
-                fontWeight: "500",
-                borderRadius: "10px",
-                boxShadow: "2px 2px 1px soild #ccc",
-                backgroundColor: `${colors.greenAccent[500]}`,
-              }}
+            <Box
+              display={isSmallScreen ? "flex" : ""}
+              justifyContent="space-between"
             >
-              <AddIcon />
-              Create
-            </Button>
+              <Button
+                variant="contained"
+                // color="success"
+                onClick={handleCreatePlan}
+                style={{
+                  marginBottom: "20px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  borderRadius: "10px",
+                  boxShadow: "2px 2px 1px soild #ccc",
+                  backgroundColor: `${colors.greenAccent[500]}`,
+                }}
+              >
+                <AddIcon />
+                Create
+              </Button>
+              {isSmallScreen ? (
+                <>
+                  <Button
+                    variant="contained"
+                    // color="success"
+                    onClick={() => {
+                      setTimeStart()
+                      setTimeEnd()
+                      setIsOpenCreateNote(true)
+                    }}
+                    style={{
+                      marginBottom: "20px",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      borderRadius: "10px",
+                      boxShadow: "2px 2px 1px soild #ccc",
+                      backgroundColor: "#1dd2ff",
+                      marginLeft: "10px",
+                    }}
+                  >
+                    {/* <AddIcon /> */}
+                    Note
+                  </Button>
+                  <Button
+                    variant="contained"
+                    // color="success"
+                    onClick={() => setIsCategorySmall(true)}
+                    style={{
+                      marginBottom: "20px",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      borderRadius: "10px",
+                      boxShadow: "2px 2px 1px soild #ccc",
+                      backgroundColor: "#ff8ce4",
+                      marginLeft: "10px",
+                    }}
+                  >
+                    {/* <AddIcon /> */}
+                    Category
+                  </Button>
+                </>
+              ) : (
+                <></>
+              )}
+            </Box>
             <Typography variant="h5" sx={{ fontWeight: "550" }}>
               <span>Expect: </span>{" "}
               <span style={{ color: "#38c171" }}>
@@ -2006,6 +2055,7 @@ const Calendar = () => {
             borderRadius="10px"
             padding="5px 15px 5px 15px"
             marginTop="10px"
+            display={isSmallScreen ? "none" : "block"}
           >
             <Box
               sx={{
@@ -2231,207 +2281,6 @@ const Calendar = () => {
           {isHovering && <EventDetail event={hoveredEvent} />}
         </Box>
       </Box>
-      <Dialog maxWidth="lg" open={isDialogOpen} onClose={closeDialog}>
-        <Box p={2}>
-          <Typography
-            variant="h3"
-            style={{ marginBottom: "10px", fontWeight: "500" }}
-          >
-            {checkUpdate ? "Update Plans" : "Create Plans"}
-          </Typography>
-          <p style={{ color: "red" }}>{errorCreate}</p>
-          <p style={{ color: "red" }}>{validateMoneyPlan}</p>
-          <TextField
-            label="Total amount"
-            type="number"
-            autoFocus
-            // value={totalAmount}
-            // onChange={(e) => setTotalAmount(e.target.value)}
-            style={{
-              width: `${checkUpdate ? "45%" : "73%"}`,
-              margin: "10px 10px 20px 0",
-            }}
-          />
-          {checkUpdate ? (
-            <>
-              <TextField
-                label="Actual amount"
-                type="number"
-                // value={actualAmount}
-                // onChange={(e) => setActualAmount(e.target.value)}
-                style={{ width: "25%", margin: "10px 10px 20px 0" }}
-              />
-            </>
-          ) : (
-            <></>
-          )}
-          <TextField
-            label="Currency unit"
-            type="text"
-            // value={currencyUnit}
-            // onChange={(e) => setCurrencyUnit(e.target.value)}
-            style={{ width: "25%", marginTop: "10px", marginBottom: "20px" }}
-          />
-          <Box
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "10px",
-            }}
-          >
-            <Typography variant="h5">Plan Details</Typography>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={handleSuggestion}
-              style={{ marginLeft: "10px" }}
-            >
-              Suggestion
-            </Button>
-            <Button
-              variant="outlined"
-              color="success"
-              onClick={handleAddBox}
-              style={{ marginLeft: "10px" }}
-            >
-              ADD Plan Detail
-            </Button>
-          </Box>
-
-          {/* {errorText && totalSuggest ? <p style={{ color: "red" }}>{errorText} aaaa</p> : ""} */}
-          {showConfirmation && totalAmountInBoxes > totalAmount && (
-            <div style={{ display: "flex" }}>
-              <p style={{ color: "red", marginRight: "10px" }}>
-                The total amount has exceeded the limit, do you want to update
-                the total amount?
-              </p>
-              <div>
-                <Button
-                  variant="outlined"
-                  color="success"
-                  size="small"
-                  style={{ marginRight: "10px" }}
-                  onClick={() => setTotalAmount(totalAmountInBoxes)}
-                >
-                  Yes
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  size="small"
-                  onClick={() => setShowConfirmation(false)}
-                >
-                  No
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {Array.from({ length: boxCount }).map((_, index) => (
-            <Box
-              key={index}
-              sx={{ "& > :not(style)": { m: 1 } }}
-              style={{ display: "flex", alignItems: "center" }}
-            >
-              <TextField
-                label="Title"
-                value={boxData[index]?.eventTitle}
-                onChange={(e) => handleBoxTitleChange(e, index)}
-                sx={{ width: 200 }}
-              />
-              <TextField
-                label="Expect amount"
-                type="number"
-                value={boxData[index].amount}
-                onChange={(e) => handleBoxAmountChange(e, index)}
-                sx={{ width: 100 }}
-              />
-              {checkUpdate ? (
-                <TextField
-                  label="Actual amount"
-                  type="number"
-                  value={boxData[index].actualAmount}
-                  onChange={(e) => handleBoxActualAmountChange(e, index)}
-                  sx={{ width: 100 }}
-                />
-              ) : null}
-              <TextField
-                select
-                label="Category"
-                value={boxData[index].category ?? ""}
-                onChange={(e) => handleBoxCategoryChange(e, index)}
-                style={{ marginTop: "10px" }}
-                sx={{ width: 100 }}
-              >
-                {categoriesList?.map((color) => (
-                  <MenuItem key={color.id + color.name} value={color.id}>
-                    {color.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                select
-                label="Prioritize"
-                value={boxData[index].eventColor}
-                onChange={(e) => handleBoxColorChange(e, index)}
-                style={{ marginTop: "10px" }}
-                sx={{ width: 100 }}
-              >
-                {availableColors.map((color) => (
-                  <MenuItem key={color.color + color.title} value={color.color}>
-                    {color.title}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <Fab
-                size="small"
-                color="error"
-                aria-label="add"
-                onClick={() => handleDeleteBox(index)}
-              >
-                <DeleteIcon />
-              </Fab>
-            </Box>
-          ))}
-          <DialogActions>
-            {checkUpdate ? (
-              <>
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={handleDeletePlan}
-                  style={{ marginTop: "10px", marginLeft: "10px" }}
-                >
-                  Delete
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleUpdateMoneyPlan}
-                  style={{
-                    marginTop: "10px",
-                    marginLeft: "10px",
-                    backgroundColor: "#0487D9",
-                  }}
-                >
-                  Save
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleCreateMoneyPlan}
-                  style={{ marginTop: "10px", backgroundColor: "#0487D9" }}
-                >
-                  {selectedEvent ? "Save" : "Add"}
-                </Button>
-              </>
-            )}
-          </DialogActions>
-        </Box>
-      </Dialog>
 
       {/* create plan dialog */}
       <Dialog
@@ -2451,7 +2300,9 @@ const Calendar = () => {
           <TextField
             label="Total amount"
             type="number"
-            autoFocus
+            //autoFocus
+            readOnly
+            disabled  
             // disabled={checkUpdate}
             value={totalAmount}
             onChange={(e) => setTotalAmount(e.target.value)}
@@ -2465,7 +2316,8 @@ const Calendar = () => {
               <TextField
                 label="Actual amount"
                 type="number"
-                // disabled
+                disabled
+                readOnly
                 value={actualAmount}
                 onChange={(e) => setActualAmount(e.target.value)}
                 style={{ width: "25%", margin: "10px 10px 20px 0" }}
@@ -2504,60 +2356,6 @@ const Calendar = () => {
               </div>
             </Box>
           )}
-
-          {/* <Box style={{ display: "flex" }}>
-            <TextField
-              select
-              label="Plan Type"
-              value={timeFrame}
-              onChange={(e) => setTimeFrame(e.target.value)}
-              style={{ marginRight: "15px", marginBottom: "20px" }}
-            >
-              <MenuItem value="Chose">Chose time</MenuItem>
-              <MenuItem value="YEAR">Year</MenuItem>
-              <MenuItem value="MONTH">Month</MenuItem>
-              <MenuItem value="DAY">Day</MenuItem>
-            </TextField>
-            {timeFrame === "YEAR" && (
-              <>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    views={["year"]}
-                    label="Select Year"
-                    value={dayjs(selectedYear)}
-                    onChange={(date) => setSelectedYear(new Date(date))}
-                  />
-                </LocalizationProvider>
-              </>
-            )}
-
-            {timeFrame === "MONTH" && (
-              <>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    views={["year", "month"]}
-                    label="Select Year and Month"
-                    value={dayjs(selectedMonth)}
-                    onChange={(date) => setSelectedMonth(new Date(date))}
-                  />
-                </LocalizationProvider>
-              </>
-            )}
-
-            {timeFrame === "DAY" && (
-              <div style={{ display: "flex" }}>
-                <div style={{ marginRight: "10px" }}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Select Day"
-                      value={dayjs(selectedStartDay)}
-                      onChange={(date) => setSelectedStartDay(new Date(date))}
-                    />
-                  </LocalizationProvider>
-                </div>
-              </div>
-            )}
-          </Box> */}
           <Box
             style={{
               display: "flex",
@@ -2802,7 +2600,7 @@ const Calendar = () => {
                   <DatePicker
                     label="Start Date"
                     value={dayjs(dayStart)}
-                    readOnly
+                    readOnly = {isSmallScreen ? false : true}
                     onChange={(newValue) => setDayStart(new Date(newValue))}
                   />
                 </LocalizationProvider>
@@ -3030,6 +2828,85 @@ const Calendar = () => {
             >
               Login
             </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
+
+      {/* category small */}
+      <Dialog
+        maxWidth="lg"
+        open={isCategorySmall}
+        onClose={() => setIsCategorySmall(false)}
+      >
+        <Box p={2}>
+        <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                // marginTop: "5px",
+              }}
+            >
+              <Typography variant="h5" sx={{ fontWeight: "550" }}>
+                Categories:
+              </Typography>
+              <Box>
+                <Tooltip title="Add Category" placement="top-end">
+                  <IconButton>
+                    <AddIcon
+                      onClick={() => setIsOpenCreateCategory(true)}
+                      sx={{ fontSize: 25 }}
+                    />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Box>
+          <Box>
+            <List
+              sx={{
+                height: "30vh",
+                overflow: "auto",
+              }}
+            >
+              {categoriesList?.map((event) => (
+                <ListItem
+                  key={event.id}
+                  sx={{
+                    // backgroundColor: `${colors.listCategory[100]}`,
+                    margin: "0px 0px 0px 0px",
+                    borderRadius: "5px",
+                    // color: "#790e61",
+                    color: colors.iconTopbar[100],
+                  }}
+                >
+                  <FiberManualRecordIcon
+                    fontSize="sm"
+                    sx={{ paddingRight: "5px" }}
+                  />
+                  <ListItemText
+                    primaryTypographyProps={{ variant: "h6" }}
+                    primary={event.name}
+                  />
+                  <IconButton
+                    aria-describedby={id}
+                    onClick={() => updateCategory(event)}
+                    // onClick={handleClickCategory}
+                  >
+                    <MoreVertIcon sx={{ fontSize: 20 }} />
+                  </IconButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+          <DialogActions>
+          <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => setIsCategorySmall(false)}
+                  style={{ marginTop: "15px", marginLeft: "10px" }}
+                >
+                  Close
+                </Button>
           </DialogActions>
         </Box>
       </Dialog>
