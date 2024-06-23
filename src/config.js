@@ -1,5 +1,5 @@
-export const url = "http://localhost:5031"
-export const urlChatBox = "http://localhost:5000"
+export const url = "https://c0b3-2405-4803-c63c-3f00-f993-d896-49ec-2700.ngrok-free.app"
+export const urlChatBox = "https://c0b3-2405-4803-c63c-3f00-f993-d896-49ec-2700.ngrok-free.app"
 // report user
 export const getReportUser = "/api/user/dashboard-user"
 // auth
@@ -35,6 +35,8 @@ export const createListPlan = "/api/user/money-plan/create-list-money-plan"
 // chat
 export const chat = "/chatbox"
 export const chatbot = '/api/external/chat-bot'
+export const chatbotAdmin = '/api/external/chat-bot'
+
 // note
 export const createNotes = "/api/user/note"
 export const getNotes = "/api/user/note/get-in-range"

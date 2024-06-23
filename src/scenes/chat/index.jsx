@@ -29,7 +29,7 @@ import {
   TextareaAutosize,
   useTheme,
 } from "@mui/material";
-import { chatBox } from "../../data/chatApi";
+import { chatBox, chatBoxAdmin } from "../../data/chatApi";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { is } from "date-fns/locale";
 import TingTing from "../../assets/tingting.mp3";
@@ -130,7 +130,9 @@ const ChatAIAdmin = () => {
 
   useEffect(() => {
     // Kiểm tra và xóa cuộc trò chuyện sau 24 giờ
-    const savedmsgersations = JSON.parse(localStorage.getItem("msgersationsAdmin"));
+    const savedmsgersations = JSON.parse(
+      localStorage.getItem("msgersationsAdmin")
+    );
     if (savedmsgersations === null) {
       setmsgersation([]);
       return;
@@ -207,7 +209,10 @@ const ChatAIAdmin = () => {
       };
       const updatedmsgersation = [...msgersation, newmsgersation];
       setmsgersation(updatedmsgersation);
-      localStorage.setItem("msgersationsAdmin", JSON.stringify(updatedmsgersation));
+      localStorage.setItem(
+        "msgersationsAdmin",
+        JSON.stringify(updatedmsgersation)
+      );
       setChatContent("");
       await responseChatBox();
     }
@@ -296,20 +301,25 @@ const ChatAIAdmin = () => {
         alert("Please create a financial plan!");
         return;
       }
-      let res = await chatBox(chatContent, axoisJWT, user.data?.accessToken);
-      console.log("test",res)
-      // setIsTyping([...isTyping, true]);
+      let res = await chatBoxAdmin(
+        chatContent,
+        "",
+        true,
+        axoisJWT,
+        user.data?.accessToken
+      );
+      console.log("test", res);
 
-      if (res.result === true) {
-        console.log(res.data);
+      if (res.data.result === true) {
+        console.log(res.data.data);
         // setIsTyping(isTyping.slice(0, -1));
-        if (!res.data?.isImage) {
+        if (!res.data.data?.isImage) {
           setResponseChat(false);
           popoverVolumn ? null : new Audio(TingTing).play();
           const updatedmsgersation = [
             ...msgersation,
             { sender: "You", message: chatContent },
-            { sender: "Ai", message: res.data?.response },
+            { sender: "Ai", message: res.data.data?.response },
           ];
           setmsgersation(updatedmsgersation);
           localStorage.setItem(
@@ -317,12 +327,12 @@ const ChatAIAdmin = () => {
             JSON.stringify(updatedmsgersation)
           );
           setChatContent("");
-          console.log(res.data?.response);
+          console.log(res.data.data?.response);
         } else {
           popoverVolumn ? null : new Audio(TingTing).play();
           // const imageUrl =
           // "https://firebasestorage.googleapis.com/v0/b/sspsnotification.appspot.com/o/Danh%20m%E1%BB%A5c%20xu%E1%BA%A5t%20kho%20-%20L%E1%BB%97i%20l%E1%BB%8Dc%20theo%20%C4%91i%E1%BB%81u%20ki%E1%BB%87n.png?alt=media&token=4ad305fa-0b29-478d-81b0-f139f6e19d7c";
-          const imageUrl = res.data?.response;
+          const imageUrl = res.data.data?.response;
           const updatedmsgersation = [
             ...msgersation,
             { sender: "You", message: chatContent },
@@ -363,7 +373,10 @@ const ChatAIAdmin = () => {
         { sender: "Ai", message: "Sorry, I cannot answer your question yet" },
       ];
       setmsgersation(updatedmsgersation);
-      localStorage.setItem("msgersationsAdmin", JSON.stringify(updatedmsgersation));
+      localStorage.setItem(
+        "msgersationsAdmin",
+        JSON.stringify(updatedmsgersation)
+      );
       setChatContent("");
     }
   };

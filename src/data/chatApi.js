@@ -1,5 +1,5 @@
 import axios from "axios";
-import { chat, chatbot, url, urlChatBox } from "../config";
+import { chat, chatbot, chatbotAdmin, url, urlChatBox } from "../config";
 
 // export const chatBox = async (message) => {
 //     try {
@@ -16,8 +16,17 @@ import { chat, chatbot, url, urlChatBox } from "../config";
 //     }
 //   };
 
-export const chatBox = async (message, axoisJWT, accessToken) => {
-  return axoisJWT.post(url + chatbot , {message, axoisJWT}, {
+export const chatBox = async (message,userId, isAdmin, axoisJWT, accessToken) => {
+  return axoisJWT.post(url + chatbot , {message,userId, isAdmin, axoisJWT}, {
+    headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "ngrok-skip-browser-warning": "69420"
+    }
+})
+}
+
+export const chatBoxAdmin = async (message,userId, isAdmin, axoisJWT, accessToken) => {
+  return axoisJWT.post(urlChatBox + chatbotAdmin , {message,userId, isAdmin, axoisJWT}, {
     headers: {
         Authorization: `Bearer ${accessToken}`,
         "ngrok-skip-browser-warning": "69420"
