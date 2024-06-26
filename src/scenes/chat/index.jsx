@@ -225,82 +225,6 @@ const ChatAIAdmin = () => {
   const responseChatBox = async () => {
     setResponseChat(true);
     try {
-      if (chatContent.trim().toLowerCase() === "@moneyplan") {
-        // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
-        setResponseChat(false); // Tắt trạng thái phản hồi
-        setMoneyPlan(true);
-        popoverVolumn ? null : new Audio(TingTing).play();
-        const updatedmsgersation = [
-          ...msgersation,
-          { sender: "You", message: chatContent },
-          { sender: "Ai", message: "Please create a financial plan!" },
-        ];
-        setmsgersation(updatedmsgersation);
-        localStorage.setItem(
-          "msgersationsAdmin",
-          JSON.stringify(updatedmsgersation)
-        );
-        setChatContent("");
-        return;
-      }
-
-      if (chatContent.trim().toLowerCase() === "@todolist") {
-        // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
-        setResponseChat(false); // Tắt trạng thái phản hồi
-        setTodo(true);
-        popoverVolumn ? null : new Audio(TingTing).play();
-        const updatedmsgersation = [
-          ...msgersation,
-          { sender: "You", message: chatContent },
-          { sender: "Ai", message: "Please create a todolist column!" },
-        ];
-        setmsgersation(updatedmsgersation);
-        localStorage.setItem(
-          "msgersationsAdmin",
-          JSON.stringify(updatedmsgersation)
-        );
-        setChatContent("");
-        return;
-      }
-
-      if (chatContent.trim().toLowerCase() === "@note") {
-        // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
-        setResponseChat(false); // Tắt trạng thái phản hồi
-        setNote(true);
-        popoverVolumn ? null : new Audio(TingTing).play();
-        const updatedmsgersation = [
-          ...msgersation,
-          { sender: "You", message: chatContent },
-          { sender: "Ai", message: "Please create a todolist column!" },
-        ];
-        setmsgersation(updatedmsgersation);
-        localStorage.setItem(
-          "msgersationsAdmin",
-          JSON.stringify(updatedmsgersation)
-        );
-        setChatContent("");
-        return;
-      }
-
-      if (chatContent.trim().toLowerCase() === "@task") {
-        // Hiển thị cảnh báo yêu cầu người dùng tạo kế hoạch
-        setResponseChat(false); // Tắt trạng thái phản hồi
-        setTask(true);
-        popoverVolumn ? null : new Audio(TingTing).play();
-        const updatedmsgersation = [
-          ...msgersation,
-          { sender: "You", message: chatContent },
-          { sender: "Ai", message: "Please create a todolist column!" },
-        ];
-        setmsgersation(updatedmsgersation);
-        localStorage.setItem(
-          "msgersationsAdmin",
-          JSON.stringify(updatedmsgersation)
-        );
-        setChatContent("");
-        alert("Please create a financial plan!");
-        return;
-      }
       let res = await chatBoxAdmin(
         chatContent,
         "",
@@ -315,12 +239,42 @@ const ChatAIAdmin = () => {
         // setIsTyping(isTyping.slice(0, -1));
         if (!res.data.data?.isImage) {
           setResponseChat(false);
-          popoverVolumn ? null : new Audio(TingTing).play();
-          const updatedmsgersation = [
-            ...msgersation,
-            { sender: "You", message: chatContent },
-            { sender: "Ai", message: res.data.data?.response },
-          ];
+          let updatedmsgersation;
+          if (
+            res.data.data?.response.includes(
+              "Unfortunately, I was not able to answer your question"
+            ) &&
+            res.data.data?.response.includes("Column not found")
+          ) {
+            popoverVolumn ? null : new Audio(TingTing).play();
+            updatedmsgersation = [
+              ...msgersation,
+              { sender: "You", message: chatContent },
+              { sender: "Ai", message: "No data" },
+            ];
+          } else if (
+            res.data.data?.response.includes(
+              "Unfortunately, I was not able to answer your question"
+            )
+          ) {
+            popoverVolumn ? null : new Audio(TingTing).play();
+            updatedmsgersation = [
+              ...msgersation,
+              { sender: "You", message: chatContent },
+              {
+                sender: "Ai",
+                message: "Sorry, I can't answer this question right now",
+              },
+            ];
+          } else {
+            popoverVolumn ? null : new Audio(TingTing).play();
+            updatedmsgersation = [
+              ...msgersation,
+              { sender: "You", message: chatContent },
+              { sender: "Ai", message: res.data.data?.response },
+            ];
+          }
+
           setmsgersation(updatedmsgersation);
           localStorage.setItem(
             "msgersationsAdmin",
@@ -330,8 +284,6 @@ const ChatAIAdmin = () => {
           console.log(res.data.data?.response);
         } else {
           popoverVolumn ? null : new Audio(TingTing).play();
-          // const imageUrl =
-          // "https://firebasestorage.googleapis.com/v0/b/sspsnotification.appspot.com/o/Danh%20m%E1%BB%A5c%20xu%E1%BA%A5t%20kho%20-%20L%E1%BB%97i%20l%E1%BB%8Dc%20theo%20%C4%91i%E1%BB%81u%20ki%E1%BB%87n.png?alt=media&token=4ad305fa-0b29-478d-81b0-f139f6e19d7c";
           const imageUrl = res.data.data?.response;
           const updatedmsgersation = [
             ...msgersation,

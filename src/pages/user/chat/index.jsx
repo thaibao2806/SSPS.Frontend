@@ -298,8 +298,14 @@ const ChatAI = () => {
         alert("Please create a financial plan!");
         return;
       }
-      let res = await chatBox(chatContent,"", false, axoisJWT, user.data?.accessToken);
-      console.log("test",res)
+      let res = await chatBox(
+        chatContent,
+        "",
+        false,
+        axoisJWT,
+        user.data?.accessToken
+      );
+      console.log("test", res);
       // setIsTyping([...isTyping, true]);
 
       if (res.data.result === true) {
@@ -307,12 +313,41 @@ const ChatAI = () => {
         // setIsTyping(isTyping.slice(0, -1));
         if (!res.data.data?.isImage) {
           setResponseChat(false);
-          popoverVolumn ? null : new Audio(TingTing).play();
-          const updatedmsgersation = [
-            ...msgersation,
-            { sender: "You", message: chatContent },
-            { sender: "Ai", message: res.data.data?.response },
-          ];
+          let updatedmsgersation;
+          if (
+            res.data.data?.response.includes(
+              "Unfortunately, I was not able to answer your question"
+            ) &&
+            res.data.data?.response.includes("Column not found")
+          ) {
+            popoverVolumn ? null : new Audio(TingTing).play();
+            updatedmsgersation = [
+              ...msgersation,
+              { sender: "You", message: chatContent },
+              { sender: "Ai", message: "No data" },
+            ];
+          } else if (
+            res.data.data?.response.includes(
+              "Unfortunately, I was not able to answer your question"
+            )
+          ) {
+            popoverVolumn ? null : new Audio(TingTing).play();
+            updatedmsgersation = [
+              ...msgersation,
+              { sender: "You", message: chatContent },
+              {
+                sender: "Ai",
+                message: "Sorry, I can't answer this question right now",
+              },
+            ];
+          } else {
+            popoverVolumn ? null : new Audio(TingTing).play();
+            updatedmsgersation = [
+              ...msgersation,
+              { sender: "You", message: chatContent },
+              { sender: "Ai", message: res.data.data?.response },
+            ];
+          }
           setmsgersation(updatedmsgersation);
           localStorage.setItem(
             "msgersations",
