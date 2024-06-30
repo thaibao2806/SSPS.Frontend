@@ -532,6 +532,7 @@ const Calendar = () => {
     setBoxCount(1);
     setValidateMoneyPlan("");
     setCheckUpdate(false);
+    setShowConfirmation(false);
     // setSelectedStartDay(new Date(startDate));
     // setSelectedMonth(new Date(startDate));
     // setSelectedYear(new Date(startDate));
@@ -558,7 +559,7 @@ const Calendar = () => {
   };
   const handleBoxActualAmountChange = (e, index) => {
     const updatedBoxData = [...boxData];
-    updatedBoxData[index].actualAmount = parseInt(e.target.value) || 0;
+    updatedBoxData[index].actualAmount = e.target.value;
     setBoxData(updatedBoxData);
   };
 
@@ -641,14 +642,14 @@ const Calendar = () => {
 
   const updateTotalAmountInBoxes = () => {
     const total = boxData.reduce(
-      (sum, box) => sum + parseInt(box.amount || 0),
+      (sum, box) => sum + parseFloat(box.amount),
       0
     );
     if (isDelete) {
       setActualAmount(0);
     } else {
       const totalActual = boxData.reduce(
-        (sum, box) => sum + parseInt(box?.actualAmount || 0),
+        (sum, box) => sum + parseFloat(box?.actualAmount),
         0
       );
       setActualAmount(totalActual);
@@ -2303,7 +2304,7 @@ const Calendar = () => {
             readOnly
             disabled  
             // disabled={checkUpdate}
-            value={totalAmount}
+            value={parseFloat(totalAmount).toFixed(2)}
             onChange={(e) => setTotalAmount(e.target.value)}
             style={{
               width: `${checkUpdate ? "45%" : "73%"}`,
@@ -2317,7 +2318,7 @@ const Calendar = () => {
                 type="number"
                 disabled
                 readOnly
-                value={actualAmount}
+                value={parseFloat(actualAmount).toFixed(2)}
                 onChange={(e) => setActualAmount(e.target.value)}
                 style={{ width: "25%", margin: "10px 10px 20px 0" }}
               />
@@ -2433,6 +2434,7 @@ const Calendar = () => {
                 <TextField
                   label="Actual amount"
                   type="number"
+                  // step="0.01"
                   value={boxData[index].actualAmount}
                   onChange={(e) => handleBoxActualAmountChange(e, index)}
                   sx={{ width: 100 }}
