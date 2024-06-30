@@ -26,6 +26,12 @@ import {
   ListItemText,
   MenuItem,
   MenuList,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextareaAutosize,
   useTheme,
 } from "@mui/material";
@@ -52,6 +58,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createAxios } from "../../createInstance";
 import { updateToken } from "../../redux/authSlice";
+import jwt_decode from "jwt-decode";
 
 const LargeImageOverlay = ({ imageUrl, onClose }) => {
   return (
@@ -123,6 +130,14 @@ const ChatAIAdmin = () => {
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
   const [imageUrls, setImageUrls] = useState("");
   const [showLargeImage, setShowLargeImage] = useState(false);
+  const [userId, setUserId] = useState();
+
+  useEffect(() => {
+    if (user) {
+      const decode = jwt_decode(user?.data.accessToken);
+      setUserId(decode?.id);
+    }
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -227,7 +242,7 @@ const ChatAIAdmin = () => {
     try {
       let res = await chatBoxAdmin(
         chatContent,
-        "",
+        userId,
         true,
         axoisJWT,
         user.data?.accessToken
@@ -237,7 +252,7 @@ const ChatAIAdmin = () => {
       if (res.data.result === true) {
         console.log(res.data.data);
         // setIsTyping(isTyping.slice(0, -1));
-        if (!res.data.data?.isImage) {
+        if (res.data.data?.type === "other") {
           setResponseChat(false);
           let updatedmsgersation;
           if (
@@ -282,13 +297,41 @@ const ChatAIAdmin = () => {
           );
           setChatContent("");
           console.log(res.data.data?.response);
-        } else {
+        } else if (res.data.data?.type === "image") {
           popoverVolumn ? null : new Audio(TingTing).play();
           const imageUrl = res.data.data?.response;
           const updatedmsgersation = [
             ...msgersation,
             { sender: "You", message: chatContent },
             { sender: "Ai", message: imageUrl, isImage: true },
+          ];
+          setmsgersation(updatedmsgersation);
+          localStorage.setItem(
+            "msgersationsAdmin",
+            JSON.stringify(updatedmsgersation)
+          );
+          setChatContent("");
+          setResponseChat(false);
+        } else if (res.data.data?.type === "json") {
+          popoverVolumn ? null : new Audio(TingTing).play();
+          // const json = JSON.parse(res.data.data?.response);
+          let jsonResponse;
+          try {
+            jsonResponse = JSON.parse(res.data.data?.response);
+            console.log("Parsed JSON Response:", jsonResponse);
+          } catch (e) {
+            console.error("Failed to parse JSON:", e);
+            jsonResponse = "Invalid JSON format";
+          }
+
+          const updatedmsgersation = [
+            ...msgersation,
+            { sender: "You", message: chatContent },
+            {
+              sender: "Ai",
+              message: jsonResponse,
+              type: "json",
+            },
           ];
           setmsgersation(updatedmsgersation);
           localStorage.setItem(
@@ -589,6 +632,52 @@ const ChatAIAdmin = () => {
                         }}
                         onClick={() => handleImageClick(msg.message)}
                       />
+                    ) : msg.type === "json" ? (
+                      Array.isArray(msg.message) ? (
+                        <TableContainer>
+                          <Table
+                            key={index}
+                            border="1"
+                            sx={{
+                              borderCollapse: "collapse",
+                              width: "100%",
+                              "& .MuiTableCell-root": {
+                                borderColor: "white", // Apply white border color to all cells
+                                borderWidth: 1,
+                                borderStyle: "solid",
+                              },
+                              "& .MuiTableHead-root .MuiTableCell-root": {
+                                borderColor: "white", // Apply white border color to header cells
+                              },
+                              "& .MuiTableRow-root": {
+                                borderColor: "white", // Apply white border color to rows
+                              },
+                            }}
+                             size="small" aria-label="a dense table"
+                          >
+                            <TableHead>
+                              <TableRow>
+                                {Object.keys(msg.message[0]).map((key) => (
+                                  <TableCell key={key} style={{ borderColor: "white", color: "white" }}>{key}</TableCell>
+                                ))}
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {msg.message.map((row, rowIndex) => (
+                                <TableRow key={rowIndex}>
+                                  {Object.values(row).map(
+                                    (value, cellIndex) => (
+                                      <TableCell key={cellIndex} style={{ borderColor: "white", color: "white" }}>{value}</TableCell>
+                                    )
+                                  )}
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      ) : (
+                        "Data is not an array"
+                      )
                     ) : (
                       msg.message
                     )}

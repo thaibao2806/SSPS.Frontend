@@ -34,8 +34,8 @@ export const deleteCategory = "/api/user/delete-category"
 export const createListPlan = "/api/user/money-plan/create-list-money-plan"
 // chat
 export const chat = "/chatbox"
-export const chatbot = '/api/external/chat-bot'
-export const chatbotAdmin = '/api/external/chat-bot'
+export const chatbot = '/api/external/chat-bot-user'
+export const chatbotAdmin = '/api/external/chat-bot-admin'
 
 // note
 export const createNotes = "/api/user/note"

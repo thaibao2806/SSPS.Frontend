@@ -67,7 +67,6 @@ import {
 import { Icons, ToastContainer, toast } from "react-toastify";
 import dayjs from "dayjs";
 import { useLocation, useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode";
 import { ColorPicker } from "material-ui-color";
 import {
   createNote,
