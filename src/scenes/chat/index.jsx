@@ -633,7 +633,7 @@ const ChatAIAdmin = () => {
                         onClick={() => handleImageClick(msg.message)}
                       />
                     ) : msg.type === "json" ? (
-                      Array.isArray(msg.message) ? (
+                      msg.message && Array.isArray(msg.message) && msg.message.length > 0 ? (
                         <TableContainer>
                           <Table
                             key={index}
