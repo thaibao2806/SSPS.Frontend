@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import styled from "styled-components";
 
 const TodoList = () => {
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState('');
+  const [newTask, setNewTask] = useState("");
 
   const handleInputChange = (e) => {
     setNewTask(e.target.value);
   };
 
   const handleAddTask = () => {
-    if (newTask.trim() !== '') {
-      setTasks([...tasks, {text: newTask.trim(), completed: false}]);
-      setNewTask('');
+    if (newTask.trim() !== "") {
+      setTasks([...tasks, { text: newTask.trim(), completed: false }]);
+      setNewTask("");
     }
   };
 
   const handleToggleComplete = (index) => {
-    const updatedTasks = tasks.map((task, i) => 
-      i === index ? {...task, completed: !task.completed} : task
+    const updatedTasks = tasks.map((task, i) =>
+      i === index ? { ...task, completed: !task.completed } : task
     );
     setTasks(updatedTasks);
   };
@@ -38,9 +38,15 @@ const TodoList = () => {
       <StyledList>
         {tasks.map((task, index) => (
           <StyledListItem key={index} completed={task.completed}>
-            <Checkbox type="checkbox" checked={task.completed} onChange={() => handleToggleComplete(index)} />
+            <Checkbox
+              type="checkbox"
+              checked={task.completed}
+              onChange={() => handleToggleComplete(index)}
+            />
             {task.text}
-            <DeleteButton onClick={() => handleDeleteTask(index)}>Delete</DeleteButton>
+            <DeleteButton onClick={() => handleDeleteTask(index)}>
+              Delete
+            </DeleteButton>
           </StyledListItem>
         ))}
       </StyledList>
@@ -81,11 +87,12 @@ const InputContainer = styled.div`
 
 const StyledInput = styled.input`
   padding: 0.75rem;
-  font-size:1rem;
+  font-size: 1rem;
   width: 20rem;
   border: none;
   border-radius: 1rem;
   margin-right: 1rem;
+  background-color: #f3f3f3;
 `;
 
 const StyledButton = styled.button`
@@ -110,7 +117,7 @@ const StyledListItem = styled.li`
   align-items: center;
   padding: 0.5rem;
   margin: 1rem 0;
-  background: ${props => props.completed ? '#d3d3d3' : '#fff'};
+  background: ${(props) => (props.completed ? "#d3d3d3" : "#ccc")};
   border-radius: 1rem;
 `;
 

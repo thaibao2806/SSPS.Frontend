@@ -535,7 +535,7 @@ const ChatAI = () => {
           <Box
             sx={{
               p: 2,
-              width: "400px",
+              width: "500px",
               height: "600px",
               display: "flex",
               flexDirection: "column",
@@ -697,8 +697,8 @@ const ChatAI = () => {
                         alt="AI response"
                         style={{
                           cursor: "pointer",
-                          maxWidth: "250px",
-                          maxHeight: "250px",
+                          maxWidth: "300px",
+                          maxHeight: "300px",
                         }}
                         onClick={() => handleImageClick(msg.message)}
                       />
@@ -723,12 +723,21 @@ const ChatAI = () => {
                                 borderColor: "white", // Apply white border color to rows
                               },
                             }}
-                             size="small" aria-label="a dense table"
+                            size="small"
+                            aria-label="a dense table"
                           >
                             <TableHead>
                               <TableRow>
                                 {Object.keys(msg.message[0]).map((key) => (
-                                  <TableCell key={key} style={{ borderColor: "white", color: "white" }}>{key}</TableCell>
+                                  <TableCell
+                                    key={key}
+                                    style={{
+                                      borderColor: "white",
+                                      color: "white",
+                                    }}
+                                  >
+                                    {key}
+                                  </TableCell>
                                 ))}
                               </TableRow>
                             </TableHead>
@@ -737,7 +746,15 @@ const ChatAI = () => {
                                 <TableRow key={rowIndex}>
                                   {Object.values(row).map(
                                     (value, cellIndex) => (
-                                      <TableCell key={cellIndex} style={{ borderColor: "white", color: "white" }}>{value}</TableCell>
+                                      <TableCell
+                                        key={cellIndex}
+                                        style={{
+                                          borderColor: "white",
+                                          color: "white",
+                                        }}
+                                      >
+                                        {value}
+                                      </TableCell>
                                     )
                                   )}
                                 </TableRow>

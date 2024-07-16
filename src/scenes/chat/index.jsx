@@ -465,7 +465,7 @@ const ChatAIAdmin = () => {
           <Box
             sx={{
               p: 2,
-              width: "400px",
+              width: "500px",
               height: "600px",
               display: "flex",
               flexDirection: "column",
@@ -627,8 +627,8 @@ const ChatAIAdmin = () => {
                         alt="AI response"
                         style={{
                           cursor: "pointer",
-                          maxWidth: "250px",
-                          maxHeight: "250px",
+                          maxWidth: "300px",
+                          maxHeight: "300px",
                         }}
                         onClick={() => handleImageClick(msg.message)}
                       />

@@ -641,10 +641,7 @@ const Calendar = () => {
   }, [boxData]);
 
   const updateTotalAmountInBoxes = () => {
-    const total = boxData.reduce(
-      (sum, box) => sum + parseFloat(box.amount),
-      0
-    );
+    const total = boxData.reduce((sum, box) => sum + parseFloat(box.amount), 0);
     if (isDelete) {
       setActualAmount(0);
     } else {
@@ -658,6 +655,7 @@ const Calendar = () => {
       setShowConfirmation(true);
     }
     setTotalAmountInBoxes(total);
+    setTotalAmount(total);
   };
 
   useEffect(() => {
@@ -1978,9 +1976,9 @@ const Calendar = () => {
                     variant="contained"
                     // color="success"
                     onClick={() => {
-                      setTimeStart()
-                      setTimeEnd()
-                      setIsOpenCreateNote(true)
+                      setTimeStart();
+                      setTimeEnd();
+                      setIsOpenCreateNote(true);
                     }}
                     style={{
                       marginBottom: "20px",
@@ -2302,7 +2300,7 @@ const Calendar = () => {
             type="number"
             //autoFocus
             readOnly
-            disabled  
+            disabled
             // disabled={checkUpdate}
             value={parseFloat(totalAmount).toFixed(2)}
             onChange={(e) => setTotalAmount(e.target.value)}
@@ -2386,8 +2384,7 @@ const Calendar = () => {
           {showConfirmation && totalAmountInBoxes > totalAmount && (
             <div style={{ display: "flex" }}>
               <p style={{ color: "red", marginRight: "10px" }}>
-                The total amount has exceeded the limit, do you want to update
-                the total amount?
+                Would you like to update this total amount?
               </p>
               <div>
                 <Button
@@ -2601,7 +2598,7 @@ const Calendar = () => {
                   <DatePicker
                     label="Start Date"
                     value={dayjs(dayStart)}
-                    readOnly = {isSmallScreen ? false : true}
+                    readOnly={isSmallScreen ? false : true}
                     onChange={(newValue) => setDayStart(new Date(newValue))}
                   />
                 </LocalizationProvider>
@@ -2840,28 +2837,28 @@ const Calendar = () => {
         onClose={() => setIsCategorySmall(false)}
       >
         <Box p={2}>
-        <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                // marginTop: "5px",
-              }}
-            >
-              <Typography variant="h5" sx={{ fontWeight: "550" }}>
-                Categories:
-              </Typography>
-              <Box>
-                <Tooltip title="Add Category" placement="top-end">
-                  <IconButton>
-                    <AddIcon
-                      onClick={() => setIsOpenCreateCategory(true)}
-                      sx={{ fontSize: 25 }}
-                    />
-                  </IconButton>
-                </Tooltip>
-              </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              // marginTop: "5px",
+            }}
+          >
+            <Typography variant="h5" sx={{ fontWeight: "550" }}>
+              Categories:
+            </Typography>
+            <Box>
+              <Tooltip title="Add Category" placement="top-end">
+                <IconButton>
+                  <AddIcon
+                    onClick={() => setIsOpenCreateCategory(true)}
+                    sx={{ fontSize: 25 }}
+                  />
+                </IconButton>
+              </Tooltip>
             </Box>
+          </Box>
           <Box>
             <List
               sx={{
@@ -2900,14 +2897,14 @@ const Calendar = () => {
             </List>
           </Box>
           <DialogActions>
-          <Button
-                  variant="contained"
-                  color="error"
-                  onClick={() => setIsCategorySmall(false)}
-                  style={{ marginTop: "15px", marginLeft: "10px" }}
-                >
-                  Close
-                </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => setIsCategorySmall(false)}
+              style={{ marginTop: "15px", marginLeft: "10px" }}
+            >
+              Close
+            </Button>
           </DialogActions>
         </Box>
       </Dialog>
