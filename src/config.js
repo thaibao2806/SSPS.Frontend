@@ -1,5 +1,5 @@
-export const url = "https://6cca-125-235-215-116.ngrok-free.app"
-export const urlChatBox = "https://6cca-125-235-215-116.ngrok-free.app"
+export const url = "https://7fb0-171-232-236-246.ngrok-free.app"
+export const urlChatBox = "https://7fb0-171-232-236-246.ngrok-free.app"
 // report user
 export const getReportUser = "/api/user/dashboard-user"
 // auth
